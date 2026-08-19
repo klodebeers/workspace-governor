@@ -100,12 +100,20 @@ if ($hubExists) {
     $rememberFact.exists = Test-Path -LiteralPath (Join-Path $hubResolved $RememberRel)
 
     # Pre-descent pruning traversal. See scripts/lib/SafeTraversal.ps1.
-    $trav = Get-SafeChildItems -Root $hubResolved -FilesOnly
+    # Limits are set high so a real Hub completes; if they are ever reached the
+    # traversal reports INCOMPLETE rather than silently omitting files.
+    $trav = Get-SafeChildItems -Root $hubResolved -FilesOnly -MaxDepth 128 -MaxItems 200000
     $pruneProof = Test-SafePruning -Traversal $trav
     if (-not $pruneProof.pass) {
         Write-Host 'FAIL: pruning invariant violated. Aborting before any report is written.' -ForegroundColor Red
         foreach ($v in $pruneProof.violations) { Write-Host "  $v" -ForegroundColor Red }
         exit 1
+    }
+    Write-Host ("  completeness : {0}" -f $trav.completeness) -ForegroundColor $(if ($trav.completeness -eq 'COMPLETE') { 'Green' } else { 'Red' })
+    foreach ($r in $trav.incompleteReasons) { Write-Host "    - $r" -ForegroundColor Red }
+    if (@($trav.untraversedReparsePoints).Count -gt 0) {
+        Write-Host ("  reparse points not traversed : {0}" -f @($trav.untraversedReparsePoints).Count) -ForegroundColor Yellow
+        foreach ($rp in $trav.untraversedReparsePoints) { Write-Host "    - $($rp.path)" -ForegroundColor Yellow }
     }
     $rootLen = ($hubResolved.TrimEnd('\')).Length
     $items = $trav.items
@@ -161,7 +169,10 @@ $R = [ordered]@{
         machine = $env:COMPUTERNAME
         hubPathResolved = $hubResolved
         hubExists = $hubExists
-        traversal = 'pre-descent pruning via lib/SafeTraversal.ps1; no -Recurse'
+        traversal = 'pre-descent pruning via lib/SafeTraversal.ps1; no -Recurse; directory reparse points not traversed'
+        completeness = if ($hubExists) { $trav.completeness } else { 'INCOMPLETE' }
+        incompleteReasons = if ($hubExists) { @($trav.incompleteReasons) } else { @('live Hub not found at the resolved path') }
+        exhaustivenessScope = 'Complete within the physical Hub tree. Excludes safety-pruned directories, noise-pruned directories, and any reparse-point target. No claim is made about content behind those boundaries.'
         baselineFile = (Split-Path $BaselinePath -Leaf)
         baselineRef = $baseline.meta.head
         readOnly = $true
@@ -176,7 +187,20 @@ $R = [ordered]@{
         contentDiffers = $different.Count
         onlyInGitHub = $onlyGitHub.Count
         identical = $identical.Count
+        prunedForSafety = if ($hubExists) { @($trav.prunedForSafety).Count } else { 0 }
+        prunedForNoise = if ($hubExists) { @($trav.prunedForNoise).Count } else { 0 }
+        untraversedReparsePoints = if ($hubExists) { @($trav.untraversedReparsePoints).Count } else { 0 }
+        traversalFailures = if ($hubExists) { @($trav.traversalFailures).Count } else { 0 }
+        depthLimited = if ($hubExists) { @($trav.depthLimited).Count } else { 0 }
     }
+    exclusionsAndFailures = if ($hubExists) { [ordered]@{
+        prunedForSafety = @($trav.prunedForSafety)
+        prunedForNoise = @($trav.prunedForNoise)
+        untraversedReparsePoints = @($trav.untraversedReparsePoints)
+        traversalFailures = @($trav.traversalFailures)
+        depthLimited = @($trav.depthLimited)
+        truncated = $trav.truncated
+    } } else { $null }
     onlyInLive = @($onlyLive | Sort-Object)
     placeholderInGitHubRealInLive = $placeholderInGitHub
     contentDiffers = $different
@@ -196,7 +220,9 @@ $R = [ordered]@{
         'design-systems\.remember: existence only. Nothing inside was read, hashed, enumerated, or counted (stop condition B-2).',
         'No file contents were emitted; only path, size, SHA256 and modified time.',
         'Baseline reflects GitHub agents-hub-one at the recorded ref, not any later commit.',
-        'A file identical by SHA256 is byte-identical; semantic equivalence was not assessed.'
+        'A file identical by SHA256 is byte-identical; semantic equivalence was not assessed.',
+        'Directory reparse points were not traversed; nothing behind them is inventoried.',
+        'The inventory is exhaustive only within the physical Hub tree, excluding pruned directories and reparse-point targets.'
     )
 }
 $R | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $jsonPath -Encoding UTF8
@@ -208,7 +234,24 @@ $L.Add("**Generated:** $stampISO")
 $L.Add("**Machine:** $env:COMPUTERNAME")
 $L.Add("**Live Hub inspected:** ``$hubResolved`` (exists: $hubExists)")
 $L.Add("**Compared against:** ``$(Split-Path $BaselinePath -Leaf)`` at ref ``$($baseline.meta.head)``")
-$L.Add('**Method:** read-only, no network. No file contents emitted.')
+$L.Add('**Method:** read-only, no network. No file contents emitted. Directory reparse points not traversed.')
+$L.Add('')
+$travComplete = if ($hubExists) { $trav.completeness } else { 'INCOMPLETE' }
+$L.Add("## Completeness: $travComplete")
+$L.Add('')
+if ($travComplete -ne 'COMPLETE') {
+    $L.Add('**This inventory is INCOMPLETE. Do not treat it as a full picture of the Hub.**')
+    $L.Add('')
+    if ($hubExists) { foreach ($r in $trav.incompleteReasons) { $L.Add("- $r") } }
+    else { $L.Add('- live Hub not found at the resolved path') }
+} else {
+    $L.Add('Every directory in the accessible Hub tree was enumerated. No item cap, no')
+    $L.Add('depth cap, and no enumeration error was encountered.')
+}
+$L.Add('')
+$L.Add('Scope of that claim: complete within the **physical** Hub tree. It excludes')
+$L.Add('safety-pruned directories, noise-pruned directories, and the targets of any')
+$L.Add('reparse point. No claim is made about content behind those boundaries.')
 $L.Add('')
 $L.Add('## Counts')
 $L.Add('')
@@ -252,6 +295,36 @@ if ($onlyGitHub.Count -gt 0) {
     foreach ($p in ($onlyGitHub | Sort-Object)) { $L.Add("- ``$p``") }
     $L.Add('')
 }
+$L.Add('## Exclusions and failures')
+$L.Add('')
+if ($hubExists) {
+    $L.Add('**Safety-pruned** (never entered, STATE.md B-2):')
+    $L.Add('')
+    if (@($trav.prunedForSafety).Count -gt 0) { foreach ($p in $trav.prunedForSafety) { $L.Add("- ``$p``") } } else { $L.Add('- none found') }
+    $L.Add('')
+    $L.Add('**Noise-pruned** (never entered, not safety-critical):')
+    $L.Add('')
+    if (@($trav.prunedForNoise).Count -gt 0) { foreach ($p in $trav.prunedForNoise) { $L.Add("- ``$p``") } } else { $L.Add('- none found') }
+    $L.Add('')
+    $L.Add('**Not traversed — directory reparse points** (junction, symlink, mount). Detected')
+    $L.Add('by attribute, so an alias cannot bypass a name-based rule. Targets are not inventoried:')
+    $L.Add('')
+    if (@($trav.untraversedReparsePoints).Count -gt 0) { foreach ($rp in $trav.untraversedReparsePoints) { $L.Add("- ``$($rp.path)`` — $($rp.note)") } } else { $L.Add('- none found') }
+    $L.Add('')
+    $L.Add('**Traversal failures** (could not enumerate; forces INCOMPLETE):')
+    $L.Add('')
+    if (@($trav.traversalFailures).Count -gt 0) { foreach ($tf in $trav.traversalFailures) { $L.Add("- ``$($tf.path)`` — $($tf.reason)") } } else { $L.Add('- none')
+    }
+    $L.Add('')
+    $L.Add('**Depth-limited** (not descended; forces INCOMPLETE):')
+    $L.Add('')
+    if (@($trav.depthLimited).Count -gt 0) { foreach ($dl in $trav.depthLimited) { $L.Add("- ``$($dl.path)`` — $($dl.note)") } } else { $L.Add('- none') }
+    $L.Add('')
+    $L.Add("**Item cap reached:** $($trav.truncated)")
+} else {
+    $L.Add('Not applicable: live Hub not found at the resolved path.')
+}
+$L.Add('')
 $L.Add('## design-systems\.remember')
 $L.Add('')
 $L.Add("Exists: $($rememberFact.exists)")
@@ -279,8 +352,16 @@ foreach ($u in $R.unverified) { $L.Add("- $u") }
 ($L -join "`r`n") | Set-Content -LiteralPath $mdPath -Encoding UTF8
 
 Write-Host ''
-Write-Host 'INVENTORY COMPLETE — no system changes were made.' -ForegroundColor Green
 Write-Host "  JSON : $jsonPath"
 Write-Host "  MD   : $mdPath"
 Write-Host ''
-Write-Host 'Commit both files to workspace-governor.' -ForegroundColor Yellow
+if ($travComplete -eq 'COMPLETE') {
+    Write-Host 'INVENTORY WRITTEN — Completeness: COMPLETE. No system changes were made.' -ForegroundColor Green
+    Write-Host 'Commit both files to workspace-governor.' -ForegroundColor Yellow
+    exit 0
+} else {
+    Write-Host 'INVENTORY WRITTEN — Completeness: INCOMPLETE.' -ForegroundColor Red
+    Write-Host 'Part of the accessible Hub tree was skipped. The reports say so explicitly.' -ForegroundColor Red
+    Write-Host 'Do not use this as the reconciliation input until the cause is resolved.' -ForegroundColor Red
+    exit 2
+}

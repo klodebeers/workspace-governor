@@ -55,21 +55,52 @@ if (-not (Test-Path -LiteralPath $libPath)) {
 }
 . $libPath
 
+function Remove-PsStringLiterals {
+    <#
+    .SYNOPSIS
+      Removes string literals in one left-to-right pass.
+    .DESCRIPTION
+      Whichever quote character opens first wins, so a double-quoted string
+      containing single quotes is handled correctly. A regex that strips
+      single-quoted strings first would consume across the double-quoted
+      boundary and corrupt the rest of the line — which silently breaks any
+      check built on top of it.
+    #>
+    param([string]$Line)
+    $sq = [char]39; $dq = [char]34; $bt = [char]96
+    $sb = New-Object System.Text.StringBuilder
+    $q = $null; $i = 0; $n = $Line.Length
+    while ($i -lt $n) {
+        $c = $Line[$i]
+        if ($null -eq $q) {
+            if ($c -eq $sq -or $c -eq $dq) { $q = $c; $i++; continue }
+            if ($c -eq '#') { break }
+            if ($c -eq $bt -and ($i + 1) -lt $n) { $i += 2; continue }
+            [void]$sb.Append($c); $i++
+        } else {
+            if ($c -eq $bt -and $q -eq $dq -and ($i + 1) -lt $n) { $i += 2; continue }
+            if ($c -eq $q) {
+                if (($i + 1) -lt $n -and $Line[$i + 1] -eq $q) { $i += 2; continue }
+                $q = $null; $i++; continue
+            }
+            $i++
+        }
+    }
+    return $sb.ToString()
+}
+
 function Get-CodeLines {
     param([string]$Path)
-    $out = @(); $inHelp = $false; $i = 0
+    $out = @(); $inHelp = $false; $i = 0; $inHere = $false
     foreach ($l in (Get-Content -LiteralPath $Path)) {
         $i++
-        if ($l.Trim().StartsWith('<#')) { $inHelp = $true; continue }
+        $t = $l.Trim()
+        if ($t -eq '@"' -or $t -eq "@'") { $inHere = $true; continue }
+        if ($inHere) { if ($t -eq '"@' -or $t -eq "'@") { $inHere = $false }; continue }
+        if ($t.StartsWith('<#')) { $inHelp = $true }
         if ($inHelp) { if ($l -match '#>') { $inHelp = $false }; continue }
-        if ($l.Trim().StartsWith('#')) { continue }
-        # Strip string literals BEFORE matching, so prose inside quotes is not
-        # mistaken for a call. Without this, the proof text describing
-        # "Get-ChildItem -Recurse" would register as a violation.
-        $stripped = $l
-        $stripped = [regex]::Replace($stripped, "'(?:[^']|'')*'", '')
-        $stripped = [regex]::Replace($stripped, '"(?:[^"]|"")*"', '')
-        $stripped = ($stripped -replace '#.*$','')
+        if ($t.StartsWith('#')) { continue }
+        $stripped = Remove-PsStringLiterals -Line $l
         if ($stripped.Trim().Length -gt 0) { $out += [pscustomobject]@{ Line=$i; Text=$stripped } }
     }
     return $out
@@ -104,13 +135,31 @@ foreach ($f in $scripts) {
     }
 }
 
+$modText = Get-Content -LiteralPath $libPath -Raw
 $a1 = ($recurseHits.Count -eq 0)
 $a2 = ($traversalSites.Count -eq 1)
 $a3 = ($missingDotSource.Count -eq 0)
+# A4 — reparse-point containment exists and is attribute-based, not name-based.
+$a4 = ($modText -match 'Test-IsDirectoryReparsePoint') -and
+      ($modText -match '\[System\.IO\.FileAttributes\]::ReparsePoint') -and
+      ($modText -match 'untraversedReparsePoints')
+# A5 — completeness is computed and can be INCOMPLETE.
+$a5 = ($modText -match "completeness\s*=") -and ($modText -match 'INCOMPLETE') -and
+      ($modText -match 'incompleteReasons')
+# A6 — the inventory consumes completeness rather than ignoring it.
+$invPath = Join-Path $scriptDir 'Invoke-HubInventory.ps1'
+$a6 = $false
+if (Test-Path -LiteralPath $invPath) {
+    $invText = Get-Content -LiteralPath $invPath -Raw
+    $a6 = ($invText -match 'completeness') -and ($invText -match 'INCOMPLETE')
+}
 
 Write-Host ("  A1 no -Recurse in executable code        : {0} ({1} hits)" -f $(if($a1){'PASS'}else{'FAIL'}), $recurseHits.Count) -ForegroundColor $(if($a1){'Green'}else{'Red'})
 Write-Host ("  A2 exactly one traversal Get-ChildItem   : {0} ({1} in module)" -f $(if($a2){'PASS'}else{'FAIL'}), $traversalSites.Count) -ForegroundColor $(if($a2){'Green'}else{'Red'})
 Write-Host ("  A3 traversing scripts dot-source module  : {0}" -f $(if($a3){'PASS'}else{'FAIL'})) -ForegroundColor $(if($a3){'Green'}else{'Red'})
+Write-Host ("  A4 reparse-point containment, by attribute: {0}" -f $(if($a4){'PASS'}else{'FAIL'})) -ForegroundColor $(if($a4){'Green'}else{'Red'})
+Write-Host ("  A5 completeness computed, can be INCOMPLETE: {0}" -f $(if($a5){'PASS'}else{'FAIL'})) -ForegroundColor $(if($a5){'Green'}else{'Red'})
+Write-Host ("  A6 inventory consumes completeness        : {0}" -f $(if($a6){'PASS'}else{'FAIL'})) -ForegroundColor $(if($a6){'Green'}else{'Red'})
 foreach ($h in $recurseHits) { Write-Host ("    -Recurse at {0}:{1}" -f $h.File,$h.Line) -ForegroundColor Red }
 Write-Host ("  Env: provider reads (not filesystem)     : {0}" -f $envSites.Count) -ForegroundColor DarkGray
 Write-Host ("  other single-level filesystem reads      : {0}" -f $otherSites.Count) -ForegroundColor DarkGray
@@ -134,13 +183,19 @@ if ($hubExists) {
     Write-Host ("  safety-pruned directories                     : {0}" -f $proof.prunedForSafetyCount)
     foreach ($p in $trav.prunedForSafety) { Write-Host ("    pruned: {0}" -f $p) -ForegroundColor Yellow }
     Write-Host ("  .remember present and pruned                  : {0}" -f $rememberSeen)
+    Write-Host ("  reparse points not traversed                  : {0}" -f $proof.reparsePointCount)
+    foreach ($rp in $trav.untraversedReparsePoints) { Write-Host ("    reparse: {0}" -f $rp.path) -ForegroundColor Yellow }
+    Write-Host ("  noise-pruned                                  : {0}" -f $proof.prunedForNoiseCount)
+    Write-Host ("  traversal failures                            : {0}" -f $proof.traversalFailureCount)
+    Write-Host ("  depth-limited                                 : {0}" -f $proof.depthLimitedCount)
+    Write-Host ("  completeness                                  : {0}" -f $proof.completeness) -ForegroundColor $(if($proof.completeness -eq 'COMPLETE'){'Green'}else{'Red'})
     Write-Host ("  B1 no visited dir at/beneath a pruned dir     : {0} ({1} violations)" -f $(if($b1){'PASS'}else{'FAIL'}), @($proof.violations).Count) -ForegroundColor $(if($b1){'Green'}else{'Red'})
     foreach ($v in $proof.violations) { Write-Host ("    $v") -ForegroundColor Red }
 } else {
     Write-Host '  SKIPPED: live Hub not found. Part B requires the Hub. Part A still applies.' -ForegroundColor Yellow
 }
 
-$verdict = if ($a1 -and $a2 -and $a3 -and ($null -eq $b1 -or $b1)) { 'PASS' } else { 'FAIL' }
+$verdict = if ($a1 -and $a2 -and $a3 -and $a4 -and $a5 -and $a6 -and ($null -eq $b1 -or $b1)) { 'PASS' } else { 'FAIL' }
 if ($hubExists -and -not $rememberSeen) { $verdict = "$verdict (advisory: no .remember directory found to prune)" }
 
 Write-Host ''
@@ -167,8 +222,15 @@ $P.Add('|---|---|---|')
 $P.Add("| A1 | No ``Get-ChildItem -Recurse`` in executable code | $(if($a1){'PASS'}else{'FAIL'}) — $($recurseHits.Count) hits |")
 $P.Add("| A2 | Exactly one traversal ``Get-ChildItem``, single-level, in ``lib/SafeTraversal.ps1`` | $(if($a2){'PASS'}else{'FAIL'}) — $($traversalSites.Count) found |")
 $P.Add("| A3 | Every traversing script dot-sources the module | $(if($a3){'PASS'}else{'FAIL'}) |")
+$P.Add("| A4 | Reparse-point containment present and attribute-based | $(if($a4){'PASS'}else{'FAIL'}) |")
+$P.Add("| A5 | Completeness computed and can be INCOMPLETE | $(if($a5){'PASS'}else{'FAIL'}) |")
+$P.Add("| A6 | Inventory consumes completeness rather than ignoring it | $(if($a6){'PASS'}else{'FAIL'}) |")
 $P.Add('')
 $P.Add('Without `-Recurse`, a subtree cannot be traversed before the prune decision is made.')
+$P.Add('')
+$P.Add('A4 matters because a name-based prune list is defeated by an alias: a junction')
+$P.Add('named anything at all can target a protected directory, or a location outside')
+$P.Add('the Hub. Detection is by file attribute, so the name is irrelevant.')
 $P.Add('')
 if ($recurseHits.Count -gt 0) {
     $P.Add('### -Recurse violations'); $P.Add('')
@@ -186,11 +248,31 @@ if ($hubExists) {
     $P.Add("| Safety-pruned directories | $($proof.prunedForSafetyCount) |")
     $P.Add("| ``.remember`` found and pruned | $rememberSeen |")
     $P.Add("| Items returned | $($proof.itemCount) |")
+    $P.Add("| Reparse points not traversed | $($proof.reparsePointCount) |")
+    $P.Add("| Noise-pruned | $($proof.prunedForNoiseCount) |")
+    $P.Add("| Traversal failures | $($proof.traversalFailureCount) |")
+    $P.Add("| Depth-limited | $($proof.depthLimitedCount) |")
+    $P.Add("| **Completeness** | **$($proof.completeness)** |")
     $P.Add("| Violations | $(@($proof.violations).Count) |")
     $P.Add('')
     if (@($trav.prunedForSafety).Count -gt 0) {
-        $P.Add('### Pruned, never entered'); $P.Add('')
+        $P.Add('### Safety-pruned, never entered'); $P.Add('')
         foreach ($p in $trav.prunedForSafety) { $P.Add("- ``$p``") }
+        $P.Add('')
+    }
+    if (@($trav.untraversedReparsePoints).Count -gt 0) {
+        $P.Add('### Not traversed — directory reparse points'); $P.Add('')
+        foreach ($rp in $trav.untraversedReparsePoints) { $P.Add("- ``$($rp.path)`` — $($rp.note)") }
+        $P.Add('')
+    }
+    if (@($trav.traversalFailures).Count -gt 0) {
+        $P.Add('### Traversal failures'); $P.Add('')
+        foreach ($tf in $trav.traversalFailures) { $P.Add("- ``$($tf.path)`` — $($tf.reason)") }
+        $P.Add('')
+    }
+    if (@($trav.depthLimited).Count -gt 0) {
+        $P.Add('### Depth-limited'); $P.Add('')
+        foreach ($dl in $trav.depthLimited) { $P.Add("- ``$($dl.path)`` — $($dl.note)") }
         $P.Add('')
     }
     $P.Add("**B1 — no visited directory is at or beneath a pruned directory: $(if($b1){'PASS'}else{'FAIL'})**")
@@ -210,8 +292,10 @@ $P.Add('## Scope')
 $P.Add('')
 $P.Add('- Part A is a source-level invariant and holds regardless of filesystem state.')
 $P.Add('- Part B reflects one traversal of one machine at the stated time.')
-$P.Add('- Neither part inspects anything inside a pruned directory. Existence is')
-$P.Add('  established while listing the parent.')
+$P.Add('- Neither part inspects anything inside a pruned directory or a reparse point.')
+$P.Add('  Existence is established while listing the parent.')
+$P.Add('- Reparse-point targets are outside the read boundary and are not inventoried.')
+$P.Add('  No exhaustiveness claim covers them.')
 ($P -join "`r`n") | Set-Content -LiteralPath $proofPath -Encoding UTF8
 
 Write-Host ''

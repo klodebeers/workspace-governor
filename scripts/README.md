@@ -70,12 +70,55 @@ directory **before** entering it. A protected directory is identified while its
 
 Invariant, enforced by `Assert-RememberPruning.ps1`:
 
-- no script under `scripts/` uses `Get-ChildItem -Recurse` in executable code
-- the traversal path contains exactly one `Get-ChildItem`, single-level, in the module
-- every traversing script dot-sources the module
+| # | Assertion |
+|---|---|
+| A1 | No script under `scripts/` uses `Get-ChildItem -Recurse` in executable code |
+| A2 | The traversal path contains exactly one `Get-ChildItem`, single-level, in the module |
+| A3 | Every traversing script dot-sources the module |
+| A4 | Reparse-point containment exists and is attribute-based, not name-based |
+| A5 | Completeness is computed and can be INCOMPLETE |
+| A6 | The inventory consumes completeness rather than ignoring it |
 
-Protected (never entered, safety): `.remember`
-Excluded (never entered, noise): `.git`, `node_modules`
+### Four pre-descent decisions, in order
+
+1. **Safety-pruned by name** — `.remember`. Never entered. STATE.md B-2.
+2. **Reparse point, by attribute** — junctions, symlinks, mounts. Never entered,
+   whatever the directory is called. A name-based rule is defeated by an alias:
+   a junction named anything can target `design-systems\.remember` or a path
+   outside the Hub. Detection uses `[System.IO.FileAttributes]::ReparsePoint`,
+   so the name is irrelevant. Attribute-read errors resolve to "treat as reparse
+   point" — fail closed.
+3. **Noise-pruned by name** — `.git`, `node_modules`. Never entered.
+4. **Depth cap** — recorded as `depthLimited`, never silently dropped.
+
+### Completeness fails closed
+
+A reconciliation inventory that silently omits files is worse than none. The
+traversal returns `completeness` = `COMPLETE` or `INCOMPLETE`. It is INCOMPLETE
+if any of these occurred:
+
+- the item cap was reached (`truncated`)
+- a directory was not descended because of the depth cap (`depthLimited`)
+- a directory could not be enumerated (`traversalFailures`)
+
+`Invoke-HubInventory.ps1` consumes that value, prints it, writes it as a
+top-level heading in the report, and **exits 2** when INCOMPLETE. It cannot
+report success while part of the accessible tree was skipped.
+
+Deliberate exclusions — safety-pruned, noise-pruned, reparse points — do not
+make the accessible tree incomplete, but they are always listed and the
+exhaustiveness claim is scoped to exclude their targets.
+
+### Reported categories
+
+```
+Safety-pruned:        design-systems\.remember
+Noise-pruned:         .git, node_modules
+Not traversed:        directory reparse points (junction/symlink/mount)
+Traversal failures:   access or enumeration errors
+Depth-limited:        directories not descended
+Completeness:         COMPLETE | INCOMPLETE
+```
 
 ### Proving it
 
@@ -85,9 +128,15 @@ Excluded (never entered, noise): `.git`, `node_modules`
 
 Part A checks the static invariant. Part B runs the real traversal and asserts a
 positive property: no directory in `visitedDirectories` is the same as, or
-beneath, any directory in `prunedForSafety`. Since `visitedDirectories` records
-every directory actually passed to `Get-ChildItem`, a traversed protected
-directory would appear there. Absence from output is not accepted as proof.
+beneath, any excluded directory — safety-pruned **or** untraversed reparse point.
+Since `visitedDirectories` records every directory actually passed to
+`Get-ChildItem`, a traversed exclusion would appear there. Absence from output is
+not accepted as proof.
+
+The checker strips string literals in one left-to-right pass. Stripping
+single-quoted strings first with a regex consumes across the boundary of a
+double-quoted string that contains single quotes, which silently corrupts every
+check built on top of it.
 
 Emits `evidence\REMEMBER-PRUNING-PROOF-<run date>.md`.
 

@@ -3,39 +3,80 @@
   Sole owner of directory traversal for the Workspace Governor scripts.
 
 .DESCRIPTION
-  Provides pre-descent pruning. A protected directory is identified while
-  listing its PARENT, and is never passed to Get-ChildItem.
+  Provides pre-descent pruning, reparse-point containment, and fail-closed
+  completeness accounting.
 
-  WHY THIS EXISTS. `Get-ChildItem -Recurse` traverses every subtree before
-  returning, so filtering its output with Where-Object is too late: the
+  WHY PRE-DESCENT PRUNING. `Get-ChildItem -Recurse` traverses every subtree
+  before returning, so filtering its output with Where-Object is too late: the
   protected directory has already been read. This module performs manual
   iterative traversal and decides whether to enter each directory BEFORE
   entering it.
+
+  WHY REPARSE-POINT CONTAINMENT. A name-based prune list is defeated by an
+  alias. A junction or symlink named anything at all can target
+  design-systems\.remember, or a location outside the Hub entirely. Name
+  checks alone therefore cannot enforce STATE.md B-2. Directory reparse points
+  are detected by attribute and never traversed. The read boundary stays
+  physically inside the Hub tree.
+
+  WHY FAIL-CLOSED COMPLETENESS. A reconciliation inventory that silently omits
+  files is worse than no inventory. Item caps, depth caps and enumeration
+  errors are recorded individually and force completeness to INCOMPLETE. The
+  caller cannot report success while part of the accessible tree was skipped.
 
   INVARIANT. This file contains the only Get-ChildItem call in the traversal
   path, and it is single-level. No script in scripts/ may use -Recurse.
   scripts/Assert-RememberPruning.ps1 enforces that statically.
 
-  Protected directories are recorded as existing. Nothing inside them is
+  Excluded directories are recorded as existing. Nothing inside them is
   listed, counted, read, or hashed.
 #>
 
-# Directories never entered, for safety. Recorded as existing only.
+# Never entered, for safety. Recorded as existing only.
 # design-systems\.remember — unresolved provenance and sensitivity, STATE.md B-2.
 $script:SafetyPrunedNames = @('.remember')
 
-# Directories never entered, to keep inventories meaningful. Not safety-critical.
+# Never entered, to keep inventories meaningful. Not safety-critical.
 $script:NoisePrunedNames = @('.git', 'node_modules')
+
+function Test-IsDirectoryReparsePoint {
+    <#
+    .SYNOPSIS
+      True if the item is a directory reparse point (junction, symlink, mount).
+    .DESCRIPTION
+      Attribute-based so it holds regardless of the link's name or target.
+      Errors resolve to $true: an item whose attributes cannot be read is
+      treated as a reparse point and not traversed. Fail closed.
+    #>
+    param($Item)
+    if ($null -eq $Item) { return $true }
+    try {
+        if (-not $Item.PSIsContainer) { return $false }
+        return (($Item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0)
+    } catch {
+        return $true
+    }
+}
 
 function Get-SafeChildItems {
     <#
     .SYNOPSIS
-      Single-level iterative traversal with pre-descent pruning.
+      Single-level iterative traversal with pre-descent pruning, reparse-point
+      containment, and fail-closed completeness accounting.
     .OUTPUTS
-      Ordered hashtable: root, exists, items, visitedDirectories,
-      prunedForSafety, prunedForNoise, truncated.
-      visitedDirectories lists every directory actually passed to
-      Get-ChildItem, which is what makes pruning provable.
+      Ordered hashtable with:
+        root, exists, items, visitedDirectories
+        prunedForSafety, prunedForNoise      - deliberate exclusions
+        untraversedReparsePoints             - deliberate boundary
+        traversalFailures                    - could not enumerate
+        depthLimited                          - not descended, MaxDepth reached
+        truncated                             - MaxItems reached
+        completeness                          - COMPLETE or INCOMPLETE
+        incompleteReasons                     - why, if INCOMPLETE
+      completeness is INCOMPLETE if any of truncated, depthLimited, or
+      traversalFailures is non-empty. Deliberate exclusions do not make the
+      accessible tree incomplete, but they are always disclosed and the
+      exhaustiveness claim is scoped to exclude their targets.
     #>
     [CmdletBinding()]
     param(
@@ -47,22 +88,46 @@ function Get-SafeChildItems {
     )
 
     $result = [ordered]@{
-        root               = $Root
-        exists             = $false
-        items              = @()
-        visitedDirectories = @()
-        prunedForSafety    = @()
-        prunedForNoise     = @()
-        truncated          = $false
+        root                    = $Root
+        exists                  = $false
+        items                   = @()
+        visitedDirectories      = @()
+        prunedForSafety         = @()
+        prunedForNoise          = @()
+        untraversedReparsePoints= @()
+        traversalFailures       = @()
+        depthLimited            = @()
+        truncated               = $false
+        maxDepth                = $MaxDepth
+        maxItems                = $MaxItems
+        completeness            = 'INCOMPLETE'
+        incompleteReasons       = @()
     }
-    if ([string]::IsNullOrWhiteSpace($Root)) { return $result }
-    if (-not (Test-Path -LiteralPath $Root)) { return $result }
+    if ([string]::IsNullOrWhiteSpace($Root)) {
+        $result.incompleteReasons += 'root path was empty'
+        return $result
+    }
+    if (-not (Test-Path -LiteralPath $Root)) {
+        $result.incompleteReasons += 'root path does not exist'
+        return $result
+    }
     $result.exists = $true
 
-    # If the root itself is protected, do not enter it at all.
-    $rootLeaf = Split-Path $Root -Leaf
-    if ($script:SafetyPrunedNames -contains $rootLeaf) {
+    # The root itself: refuse a protected name or a reparse point.
+    $rootItem = $null
+    try { $rootItem = Get-Item -LiteralPath $Root -Force -ErrorAction Stop } catch {
+        $result.traversalFailures += [ordered]@{ path=$Root; reason="could not read root: $($_.Exception.Message)" }
+        $result.incompleteReasons += 'root could not be read'
+        return $result
+    }
+    if ($script:SafetyPrunedNames -contains $rootItem.Name) {
         $result.prunedForSafety += $Root
+        $result.completeness = 'COMPLETE'
+        return $result
+    }
+    if (Test-IsDirectoryReparsePoint -Item $rootItem) {
+        $result.untraversedReparsePoints += [ordered]@{ path=$Root; note='root is a reparse point; not traversed' }
+        $result.incompleteReasons += 'root is a reparse point and was not traversed'
         return $result
     }
 
@@ -72,24 +137,43 @@ function Get-SafeChildItems {
 
     while ($stack.Count -gt 0) {
         $node = $stack.Pop()
-        if ($node.Depth -gt $MaxDepth) { continue }
 
         # ---------------------------------------------------------------
         # The ONLY Get-ChildItem in the traversal path. Single-level: no
-        # -Recurse. A directory reaches this line only after its name was
-        # checked against the prune lists while its parent was listed.
+        # -Recurse. A directory reaches this line only after it was checked
+        # against the prune lists AND the reparse-point test while its parent
+        # was listed.
         # ---------------------------------------------------------------
         $result.visitedDirectories += $node.Path
-        $children = @(Get-ChildItem -LiteralPath $node.Path -Force -ErrorAction SilentlyContinue)
+        $children = @()
+        try {
+            $children = @(Get-ChildItem -LiteralPath $node.Path -Force -ErrorAction Stop)
+        } catch {
+            $result.traversalFailures += [ordered]@{ path=$node.Path; reason=$_.Exception.Message }
+            continue
+        }
 
         foreach ($c in $children) {
             if ($c.PSIsContainer) {
 
-                # PRE-DESCENT DECISION. Made before any listing of $c.
+                # PRE-DESCENT DECISION 1 — protected name.
                 if ($script:SafetyPrunedNames -contains $c.Name) {
                     $result.prunedForSafety += $c.FullName
                     continue    # never pushed, never listed, never counted
                 }
+
+                # PRE-DESCENT DECISION 2 — reparse point, whatever its name.
+                # Checked before the noise list so an aliased junction is
+                # reported as a boundary rather than silently skipped.
+                if (Test-IsDirectoryReparsePoint -Item $c) {
+                    $result.untraversedReparsePoints += [ordered]@{
+                        path = $c.FullName
+                        note = 'directory reparse point; not traversed; target not inventoried'
+                    }
+                    continue    # never pushed, never listed
+                }
+
+                # PRE-DESCENT DECISION 3 — noise.
                 if ($script:NoisePrunedNames -contains $c.Name) {
                     $result.prunedForNoise += $c.FullName
                     continue
@@ -101,6 +185,15 @@ function Get-SafeChildItems {
                         else { $result.truncated = $true }
                     }
                 }
+
+                # PRE-DESCENT DECISION 4 — depth cap. Recorded, not silent.
+                if (($node.Depth + 1) -gt $MaxDepth) {
+                    $result.depthLimited += [ordered]@{
+                        path = $c.FullName
+                        note = "not descended; MaxDepth $MaxDepth reached"
+                    }
+                    continue
+                }
                 $stack.Push([pscustomobject]@{ Path = $c.FullName; Depth = ($node.Depth + 1) })
 
             } else {
@@ -111,47 +204,66 @@ function Get-SafeChildItems {
             }
         }
     }
+
+    # ---- fail-closed completeness -----------------------------------------
+    if ($result.truncated) {
+        $result.incompleteReasons += "item cap reached (MaxItems $MaxItems); files were omitted"
+    }
+    if (@($result.depthLimited).Count -gt 0) {
+        $result.incompleteReasons += "$(@($result.depthLimited).Count) directory/directories not descended (MaxDepth $MaxDepth)"
+    }
+    if (@($result.traversalFailures).Count -gt 0) {
+        $result.incompleteReasons += "$(@($result.traversalFailures).Count) directory/directories could not be enumerated"
+    }
+    $result.completeness = if (@($result.incompleteReasons).Count -eq 0) { 'COMPLETE' } else { 'INCOMPLETE' }
     return $result
 }
 
 function Test-SafePruning {
     <#
     .SYNOPSIS
-      Proves pre-descent pruning from traversal run data.
+      Proves pre-descent pruning and reparse-point containment from run data.
     .DESCRIPTION
       Positive proof, not absence-from-output. Asserts that no directory in
-      visitedDirectories is the same as, or beneath, any directory in
-      prunedForSafety. If a protected directory had been traversed, it would
-      appear in visitedDirectories and this check would fail.
+      visitedDirectories is the same as, or beneath, any excluded directory —
+      safety-pruned or untraversed reparse point. A traversed exclusion would
+      appear in visitedDirectories and fail this check.
     #>
     [CmdletBinding()]
     param([Parameter(Mandatory=$true)]$Traversal)
 
     $violations = @()
-    foreach ($p in $Traversal.prunedForSafety) {
-        $prefix = $p.TrimEnd('\') + '\'
+    $barriers = @()
+    foreach ($p in $Traversal.prunedForSafety) { $barriers += [pscustomobject]@{ Path=$p; Kind='safety-pruned' } }
+    foreach ($r in $Traversal.untraversedReparsePoints) { $barriers += [pscustomobject]@{ Path=$r.path; Kind='reparse point' } }
+
+    foreach ($b in $barriers) {
+        $prefix = $b.Path.TrimEnd('\') + '\'
         foreach ($v in $Traversal.visitedDirectories) {
-            if ($v -eq $p) { $violations += "visited the pruned directory itself: $v"; continue }
+            if ($v -eq $b.Path) { $violations += "visited the $($b.Kind) itself: $v" ; continue }
             if ($v.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
-                $violations += "visited a descendant of a pruned directory: $v"
+                $violations += "visited a descendant of a $($b.Kind): $v"
             }
         }
-    }
-    foreach ($it in $Traversal.items) {
-        foreach ($p in $Traversal.prunedForSafety) {
-            $prefix = $p.TrimEnd('\') + '\'
+        foreach ($it in $Traversal.items) {
             if ($it.FullName.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
-                $violations += "returned an item beneath a pruned directory: $($it.FullName)"
+                $violations += "returned an item beneath a $($b.Kind): $($it.FullName)"
             }
         }
     }
     return [ordered]@{
-        pass                    = ($violations.Count -eq 0)
-        prunedForSafetyCount    = @($Traversal.prunedForSafety).Count
-        visitedDirectoryCount   = @($Traversal.visitedDirectories).Count
-        itemCount               = @($Traversal.items).Count
-        violations              = $violations
+        pass                      = ($violations.Count -eq 0)
+        prunedForSafetyCount      = @($Traversal.prunedForSafety).Count
+        prunedForNoiseCount       = @($Traversal.prunedForNoise).Count
+        reparsePointCount         = @($Traversal.untraversedReparsePoints).Count
+        traversalFailureCount     = @($Traversal.traversalFailures).Count
+        depthLimitedCount         = @($Traversal.depthLimited).Count
+        visitedDirectoryCount     = @($Traversal.visitedDirectories).Count
+        itemCount                 = @($Traversal.items).Count
+        completeness              = $Traversal.completeness
+        violations                = $violations
     }
 }
 
 function Get-SafetyPrunedNames { return $script:SafetyPrunedNames }
+function Get-NoisePrunedNames  { return $script:NoisePrunedNames }
