@@ -1,0 +1,93 @@
+{
+  "meta": {
+    "repo": "klodebeers/agents-hub-one",
+    "head": "47c01870385e8386b6ee41806882b2cd84a7a7d9",
+    "generated": "2026-08-19",
+    "purpose": "GitHub-side baseline for live-Hub comparison",
+    "note": "Generated in a cloud session from a verified clone. Compare a live Hub against this; do not treat it as the live Hub.",
+    "fileCount": 16,
+    "placeholderCount": 7
+  },
+  "files": {
+    "CATALOG.md": {
+      "size": 3559,
+      "sha256": "262DFB8A804B8EF9CEAF68D8F9DC9EE046D3D33C58783ECDD96C5C4A1C8DC417",
+      "placeholder": false
+    },
+    "README.md": {
+      "size": 1710,
+      "sha256": "89D10D9DCAD3368942DC33A1D781C0E3C8CC38E1518CCE4B4C2155157FAD742F",
+      "placeholder": false
+    },
+    "STATE.md": {
+      "size": 5407,
+      "sha256": "F8D86A0DF9377AC7C7611E8F0FE721CA599A51A1387F3B01CF1EFF29DE295ED0",
+      "placeholder": false
+    },
+    "design-systems\\placeholder.md": {
+      "size": 0,
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "placeholder": true
+    },
+    "governance-templates\\component\\placeholder.md": {
+      "size": 0,
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "placeholder": true
+    },
+    "governance-templates\\delegation\\placeholder.md": {
+      "size": 0,
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "placeholder": true
+    },
+    "governance-templates\\project\\placeholder.md": {
+      "size": 0,
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "placeholder": true
+    },
+    "governance-templates\\workspace\\placeholder.md": {
+      "size": 0,
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "placeholder": true
+    },
+    "references\\AGENTS-MD-LIVE-AUDIT-2026-08-16.md": {
+      "size": 6364,
+      "sha256": "616A16366212D6E54DC9923E58199A4C9B1FD11B2358E221C8BD004D06AAE05F",
+      "placeholder": false
+    },
+    "rules\\AGENTS.md": {
+      "size": 6188,
+      "sha256": "15B10B5028B65CF0BA7FDD95743A7023514C93B542EA742CBF9126D70B8D06A0",
+      "placeholder": false
+    },
+    "rules\\AUTONOMY-AND-PROTECTED-BOUNDARIES.md": {
+      "size": 2768,
+      "sha256": "A35453C3746A89E516EFD2C519F9FC190CE7DC9A481231153115A5472F6C5C5E",
+      "placeholder": false
+    },
+    "rules\\CONTEXT-AND-ORCHESTRATION.md": {
+      "size": 2783,
+      "sha256": "378CD818B5B72BA2261C292998613A1E20D8C813480DFC744F6EFBFF7AB7D14C",
+      "placeholder": false
+    },
+    "rules\\ENGINEER-OWNERSHIP.md": {
+      "size": 9487,
+      "sha256": "151481AEA88B4C0B3387B3C8DF9DD4343EEE7AFE20A23A6DA04277F3759CC2BF",
+      "placeholder": false
+    },
+    "rules\\VERIFICATION-AND-EVIDENCE.md": {
+      "size": 1651,
+      "sha256": "AF6F01352FD937CD707F8DF17BD6C8AE625DB2A8B1B4376224852F2DDB7E4DBB",
+      "placeholder": false
+    },
+    "runtime-adapters\\claude-code\\placeholder.md": {
+      "size": 0,
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "placeholder": true
+    },
+    "runtime-adapters\\codex\\placeholder.md": {
+      "size": 0,
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "placeholder": true
+    }
+  }
+}

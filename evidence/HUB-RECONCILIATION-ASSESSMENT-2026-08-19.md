@@ -1,7 +1,15 @@
 # Hub Reconciliation Assessment and Proposed Canonical Target Tree
 
 **Date:** 2026-08-19
-**Status:** Proposal. Not accepted. No source repository has been modified.
+**Status:** Preliminary proposal, revision 2. Not accepted and not acceptable yet —
+the GitHub sources are not the live Hub (section 5.5). No source repository has been
+modified.
+
+**Revision 2 (2026-08-19):** the four items previously listed as unresolved in
+section 5 are resolved under `ENGINEER-OWNERSHIP` and recorded as `DECISIONS.md`
+D-12 to D-15. One resolution reverses part of revision 1: field analysis shows
+**three** of four templates are Notion-specific, not one. Section 3 and section 5
+are updated accordingly.
 **Sources read:** `agents-hub-one` @ `47c0187`, `agents-hub-two` @ `0a222df`, `workspace-governor-agents-hub-one` @ `24798d0`
 **Placement authority:** `workspace-governor-agents-hub-one/HUB-ARCHITECTURE.md`
 **Procedure authority:** `workspace-governor-agents-hub-one/HUB-MANAGEMENT.md`
@@ -123,21 +131,21 @@ empty.
 │   │   ├── NOTION-DATA-QUALITY-TROUBLESHOOTING-AGENT.json  Move
 │   │   ├── NOTION-SYSTEM-DEPENDENCIES.json              Move
 │   │   ├── notion-coordinator.prompt.txt                Move    owner-local, from prompts/
-│   │   └── notion-specialist.prompt.txt                 Move    owner-local, from prompts/
+│   │   ├── notion-specialist.prompt.txt                 Move    owner-local, from prompts/
+│   │   ├── task-brief-template.json                     Move    owner-local (D-12): 3/12 fields Notion-coupled
+│   │   ├── technical-spec-template.json                 Move    owner-local (D-12): 5/12 fields Notion-coupled
+│   │   └── execution-record-template.json               Move    owner-local (D-12): 2/8 fields Notion-coupled
 │   ├── registry.json                                    Move    from config/agent-registry.json
 │   └── registry.schema.json                             Move    from schemas/
 │
-├── templates/                   NEW DOMAIN — first accepted artifacts from hub-two
-│   ├── task-brief-template.json                         Move    cross-agent
-│   ├── technical-spec-template.json                     Move    cross-agent
-│   └── verification-checklist-template.json             Move    cross-agent
+├── templates/                   NEW DOMAIN — one accepted artifact (D-12)
+│   └── verification-checklist-template.json             Move    domain-neutral: 0 of 7 fields coupled
 │
 ├── references/                  ESTABLISHED CORE — from hub-one
 │   └── AGENTS-MD-LIVE-AUDIT-2026-08-16.md               Keep    overlap reconciliation still pending
 │
-├── runtime-adapters/            ESTABLISHED CORE — from hub-one
-│   ├── codex/                                           Conflict  empty; see 5.2
-│   └── claude-code/                                     Conflict  empty; see 5.2
+├── runtime-adapters/            ESTABLISHED CORE — declared in CATALOG.md, not
+│                                materialized as empty directories (D-13)
 │
 └── design-systems/
     └── .remember/                                       PRESERVE UNCHANGED — stop condition B-2
@@ -182,40 +190,102 @@ One owner per concern. Verified against `agents-hub-one/CATALOG.md`.
 **No concern has two owners under this map.** The only overlaps found were the
 Class A statements in section 2, resolved by folding.
 
-## 5. Unresolved — requires a decision before execution
+## 5. Engineering items — resolved
 
-### 5.1 `execution-record-template.json` placement
-Its fields (`database_names`, `formula_or_property_details`) are Notion-specific,
-unlike the other three templates. `HUB-ARCHITECTURE.md`: "A template specific to
-one agent, skill, tool, package, or workflow remains with that owner." Proposed:
-move to `agents/notion/` as owner-local rather than `templates/`. Marked
-unresolved because it is a judgement on intended reuse, not a structural fact.
+Resolved under `ENGINEER-OWNERSHIP`, from evidence, not routed to the user.
+Recorded as `DECISIONS.md` D-12 to D-15.
 
-### 5.2 Empty `runtime-adapters/` subdirectories
-`HUB-ARCHITECTURE.md` lists `runtime-adapters/` as an **established core** domain,
-but also forbids empty domains for **candidate** domains. Both subdirectories
-contain a single 0-byte placeholder. The two statements do not resolve each other.
-Recorded as `Conflict`, not silently decided. Retaining an empty core domain is the
-conservative option and matches `agents-hub-one/STATE.md`, which already records
-them as existing but unimplemented.
+### 5.1 Template placement — D-12
 
-### 5.3 `agents/` subdivision by domain
-Proposing `agents/general/` and `agents/notion/` because the registry already
-models one coordinator plus specialists per domain. `HUB-ARCHITECTURE.md` neither
-requires nor forbids subdivision. A flat `agents/` with the existing `AGENT-*` and
-`NOTION-*` prefixes is equally defensible.
+Classified from actual field content, not filename. Fields were tested for
+coupling to Notion concepts (database, property, relation, formula, view, rollup):
 
-### 5.4 `references/AGENTS-MD-LIVE-AUDIT-2026-08-16.md`
-`agents-hub-one/CATALOG.md` records it as "pending reconciliation with project
-research to remove overlap without losing unique findings". Consolidation does not
-resolve that; it carries forward.
+| Template | Coupled fields | Verdict |
+|---|---|---|
+| `technical-spec-template.json` | 5 of 12 — `database_scope`, `properties_involved`, `relation_paths`, `formula_logic`, `view_requirements` | Notion-specific |
+| `task-brief-template.json` | 3 of 12 — `database_name`, `properties_affected`, `related_databases` | Notion-specific |
+| `execution-record-template.json` | 2 of 8 — `database_names`, `formula_or_property_details` | Notion-specific |
+| `verification-checklist-template.json` | **0 of 7** — `check_name`, `method`, `expected_result`, `pass_criteria`, `fail_criteria`, `human_review_required`, `notes` | **Domain-neutral** |
 
-### 5.5 GitHub sources are not the live Hub
-`agents-hub-one` HEAD is a single commit titled "Placeholders" containing seven
-0-byte files. `governance-templates/*`, `runtime-adapters/*` and `design-systems/`
-are stubs. The live local Hub content is not represented in the repository. This
-tree is proposed against repository evidence only; it must be re-verified against
-the live Hub before execution.
+`HUB-ARCHITECTURE.md`: "A template specific to one agent, skill, tool, package, or
+workflow remains with that owner." Three templates go owner-local under
+`agents/notion/`. Only `verification-checklist-template.json` is a cross-domain
+scaffold and creates `templates/`.
+
+This reverses revision 1, which had it backwards. An initial screen flagged
+`human_review_required` as coupled; that was a false positive matching "view"
+inside "review". Re-tested against field names and values: zero genuine coupling.
+
+### 5.2 `runtime-adapters/` — D-13
+
+The apparent contradiction dissolves once the logical domain is distinguished from
+its filesystem materialization. `HUB-ARCHITECTURE.md` establishes
+`runtime-adapters/` as a core **domain** — a declared destination. It does not
+require an empty directory to exist to hold that place.
+
+Both subdirectories contain one 0-byte `placeholder.md`. A 0-byte file is not an
+artifact; it satisfies no part of the minimum artifact record. Retaining it
+preserves nothing and creates a false impression of an adapter that
+`agents-hub-one/README.md` and `STATE.md` both state does not exist.
+
+Resolution: `Retire` the placeholder files. Declare `runtime-adapters/` in
+`CATALOG.md` with lifecycle status "reserved; no accepted adapter; not installed,
+active, or verified" — which is what the existing `CATALOG.md` already records.
+Materialize the directory when the first real adapter is accepted.
+
+### 5.3 `agents/` organization — D-14
+
+Chosen from the artifacts and registry, not preference. Two findings decide it.
+
+**The registry is structurally asymmetric.** It carries 8 top-level keys:
+
+- `entry_point` → the Notion coordinator only
+- `coordinator` → singular, Notion only
+- `specialists` → 5 entries, all Notion
+- `non_notion_agents` → 8 entries in a separate key
+- `routing_rules` → contains only a `notion` key; no general routing exists
+
+**The schema does not cover it.** `agent-registry.schema.json` declares 6
+properties. `non_notion_agents` and `routing_rules` are absent, so both are
+unvalidated. Entry shape is identical across `specialists` and
+`non_notion_agents` (`id`, `name`, `path`, `role`), so the asymmetry is naming and
+structure, not data shape.
+
+Resolution: subdivide `agents/general/` and `agents/notion/`, matching the
+coordinator-plus-specialists model the registry already implies, and normalize the
+registry to a symmetric domain-keyed form so each domain declares its own
+coordinator, specialists and routing, with all keys covered by the schema. A flat
+`agents/` would leave the asymmetry unaddressed and keep general agents
+second-class.
+
+### 5.4 `references/` overlap — D-15
+
+Investigated by direct comparison rather than carried forward.
+
+| | `agents-hub-one/references/AGENTS-MD-LIVE-AUDIT` | `workspace-governor-agents-hub-one/research/AGENTS-MD-RESEARCH-AND-LIVE-AUDIT` |
+|---|---|---|
+| Substantive lines | 82 | 104 |
+| Literally identical lines | 6 | 6 |
+| Content | Live-state audit: 7 findings, correction sequence, completion status | Research (official guidance, what an AGENTS.md should contain, 8 subsections) **plus** an overlapping live-state narrative |
+
+The overlap is real but confined: the audit's Findings 1–5 correspond to the
+research document's Critical Live-State Problems 1–5. Everything else in each file
+is unique — 76 lines unique to the audit, 98 to the research record.
+
+Resolution by placement layer, which the existing rules already determine.
+`HUB-ARCHITECTURE.md` layer 1 assigns cross-project canonical material to the Hub;
+layer 2 assigns project-specific material to the project. A live-state audit **of
+the Hub** is Hub evidence and stays in `references/`. Research about how to author
+an `AGENTS.md` is project research — and `agents-hub-one/CATALOG.md` already
+records that the combined record was relocated to the governor "because it is
+Workspace Governor project research."
+
+The duplicated live-state narrative in the project record should be replaced by a
+reference to the Hub audit. Nothing unique is lost.
+
+**Execution deferred, resolution not.** That trim edits
+`workspace-governor-agents-hub-one`, a repository outside this consolidation's
+scope. The decision is settled; the edit is sequenced separately.
 
 ## 6. Coverage proof
 
@@ -224,10 +294,16 @@ the live Hub before execution.
 | `agents-hub-one` | 16 | 16 | 0 |
 | `agents-hub-two` | 27 | 27 | 0 |
 
-hub-one: 5 rules `Keep`, 3 root control files (2 `Keep`, 1 `Merge`), 1 reference
-`Keep`, 7 placeholders (4 `Retire`, 2 `Conflict`, 1 preserved unchanged).
-hub-two: 15 agents `Move`, 1 registry `Move`, 1 schema `Move`, 4 prompts `Move`,
-4 templates (3 `Move`, 1 unresolved), 1 docs `Merge`, 1 layout `Retire`.
+hub-one (16): 5 rules `Keep`; 3 root control files — 2 `Keep`, 1 `Merge`;
+1 reference `Keep` (D-15); 7 placeholders — 6 `Retire` (4 governance-templates,
+2 runtime-adapters per D-13), 1 `design-systems` preserved unchanged (B-2).
+
+hub-two (27): 15 agents `Move`; 1 registry `Move` and normalize (D-14); 1 schema
+`Move` and extend (D-14); 4 prompts `Move` owner-local; 4 templates `Move` —
+3 owner-local to `agents/notion/`, 1 to `templates/` (D-12); 1 docs `Merge`;
+1 layout `Retire`.
+
+Zero items remain classified `Conflict` or unresolved.
 
 ## 7. What was not done
 

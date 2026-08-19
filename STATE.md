@@ -20,6 +20,9 @@ Verified by direct inspection during the session dated 2026-08-19.
 | `agents-hub-two` is an agent operating package: 15 agent definitions, a registry, a JSON schema, 4 prompts, 4 templates. Contains no governance layer — zero occurrences of "governance", "precedence", "runtime-neutral", "catalog", "provenance" | Clone inspection and keyword scan |
 | Both source repositories declare themselves to be `.agents-hub` | `agents-hub-one/README.md`; `agents-hub-two/docs/README.md` and `package-layout.json` |
 | `agent-governance-toolkit` is an unmodified fork of `microsoft/agent-governance-toolkit`, MIT, HEAD authored upstream 2026-05-11, zero local commits | `git log -1 --format='%an %ad'`; `LICENSE`; `MAINTAINERS.md` |
+| Four engineering items resolved from evidence under `ENGINEER-OWNERSHIP`; zero items remain classified `Conflict` or unresolved | `DECISIONS.md` D-12 to D-16; assessment revision 2 |
+| GitHub `agents-hub-one` @ `47c0187` holds 16 files, 7 of them 0-byte placeholders; baseline manifest captured for live comparison | `evidence/AGENTS-HUB-ONE-BASELINE-2026-08-19.json` |
+| Live-Hub inventory procedure prepared, unexecuted. Requires no network and no clone; compares the live Hub against the committed baseline | `scripts/Invoke-HubInventory.ps1` |
 | Reconciliation assessment and proposed canonical target tree produced; 43 source files classified with 0 unaccounted | `evidence/HUB-RECONCILIATION-ASSESSMENT-2026-08-19.md` |
 | Neither source is the canonical Hub. hub-one supplies the governance contract (5 owners, 0 runtime-specific names); hub-two supplies agent definitions, registry, schemas, prompts, templates and contains no governance layer | Section 1 of the assessment |
 | 16 of hub-two's 22 agent `rules` entries touch a concern a hub-one rule already owns; they split into general-form statements to fold and domain-specific constraints to preserve | Section 2 of the assessment |
@@ -36,6 +39,7 @@ Current phase is Hub consolidation. Blockers are grouped by the phase they bind.
 |---|---|---|---|
 | B-1 | Hub One target tree and ownership map not accepted. `workspace-governor-agents-hub-one/STATE.md` stop condition: do not refactor before acceptance. | Assessment and a proposed target tree are permitted. Refactoring either source repository is not. | Resolved by accepting the deliverable of this phase |
 | B-2 | `design-systems/.remember` has unresolved provenance and sensitivity. | Must not be read, hashed, moved, or classified | Requires separate review |
+| B-6 | The content of the live local `.agents-hub` is unknown. GitHub `agents-hub-one` is a placeholder skeleton: 7 of its 16 files are 0-byte. | The proposed target tree cannot be accepted as canonical, because the consolidation inputs are not fully known. | Local agent runs `scripts/Invoke-HubInventory.ps1` and commits the evidence |
 
 ### Required before Gateway runtime integration and completion — not binding this phase
 
@@ -47,25 +51,32 @@ Current phase is Hub consolidation. Blockers are grouped by the phase they bind.
 
 ## Open work
 
-1. Revise the discovery tooling so it does not presuppose that `.agents-hub` exists (`DECISIONS.md` D-06). It is present on `main` and unexecuted. Current defaults target `$env:USERPROFILE\.agents-hub` and frame the hub as the subject of inspection.
-2. Execute the accepted classification once the target tree is accepted. Assessment and classification are complete; `change`, `reference-update` and `verify` remain. See `evidence/HUB-RECONCILIATION-ASSESSMENT-2026-08-19.md`.
-3. Persist the user SSOT. `USERSSOT.json` was supplied in session as an authoritative user-side responsibilities file and exists in no repository. Its placement is undecided.
-4. Open B-3 as a separate scoped change once authorized.
-5. Determine placement of the three agent rulings recorded in `DECISIONS.md` under D-07 through D-09.
+1. Inventory the live local Hub against the committed GitHub baseline, then revise the preliminary target tree against that evidence.
+2. Revise the Gateway discovery tooling so it does not presuppose that `.agents-hub` exists (`DECISIONS.md` D-06). Present on `main`, unexecuted.
+3. Execute the accepted classification once the target tree is accepted. Assessment and classification are complete; `change`, `reference-update` and `verify` remain. See `evidence/HUB-RECONCILIATION-ASSESSMENT-2026-08-19.md`.
+4. Persist the user SSOT. `USERSSOT.json` was supplied in session as an authoritative user-side responsibilities file and exists in no repository. Its placement is undecided.
+5. Open B-3 as a separate scoped change once authorized.
+6. Determine placement of the three agent rulings recorded in `DECISIONS.md` under D-07 through D-09.
+7. Trim the duplicated live-state narrative in `workspace-governor-agents-hub-one/research/` per D-15. Edits another repository; sequenced separately.
 
 ## Next action
 
-Accept, amend, or reject the proposed canonical target tree and ownership map in
-`evidence/HUB-RECONCILIATION-ASSESSMENT-2026-08-19.md`.
+Run `scripts/Invoke-HubInventory.ps1` on the Windows machine and commit the two
+evidence files it emits. This is the only remaining input needed to make the target
+tree acceptable.
 
-Acceptance clears stop condition B-1 and authorises execution of the
-classification. Until then, neither source repository may be refactored.
+One command, from the repository root:
 
-Five items in section 5 of the assessment require a decision before execution:
-`execution-record-template.json` placement, the empty `runtime-adapters/`
-subdirectories, whether `agents/` is subdivided by domain, the carried-forward
-references overlap, and re-verification against the live local Hub — the GitHub
-sources are placeholder skeletons, not the live Hub.
+```powershell
+.\scripts\Invoke-HubInventory.ps1
+```
+
+It is read-only, makes no network calls, emits no file contents, resolves the Hub
+path from the environment and records the resolved path, and does not read or
+enumerate inside `design-systems\.remember`.
+
+Do not accept the target tree before that evidence exists. Do not execute
+consolidation. Do not run Gateway discovery.
 
 ## Stop conditions
 
