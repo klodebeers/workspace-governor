@@ -41,16 +41,15 @@ Three architecture components. Only the first exists here.
 Both source repositories currently declare themselves to be `.agents-hub`.
 Resolving that is the reconciliation task.
 
-## Files in this repository
+## Contents
 
-| File | Owns |
+| Path | What it is |
 |---|---|
-| `README.md` | Purpose, scope, managed components, repository relationships |
-| `STATE.md` | Current verified state, phase, blockers, open work, next action. **Canonical current-state record.** |
-| `DECISIONS.md` | Settled decisions with rationale. Append-only. |
-| `AGENTS.md` | Operating instructions and bootstrap order |
+| `AGENTS.md` | Operating instructions. **Read first.** Defines bootstrap order and file ownership. |
+| `STATE.md` | Canonical current-state record |
+| `DECISIONS.md` | Settled decisions, append-only |
 | `mcp-gateway` | Agent-Agnostic MCP Gateway build directive, 46 sections |
 | `scripts/` | Discovery and verification tooling |
 | `evidence/` | Dated evidence outputs |
 
-Read `AGENTS.md` first for bootstrap order.
+`AGENTS.md` § File ownership is authoritative on which file owns which concern.
