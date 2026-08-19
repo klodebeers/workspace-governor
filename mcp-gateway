@@ -23,10 +23,10 @@ Implement this logical architecture:
 ```text
                          ┌─────────────────────────────┐
                          │        .agents-hub          │
-                         │   CANONICAL DESIRED STATE  │
+                         │   CANONICAL DESIRED STATE   │
                          │                             │
-                         │ Governance • Policies      │
-                         │ Skills • Schemas • Registry│
+                         │ Governance • Policies       │
+                         │ Skills • Schemas • Registry │
                          └──────────┬───────────┬──────┘
                                     │           │
                       defines /     │           │ read-only governance
@@ -38,7 +38,7 @@ Implement this logical architecture:
                                     │    │ Status / Audit / UX   │
                                     │    └───────────▲───────────┘
                                     │                │
-                                    ▼                │ status / audit /
+                                    ▼                │ status / audit / approval
 ┌──────────────────┐      ┌──────────────────────────┴───────────┐
 │      AGENTS      │      │              MCP GATEWAY             │
 │ Claude │ Codex   │─────►│          SHARED CONTROL PLANE        │
@@ -1249,7 +1249,7 @@ Do not manually maintain equivalent policies in multiple destinations if they ca
 
 ---
 
-# 30A. Canonical Configuration vs Runtime Operational State
+# 31. Canonical Configuration vs Runtime Operational State
 
 Keep canonical desired state separate from Gateway operational state.
 
@@ -1288,7 +1288,7 @@ Secrets and ephemeral credentials must remain outside canonical source-controlle
 
 ---
 
-# 31. Policy Validation
+# 32. Policy Validation
 
 Create machine-verifiable policy schemas.
 
@@ -1311,7 +1311,7 @@ Do not silently ignore invalid policy entries.
 
 ---
 
-# 32. Security Tests
+# 33. Security Tests
 
 Build tests proving enforcement rather than merely checking configuration files exist.
 
@@ -1420,7 +1420,7 @@ Verify:
 
 ---
 
-# 33. Cross-Agent Acceptance Test
+# 34. Cross-Agent Acceptance Test
 
 This is a critical acceptance requirement.
 
@@ -1442,7 +1442,7 @@ This proves the shared control-plane architecture is actually agent-agnostic.
 
 ---
 
-# 34. Security Boundary Test
+# 35. Security Boundary Test
 
 Do not accept:
 
@@ -1464,7 +1464,7 @@ Do not accept successful authentication to the Gateway as proof of authorization
 
 ---
 
-# 35. Observability for Atrium
+# 36. Observability for Atrium
 
 Design a stable read interface that Atrium can eventually use for:
 
@@ -1490,7 +1490,7 @@ Atrium may later provide a unified human approval interface, but UI state alone 
 
 ---
 
-# 36. Documentation
+# 37. Documentation
 
 Create or update documentation sufficient for another agent to understand:
 
@@ -1538,7 +1538,7 @@ Do not duplicate information already canonical elsewhere; link/reference it.
 
 ---
 
-# 37. Build Verification Script
+# 38. Build Verification Script
 
 Provide one straightforward verification entry point.
 
@@ -1571,7 +1571,7 @@ A nontechnical operator should be able to run it and understand whether the syst
 
 ---
 
-# 38. Do Not Overengineer Version One
+# 39. Do Not Overengineer Version One
 
 Version one should be production-minded but lightweight.
 
@@ -1604,7 +1604,7 @@ Build clean extension points instead.
 
 ---
 
-# 39. Non-Goals
+# 40. Non-Goals
 
 Do not:
 
@@ -1636,7 +1636,7 @@ Do not:
 
 ---
 
-# 40. Migration Strategy
+# 41. Migration Strategy
 
 Do not switch everything at once without verification.
 
@@ -1686,7 +1686,7 @@ Do not migrate a protected upstream behind the Gateway until its inbound and out
 
 ---
 
-# 41. Required Deliverables
+# 42. Required Deliverables
 
 The task is not complete with only a design document.
 
@@ -1724,55 +1724,55 @@ Only create artifacts that have a real functional purpose.
 
 ---
 
-# 42. Completion Criteria
+# 43. Completion Criteria
 
 This project is DONE only when the following have been verified:
 
-- `.agents-hub` remains the canonical governance source.
-- Canonical governance/configuration is separated from runtime operational state.
-- A functioning MCP Gateway exists.
-- The Gateway exposes a unified MCP interface.
-- Gateway governance scope is explicitly limited to Gateway-routed capabilities or equivalent enforceable paths.
-- At least one real upstream capability works through the Gateway.
-- Authentication works.
-- Central authorization works.
-- Inbound Gateway tokens/credentials are validated for the correct protected resource.
-- Wrong-audience/resource credentials are rejected.
-- Gateway client credentials are not passed through as generic upstream credentials.
-- Upstream authorization uses credentials or delegated tokens intended for the actual upstream resource.
-- ALLOW / REQUIRE_APPROVAL / DENY behavior is enforceable for supported Gateway-routed capabilities.
-- Approval classification is separated from the mechanism that obtains approval.
-- Approval-required operations cannot bypass the enforceable approval path.
-- Unauthorized Gateway-routed tool execution is rejected outside the model.
-- Streamable HTTP Origin validation is implemented according to the negotiated protocol.
-- Local-only Gateway exposure defaults to loopback.
-- Mirrored MCP HTTP metadata is not trusted for policy/routing/authorization until validated.
-- Header/body or equivalent metadata consistency requirements are enforced where required by the negotiated protocol.
-- Sensitive output/log redaction is tested.
-- Structured audit events are generated.
-- Policy/configuration validation works.
-- Invalid configuration cannot partially apply.
-- Gateway/upstream health can be checked.
-- Actual MCP protocol compatibility is verified for supported clients/upstreams.
-- Codex connects successfully.
-- Claude Code connects successfully.
-- Required MCP capabilities are verified for both runtimes.
-- Unsupported optional capabilities degrade safely.
-- Shared policy can govern both agents for Gateway-routed capabilities.
-- A central policy change does not require manually duplicating the equivalent rule in both agents.
-- Runtime-native capabilities outside Gateway authority are explicitly documented with the controls protecting them.
-- Existing `.agents-hub` bootstrap behavior still works.
-- Runtime operational state does not overwrite canonical governance.
-- No unnecessary duplicate governance was introduced.
-- No secrets were committed.
-- Verification tests pass.
-- Recovery/rollback instructions exist.
-- Architecture is documented.
-- Remaining runtime-specific controls are explicitly documented with the reason each must remain runtime-specific.
+- [ ] `.agents-hub` remains the canonical governance source.
+- [ ] Canonical governance/configuration is separated from runtime operational state.
+- [ ] A functioning MCP Gateway exists.
+- [ ] The Gateway exposes a unified MCP interface.
+- [ ] Gateway governance scope is explicitly limited to Gateway-routed capabilities or equivalent enforceable paths.
+- [ ] At least one real upstream capability works through the Gateway.
+- [ ] Authentication works.
+- [ ] Central authorization works.
+- [ ] Inbound Gateway tokens/credentials are validated for the correct protected resource.
+- [ ] Wrong-audience/resource credentials are rejected.
+- [ ] Gateway client credentials are not passed through as generic upstream credentials.
+- [ ] Upstream authorization uses credentials or delegated tokens intended for the actual upstream resource.
+- [ ] ALLOW / REQUIRE_APPROVAL / DENY behavior is enforceable for supported Gateway-routed capabilities.
+- [ ] Approval classification is separated from the mechanism that obtains approval.
+- [ ] Approval-required operations cannot bypass the enforceable approval path.
+- [ ] Unauthorized Gateway-routed tool execution is rejected outside the model.
+- [ ] Streamable HTTP Origin validation is implemented according to the negotiated protocol.
+- [ ] Local-only Gateway exposure defaults to loopback.
+- [ ] Mirrored MCP HTTP metadata is not trusted for policy/routing/authorization until validated.
+- [ ] Header/body or equivalent metadata consistency requirements are enforced where required by the negotiated protocol.
+- [ ] Sensitive output/log redaction is tested.
+- [ ] Structured audit events are generated.
+- [ ] Policy/configuration validation works.
+- [ ] Invalid configuration cannot partially apply.
+- [ ] Gateway/upstream health can be checked.
+- [ ] Actual MCP protocol compatibility is verified for supported clients/upstreams.
+- [ ] Codex connects successfully.
+- [ ] Claude Code connects successfully.
+- [ ] Required MCP capabilities are verified for both runtimes.
+- [ ] Unsupported optional capabilities degrade safely.
+- [ ] Shared policy can govern both agents for Gateway-routed capabilities.
+- [ ] A central policy change does not require manually duplicating the equivalent rule in both agents.
+- [ ] Runtime-native capabilities outside Gateway authority are explicitly documented with the controls protecting them.
+- [ ] Existing `.agents-hub` bootstrap behavior still works.
+- [ ] Runtime operational state does not overwrite canonical governance.
+- [ ] No unnecessary duplicate governance was introduced.
+- [ ] No secrets were committed.
+- [ ] Verification tests pass.
+- [ ] Recovery/rollback instructions exist.
+- [ ] Architecture is documented.
+- [ ] Remaining runtime-specific controls are explicitly documented with the reason each must remain runtime-specific.
 
 ---
 
-# 43. Required Final Report
+# 44. Required Final Report
 
 When implementation is complete, provide a concise final report containing:
 
@@ -1879,7 +1879,7 @@ Rollback
 
 ---
 
-# 44. Execution Rules
+# 45. Execution Rules
 
 You are responsible for implementing and verifying the system, not merely describing how it could be implemented.
 
@@ -1918,7 +1918,7 @@ If credentials or external authorization are required, complete all work possibl
 
 ---
 
-# 45. Governing Principle
+# 46. Governing Principle
 
 The final system should make this statement true:
 
