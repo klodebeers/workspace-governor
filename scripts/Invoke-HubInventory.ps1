@@ -16,8 +16,8 @@
     - never installs, modifies, deletes, moves, renames, reconfigures or repairs
     - makes NO network calls
     - never emits file contents; only paths, sizes, hashes and classifications
-    - does not read, hash, or enumerate inside 'design-systems\.remember'.
-      Records its existence and immediate child COUNT only, per the unresolved
+    - does not read, hash, enumerate, or count anything inside
+      'design-systems\.remember'. Checks EXISTENCE ONLY, per the unresolved
       provenance and sensitivity hold in workspace-governor STATE.md (B-2)
     - resolves the Hub path from the environment; nothing is hardcoded
 
@@ -82,13 +82,10 @@ if (-not $hubExists) {
 
 # ---- enumerate the live Hub ----------------------------------------------
 $live = @{}
-$rememberFact = [ordered]@{ exists=$false; immediateChildCount=$null; inspected='existence and immediate child count only' }
+$rememberFact = [ordered]@{ exists=$false; contentsInspected=$false; method='Test-Path existence check only; no enumeration' }
 if ($hubExists) {
-    $rp = Join-Path $hubResolved $RememberRel
-    if (Test-Path -LiteralPath $rp) {
-        $rememberFact.exists = $true
-        $rememberFact.immediateChildCount = (@(Get-ChildItem -LiteralPath $rp -Force -ErrorAction SilentlyContinue)).Count
-    }
+    # EXISTENCE ONLY. Do not enumerate, count, read, or hash anything inside.
+    $rememberFact.exists = Test-Path -LiteralPath (Join-Path $hubResolved $RememberRel)
     $rootLen = ($hubResolved.TrimEnd('\')).Length
     $items = @(Get-ChildItem -LiteralPath $hubResolved -Recurse -Force -File -ErrorAction SilentlyContinue |
                Where-Object { $_.FullName -notmatch '(?i)\\design-systems\\\.remember($|\\)' -and $_.FullName -notmatch '(?i)\\\.git\\' })
@@ -167,7 +164,7 @@ $R = [ordered]@{
     liveInventory = $live
     remember = $rememberFact
     unverified = @(
-        'design-systems\.remember contents not read, hashed, or enumerated (stop condition B-2).',
+        'design-systems\.remember: existence only. Nothing inside was read, hashed, enumerated, or counted (stop condition B-2).',
         'No file contents were emitted; only path, size, SHA256 and modified time.',
         'Baseline reflects GitHub agents-hub-one at the recorded ref, not any later commit.',
         'A file identical by SHA256 is byte-identical; semantic equivalence was not assessed.'
@@ -228,8 +225,12 @@ if ($onlyGitHub.Count -gt 0) {
 }
 $L.Add('## design-systems\.remember')
 $L.Add('')
-$L.Add("Exists: $($rememberFact.exists). Immediate child count: $($rememberFact.immediateChildCount).")
-$L.Add('Contents were not read, hashed, or enumerated. Stop condition B-2 in `STATE.md`.')
+$L.Add("Exists: $($rememberFact.exists)")
+$L.Add('')
+$L.Add('Contents inspected: false')
+$L.Add('')
+$L.Add('Nothing inside was read, hashed, enumerated, or counted. Existence was established')
+$L.Add('by a single path test. Stop condition B-2 in `STATE.md`.')
 $L.Add('')
 $L.Add('## Explicitly NOT verified')
 $L.Add('')

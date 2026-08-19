@@ -81,10 +81,10 @@ consolidation. Do not run Gateway discovery.
 ## Stop conditions
 
 - Do not read, hash, move, or classify `design-systems/.remember` before its provenance and sensitivity review.
-- Do not activate a Codex adapter while blocker 1 is unresolved.
+- Do not activate a Codex adapter while B-3 is unresolved.
 - Do not fold existing Hub rules before the target tree and ownership map are accepted.
 - Do not reopen the 46-section directive structure (`DECISIONS.md` D-04).
-- Do not run the discovery tooling in `scripts/` until it is revised per open work item 1 **and** Hub consolidation is complete (`DECISIONS.md` D-05, D-06).
+- Do not run the discovery tooling in `scripts/` until it is revised per open work item 2 **and** Hub consolidation is complete (`DECISIONS.md` D-05, D-06).
 - Do not adopt `agent-governance-toolkit` without provenance, licence, and generated-output review.
 
 Reinspect live sources before acting. This record is continuity evidence, not proof that anything remains unchanged.

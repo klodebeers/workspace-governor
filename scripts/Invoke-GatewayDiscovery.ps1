@@ -13,7 +13,7 @@
     - never emits a secret VALUE; records names, locations and metadata only
     - does not read or hash 'design-systems\.remember' contents (unresolved
       provenance and sensitivity hold in Workspace Governor STATE.md); records
-      existence and immediate child count only
+      existence only; never enumerated, counted, read, or hashed
     - reports "not found" instead of failing when a path is absent
     - makes no network calls
 
@@ -242,8 +242,8 @@ $R['01_agentsHub'] = [ordered]@{
     }
     rulesDir = Get-TreeInventory -Root (Join-Path $HubPath 'rules') -MaxDepth 1
     rememberExists = (Test-Path -LiteralPath (Join-Path $HubPath 'design-systems\.remember'))
-    rememberChildCount = (@(Get-ChildItem -LiteralPath (Join-Path $HubPath 'design-systems\.remember') -Force -ErrorAction SilentlyContinue)).Count
-    rememberNote = 'Existence and immediate child count only. Contents not read or hashed per STATE.md stop condition.'
+    rememberContentsInspected = $false
+    rememberNote = 'Existence only. Nothing inside was enumerated, counted, read, or hashed, per STATE.md stop condition B-2.'
 }
 
 # --- 2. Claude Code configuration and native controls -----------------------

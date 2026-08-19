@@ -63,7 +63,7 @@ The discovery script:
 - never emits a secret **value**; records names, locations and metadata only
 - does not read or hash `design-systems\.remember` contents, per the
   unresolved provenance and sensitivity hold in Workspace Governor `STATE.md`;
-  records existence and immediate child count only
+  checks existence only; nothing inside is enumerated, counted, read, or hashed
 - reports "not found" rather than failing when a path is absent
 - executes none of the scripts it inventories
 
