@@ -24,9 +24,11 @@ Three files, written only to `.\evidence\`:
 
 | File | Purpose | Audience |
 |---|---|---|
-| `GATEWAY-DISCOVERY-<yyyy-MM-dd>.json` | Full structured findings, 14 sections | coding agent |
-| `GATEWAY-DISCOVERY-<yyyy-MM-dd>.md` | Summary table, conflict check, non-verified list | human |
-| `GATEWAY-DISCOVERY-<yyyy-MM-dd>-READONLY-PROOF.md` | PASS/FAIL that nothing changed | audit record |
+| `GATEWAY-DISCOVERY-<run date>.json` | Full structured findings, 14 sections | coding agent |
+| `GATEWAY-DISCOVERY-<run date>.md` | Summary table, conflict check, non-verified list | human |
+| `GATEWAY-DISCOVERY-<run date>-READONLY-PROOF.md` | PASS/FAIL that nothing changed | audit record |
+
+Filenames carry the date the script runs, from `Get-Date`. They are not fixed.
 
 All three are UTF-8 text, safe to commit. Naming follows the existing
 `evidence/` convention (`SUBJECT-yyyy-MM-dd.md`).
@@ -52,6 +54,42 @@ evidence it certifies.
 | 12 | Runtime-native capabilities outside Gateway authority |
 | 13 | Direct-access paths that could bypass Gateway governance |
 | 14 | Repository and workspace paths relevant to the architecture |
+
+## Traversal safety — pre-descent pruning
+
+`lib/SafeTraversal.ps1` is the sole owner of directory traversal for every
+script here. It exists because `Get-ChildItem -Recurse` **traverses** every
+subtree before returning, so filtering its output with `Where-Object` is too
+late — the protected directory has already been read. Filtering output and
+pruning before descent produce identical output; only the record of visited
+directories distinguishes them.
+
+The module performs manual iterative traversal and decides whether to enter each
+directory **before** entering it. A protected directory is identified while its
+**parent** is listed, recorded as existing, and never passed to `Get-ChildItem`.
+
+Invariant, enforced by `Assert-RememberPruning.ps1`:
+
+- no script under `scripts/` uses `Get-ChildItem -Recurse` in executable code
+- the traversal path contains exactly one `Get-ChildItem`, single-level, in the module
+- every traversing script dot-sources the module
+
+Protected (never entered, safety): `.remember`
+Excluded (never entered, noise): `.git`, `node_modules`
+
+### Proving it
+
+```powershell
+.\scripts\Assert-RememberPruning.ps1
+```
+
+Part A checks the static invariant. Part B runs the real traversal and asserts a
+positive property: no directory in `visitedDirectories` is the same as, or
+beneath, any directory in `prunedForSafety`. Since `visitedDirectories` records
+every directory actually passed to `Get-ChildItem`, a traversed protected
+directory would appear there. Absence from output is not accepted as proof.
+
+Emits `evidence\REMEMBER-PRUNING-PROOF-<run date>.md`.
 
 ## Safety contract
 

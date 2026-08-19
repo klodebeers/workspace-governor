@@ -40,6 +40,17 @@ param(
     [string]$OutDir        = (Join-Path (Get-Location) 'evidence')
 )
 
+
+# ---- traversal owner -------------------------------------------------------
+# Sole owner of directory traversal. Provides pre-descent pruning so a
+# protected directory is never passed to Get-ChildItem. No -Recurse anywhere.
+$libPath = Join-Path $PSScriptRoot 'lib\SafeTraversal.ps1'
+if (-not (Test-Path -LiteralPath $libPath)) {
+    Write-Host "FAIL: required module not found: $libPath" -ForegroundColor Red
+    exit 1
+}
+. $libPath
+
 $ErrorActionPreference = 'Continue'
 $stamp    = Get-Date -Format 'yyyy-MM-dd'
 $stampISO = (Get-Date).ToString('o')
@@ -166,15 +177,15 @@ function Get-TreeInventory {
     if ([string]::IsNullOrWhiteSpace($Root) -or -not (Test-Path -LiteralPath $Root)) { return $r }
     $r.exists = $true
     $rootLen = ($Root.TrimEnd('\')).Length
-    $all = @(Get-ChildItem -LiteralPath $Root -Recurse -Depth $MaxDepth -Force -ErrorAction SilentlyContinue)
+    # Pre-descent pruning. Protected directories are never passed to Get-ChildItem.
+    $trav = Get-SafeChildItems -Root $Root -MaxDepth $MaxDepth -MaxItems $MaxItems
+    foreach ($p in $trav.prunedForSafety) {
+        $r.skipped += "$p (stop condition B-2: existence recorded, never entered)"
+    }
+    $r.truncated = $trav.truncated
+    $all = $trav.items
     $n = 0
     foreach ($e in $all) {
-        if ($e.FullName -match $script:RememberGuard) {
-            if ($r.skipped -notcontains 'design-systems\.remember (stop condition: provenance and sensitivity unresolved)') {
-                $r.skipped += 'design-systems\.remember (stop condition: provenance and sensitivity unresolved)'
-            }
-            continue
-        }
         if ($n -ge $MaxItems) { $r.truncated = $true; break }
         $r.items += [ordered]@{
             rel  = $e.FullName.Substring($rootLen).TrimStart('\')
@@ -360,8 +371,7 @@ $R['06_runtimeDependencies'] = [ordered]@{
 Write-Host '[ 7/14] shared assets and tool registries'
 $reg = @()
 foreach ($n in @('CATALOG.md','agent-registry.json','registry.json','catalog.json','package-layout.json','*.schema.json')) {
-    $found = @(Get-ChildItem -LiteralPath $HubPath -Recurse -Depth 3 -Filter $n -File -Force -ErrorAction SilentlyContinue |
-              Where-Object { $_.FullName -notmatch $script:RememberGuard })
+    $found = @((Get-SafeChildItems -Root $HubPath -MaxDepth 3 -FilesOnly -Filter $n).items)
     foreach ($f in $found) { $reg += (Get-PathFact -Path $f.FullName -Hash) }
 }
 $R['07_sharedAssetsAndRegistries'] = [ordered]@{
@@ -378,8 +388,7 @@ $sc = @()
 foreach ($root in @($HubPath, $WorkspaceRoot)) {
     if (-not (Test-Path -LiteralPath $root)) { continue }
     foreach ($ext in @('*.ps1','*.py','*.js','*.mjs','*.ts','*.cmd','*.bat','*.sh')) {
-        $found = @(Get-ChildItem -LiteralPath $root -Recurse -Depth 3 -Filter $ext -File -Force -ErrorAction SilentlyContinue |
-                  Where-Object { $_.FullName -notmatch $script:RememberGuard -and $_.FullName -notmatch '(?i)\\node_modules\\' })
+        $found = @((Get-SafeChildItems -Root $root -MaxDepth 3 -FilesOnly -Filter $ext).items)
         foreach ($f in $found) { $sc += [ordered]@{ path=$f.FullName; ext=$f.Extension; size=$f.Length } }
     }
 }
@@ -396,8 +405,7 @@ foreach ($e in @(Get-ChildItem Env: -ErrorAction SilentlyContinue)) {
 $dotenv = @()
 foreach ($root in @($HubPath, $WorkspaceRoot)) {
     if (-not (Test-Path -LiteralPath $root)) { continue }
-    $found = @(Get-ChildItem -LiteralPath $root -Recurse -Depth 3 -Force -ErrorAction SilentlyContinue |
-              Where-Object { -not $_.PSIsContainer -and $_.Name -match '^\.env' -and $_.FullName -notmatch $script:RememberGuard })
+    $found = @((Get-SafeChildItems -Root $root -MaxDepth 3 -FilesOnly).items | Where-Object { $_.Name -match '^\.env' })
     foreach ($f in $found) { $dotenv += [ordered]@{ path=$f.FullName; size=$f.Length; contentsRead=$false } }
 }
 $credFiles = @()

@@ -46,6 +46,17 @@ param(
     [switch]$Thorough
 )
 
+
+# ---- traversal owner -------------------------------------------------------
+# Sole owner of directory traversal. Provides pre-descent pruning so a
+# protected directory is never passed to Get-ChildItem. No -Recurse anywhere.
+$libPath = Join-Path $PSScriptRoot 'lib\SafeTraversal.ps1'
+if (-not (Test-Path -LiteralPath $libPath)) {
+    Write-Host "FAIL: required module not found: $libPath" -ForegroundColor Red
+    exit 1
+}
+. $libPath
+
 $ErrorActionPreference = 'Continue'
 $stamp    = Get-Date -Format 'yyyy-MM-dd'
 $stampISO = (Get-Date).ToString('o')
@@ -107,13 +118,9 @@ function Get-Manifest {
     param([string[]]$Roots)
     $m = @{}
     foreach ($r in $Roots) {
-        $items = @(Get-ChildItem -LiteralPath $r -Recurse -Force -File -ErrorAction SilentlyContinue |
-                   Where-Object {
-                       $_.FullName -notmatch $RememberGuard -and
-                       $_.FullName -notmatch '(?i)\\node_modules\\' -and
-                       $_.FullName -notmatch '(?i)\\\.git\\' -and
-                       -not $_.FullName.StartsWith($outFull, [System.StringComparison]::OrdinalIgnoreCase)
-                   })
+        # Pre-descent pruning; .remember, .git and node_modules are never entered.
+        $items = @((Get-SafeChildItems -Root $r -FilesOnly).items |
+                   Where-Object { -not $_.FullName.StartsWith($outFull, [System.StringComparison]::OrdinalIgnoreCase) })
         foreach ($f in $items) {
             $key = $f.FullName
             $sig = '{0}|{1}' -f $f.Length, $f.LastWriteTimeUtc.Ticks

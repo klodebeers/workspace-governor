@@ -47,6 +47,17 @@ param(
     [string]$OutDir       = (Join-Path (Get-Location) 'evidence')
 )
 
+
+# ---- traversal owner -------------------------------------------------------
+# Sole owner of directory traversal. Provides pre-descent pruning so a
+# protected directory is never passed to Get-ChildItem. No -Recurse anywhere.
+$libPath = Join-Path $PSScriptRoot 'lib\SafeTraversal.ps1'
+if (-not (Test-Path -LiteralPath $libPath)) {
+    Write-Host "FAIL: required module not found: $libPath" -ForegroundColor Red
+    exit 1
+}
+. $libPath
+
 $ErrorActionPreference = 'Continue'
 $stamp    = Get-Date -Format 'yyyy-MM-dd'
 $stampISO = (Get-Date).ToString('o')
@@ -84,11 +95,20 @@ if (-not $hubExists) {
 $live = @{}
 $rememberFact = [ordered]@{ exists=$false; contentsInspected=$false; method='Test-Path existence check only; no enumeration' }
 if ($hubExists) {
-    # EXISTENCE ONLY. Do not enumerate, count, read, or hash anything inside.
+    # EXISTENCE ONLY. Established while listing the PARENT directory during
+    # traversal. .remember is never passed to Get-ChildItem.
     $rememberFact.exists = Test-Path -LiteralPath (Join-Path $hubResolved $RememberRel)
+
+    # Pre-descent pruning traversal. See scripts/lib/SafeTraversal.ps1.
+    $trav = Get-SafeChildItems -Root $hubResolved -FilesOnly
+    $pruneProof = Test-SafePruning -Traversal $trav
+    if (-not $pruneProof.pass) {
+        Write-Host 'FAIL: pruning invariant violated. Aborting before any report is written.' -ForegroundColor Red
+        foreach ($v in $pruneProof.violations) { Write-Host "  $v" -ForegroundColor Red }
+        exit 1
+    }
     $rootLen = ($hubResolved.TrimEnd('\')).Length
-    $items = @(Get-ChildItem -LiteralPath $hubResolved -Recurse -Force -File -ErrorAction SilentlyContinue |
-               Where-Object { $_.FullName -notmatch '(?i)\\design-systems\\\.remember($|\\)' -and $_.FullName -notmatch '(?i)\\\.git\\' })
+    $items = $trav.items
     foreach ($f in $items) {
         $rel = $f.FullName.Substring($rootLen).TrimStart('\')
         $sha = $null
@@ -141,6 +161,7 @@ $R = [ordered]@{
         machine = $env:COMPUTERNAME
         hubPathResolved = $hubResolved
         hubExists = $hubExists
+        traversal = 'pre-descent pruning via lib/SafeTraversal.ps1; no -Recurse'
         baselineFile = (Split-Path $BaselinePath -Leaf)
         baselineRef = $baseline.meta.head
         readOnly = $true
@@ -163,6 +184,14 @@ $R = [ordered]@{
     identical = @($identical | Sort-Object)
     liveInventory = $live
     remember = $rememberFact
+    pruningProof = if ($hubExists) { [ordered]@{
+        pass = $pruneProof.pass
+        prunedForSafety = @($trav.prunedForSafety)
+        visitedDirectoryCount = $pruneProof.visitedDirectoryCount
+        visitedDirectories = @($trav.visitedDirectories)
+        violations = @($pruneProof.violations)
+        proofMethod = 'no visited directory is at or beneath a safety-pruned directory'
+    } } else { $null }
     unverified = @(
         'design-systems\.remember: existence only. Nothing inside was read, hashed, enumerated, or counted (stop condition B-2).',
         'No file contents were emitted; only path, size, SHA256 and modified time.',
@@ -230,7 +259,19 @@ $L.Add('')
 $L.Add('Contents inspected: false')
 $L.Add('')
 $L.Add('Nothing inside was read, hashed, enumerated, or counted. Existence was established')
-$L.Add('by a single path test. Stop condition B-2 in `STATE.md`.')
+$L.Add('while listing the parent directory. Stop condition B-2 in `STATE.md`.')
+$L.Add('')
+$L.Add('### Pre-descent pruning proof')
+$L.Add('')
+if ($hubExists) {
+    $L.Add("- Safety-pruned directories: $(@($trav.prunedForSafety).Count)")
+    foreach ($p in $trav.prunedForSafety) { $L.Add("  - ``$p`` — identified while listing its parent; never entered") }
+    $L.Add("- Directories actually passed to Get-ChildItem: $($pruneProof.visitedDirectoryCount)")
+    $L.Add("- Violations (visited at or beneath a pruned directory): $(@($pruneProof.violations).Count)")
+    $L.Add("- Verdict: **$(if ($pruneProof.pass) { 'PASS' } else { 'FAIL' })**")
+} else {
+    $L.Add('- Not applicable: live Hub not found at the resolved path.')
+}
 $L.Add('')
 $L.Add('## Explicitly NOT verified')
 $L.Add('')
