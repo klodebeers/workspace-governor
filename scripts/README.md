@@ -75,19 +75,28 @@ Invariant, enforced by `Assert-RememberPruning.ps1`:
 | A1 | No script under `scripts/` uses `Get-ChildItem -Recurse` in executable code |
 | A2 | The traversal path contains exactly one `Get-ChildItem`, single-level, in the module |
 | A3 | Every traversing script dot-sources the module |
-| A4 | Reparse-point containment exists and is attribute-based, not name-based |
+| A4 | Reparse containment is attribute-based, covers files and directories, and is decided **before** the directory/file split (asserted by line order) |
 | A5 | Completeness is computed and can be INCOMPLETE |
 | A6 | The inventory consumes completeness rather than ignoring it |
+| A7 | The runtime test rejects any reparse point inside returned `items` |
+
+**The verdict is fail-closed.** `PASS` requires the Hub to exist, A1–A7 to pass,
+the runtime pruning test to pass, **and** traversal completeness to be
+`COMPLETE`. A skipped runtime proof is not a proof; the script exits 1 on FAIL.
+If the supplied root is itself safety-pruned, nothing was inventoried, so the
+result is INCOMPLETE rather than an empty success.
 
 ### Four pre-descent decisions, in order
 
 1. **Safety-pruned by name** — `.remember`. Never entered. STATE.md B-2.
-2. **Reparse point, by attribute** — junctions, symlinks, mounts. Never entered,
-   whatever the directory is called. A name-based rule is defeated by an alias:
-   a junction named anything can target `design-systems\.remember` or a path
-   outside the Hub. Detection uses `[System.IO.FileAttributes]::ReparsePoint`,
-   so the name is irrelevant. Attribute-read errors resolve to "treat as reparse
-   point" — fail closed.
+2. **Reparse point, by attribute, file *or* directory** — junctions, symlinks,
+   mounts. Tested **before** the directory/file split, so a *file* link cannot
+   reach the file branch, enter `items`, and be hashed (`Get-FileHash` follows
+   links). Never entered, never returned, never hashed, whatever it is called. A
+   name-based rule is defeated by an alias: a junction named anything can target
+   `design-systems\.remember` or a path outside the Hub. Detection uses
+   `[System.IO.FileAttributes]::ReparsePoint`, so the name is irrelevant.
+   Attribute-read errors resolve to "treat as reparse point" — fail closed.
 3. **Noise-pruned by name** — `.git`, `node_modules`. Never entered.
 4. **Depth cap** — recorded as `depthLimited`, never silently dropped.
 
@@ -114,7 +123,7 @@ exhaustiveness claim is scoped to exclude their targets.
 ```
 Safety-pruned:        design-systems\.remember
 Noise-pruned:         .git, node_modules
-Not traversed:        directory reparse points (junction/symlink/mount)
+Not traversed:        reparse points, file and directory (junction/symlink/mount)
 Traversal failures:   access or enumeration errors
 Depth-limited:        directories not descended
 Completeness:         COMPLETE | INCOMPLETE

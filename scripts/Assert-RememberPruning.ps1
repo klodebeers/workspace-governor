@@ -139,10 +139,25 @@ $modText = Get-Content -LiteralPath $libPath -Raw
 $a1 = ($recurseHits.Count -eq 0)
 $a2 = ($traversalSites.Count -eq 1)
 $a3 = ($missingDotSource.Count -eq 0)
-# A4 — reparse-point containment exists and is attribute-based, not name-based.
-$a4 = ($modText -match 'Test-IsDirectoryReparsePoint') -and
-      ($modText -match '\[System\.IO\.FileAttributes\]::ReparsePoint') -and
-      ($modText -match 'untraversedReparsePoints')
+# A4 — reparse containment covers ALL items and is decided BEFORE the
+# directory/file split. Proving the code merely exists is not enough: a
+# container-gated test lets a file reparse point into items, where it is hashed.
+$a4Exists   = ($modText -match 'Test-IsReparsePoint') -and
+              ($modText -match '\[System\.IO\.FileAttributes\]::ReparsePoint') -and
+              ($modText -match 'untraversedReparsePoints')
+$a4NotGated = ($modText -notmatch 'Test-IsDirectoryReparsePoint')
+$modLines = @(Get-Content -LiteralPath $libPath)
+$idxLoop = -1; $idxReparse = -1; $idxSplit = -1
+for ($k = 0; $k -lt $modLines.Count; $k++) {
+    if ($idxLoop -lt 0 -and $modLines[$k] -match 'foreach \(\$c in \$children\)') { $idxLoop = $k; continue }
+    if ($idxLoop -ge 0 -and $idxReparse -lt 0 -and $modLines[$k] -match 'Test-IsReparsePoint -Item \$c') { $idxReparse = $k }
+    if ($idxLoop -ge 0 -and $idxSplit -lt 0 -and $modLines[$k] -match 'if \(\$c\.PSIsContainer\)') { $idxSplit = $k }
+}
+$a4Order = ($idxReparse -ge 0 -and $idxSplit -ge 0 -and $idxReparse -lt $idxSplit)
+$a4 = $a4Exists -and $a4NotGated -and $a4Order
+# A7 — the runtime test asserts no returned item is itself a reparse point.
+$a7 = ($modText -match 'reparsePointsInItems') -and
+      ($modText -match 'returned item is a reparse point')
 # A5 — completeness is computed and can be INCOMPLETE.
 $a5 = ($modText -match "completeness\s*=") -and ($modText -match 'INCOMPLETE') -and
       ($modText -match 'incompleteReasons')
@@ -157,9 +172,11 @@ if (Test-Path -LiteralPath $invPath) {
 Write-Host ("  A1 no -Recurse in executable code        : {0} ({1} hits)" -f $(if($a1){'PASS'}else{'FAIL'}), $recurseHits.Count) -ForegroundColor $(if($a1){'Green'}else{'Red'})
 Write-Host ("  A2 exactly one traversal Get-ChildItem   : {0} ({1} in module)" -f $(if($a2){'PASS'}else{'FAIL'}), $traversalSites.Count) -ForegroundColor $(if($a2){'Green'}else{'Red'})
 Write-Host ("  A3 traversing scripts dot-source module  : {0}" -f $(if($a3){'PASS'}else{'FAIL'})) -ForegroundColor $(if($a3){'Green'}else{'Red'})
-Write-Host ("  A4 reparse-point containment, by attribute: {0}" -f $(if($a4){'PASS'}else{'FAIL'})) -ForegroundColor $(if($a4){'Green'}else{'Red'})
+Write-Host ("  A4 reparse containment covers files+dirs, pre-split: {0}" -f $(if($a4){'PASS'}else{'FAIL'})) -ForegroundColor $(if($a4){'Green'}else{'Red'})
+Write-Host ("     exists={0} notContainerGated={1} decidedBeforeSplit={2} (reparse L{3} < split L{4})" -f $a4Exists,$a4NotGated,$a4Order,($idxReparse+1),($idxSplit+1)) -ForegroundColor DarkGray
 Write-Host ("  A5 completeness computed, can be INCOMPLETE: {0}" -f $(if($a5){'PASS'}else{'FAIL'})) -ForegroundColor $(if($a5){'Green'}else{'Red'})
 Write-Host ("  A6 inventory consumes completeness        : {0}" -f $(if($a6){'PASS'}else{'FAIL'})) -ForegroundColor $(if($a6){'Green'}else{'Red'})
+Write-Host ("  A7 runtime test rejects reparse in items  : {0}" -f $(if($a7){'PASS'}else{'FAIL'})) -ForegroundColor $(if($a7){'Green'}else{'Red'})
 foreach ($h in $recurseHits) { Write-Host ("    -Recurse at {0}:{1}" -f $h.File,$h.Line) -ForegroundColor Red }
 Write-Host ("  Env: provider reads (not filesystem)     : {0}" -f $envSites.Count) -ForegroundColor DarkGray
 Write-Host ("  other single-level filesystem reads      : {0}" -f $otherSites.Count) -ForegroundColor DarkGray
@@ -188,6 +205,7 @@ if ($hubExists) {
     Write-Host ("  noise-pruned                                  : {0}" -f $proof.prunedForNoiseCount)
     Write-Host ("  traversal failures                            : {0}" -f $proof.traversalFailureCount)
     Write-Host ("  depth-limited                                 : {0}" -f $proof.depthLimitedCount)
+    Write-Host ("  reparse points inside returned items          : {0}" -f $proof.reparsePointsInItems) -ForegroundColor $(if($proof.reparsePointsInItems -eq 0){'Green'}else{'Red'})
     Write-Host ("  completeness                                  : {0}" -f $proof.completeness) -ForegroundColor $(if($proof.completeness -eq 'COMPLETE'){'Green'}else{'Red'})
     Write-Host ("  B1 no visited dir at/beneath a pruned dir     : {0} ({1} violations)" -f $(if($b1){'PASS'}else{'FAIL'}), @($proof.violations).Count) -ForegroundColor $(if($b1){'Green'}else{'Red'})
     foreach ($v in $proof.violations) { Write-Host ("    $v") -ForegroundColor Red }
@@ -195,8 +213,29 @@ if ($hubExists) {
     Write-Host '  SKIPPED: live Hub not found. Part B requires the Hub. Part A still applies.' -ForegroundColor Yellow
 }
 
-$verdict = if ($a1 -and $a2 -and $a3 -and $a4 -and $a5 -and $a6 -and ($null -eq $b1 -or $b1)) { 'PASS' } else { 'FAIL' }
-if ($hubExists -and -not $rememberSeen) { $verdict = "$verdict (advisory: no .remember directory found to prune)" }
+# ---------------------------------------------------------------------------
+# FAIL-CLOSED VERDICT. PASS requires ALL of:
+#   - the Hub exists (a skipped runtime proof is not a proof)
+#   - every static assertion A1-A7 passes
+#   - the runtime pruning test passes
+#   - traversal completeness is COMPLETE
+# Absence of evidence is never PASS.
+# ---------------------------------------------------------------------------
+$staticOk    = ($a1 -and $a2 -and $a3 -and $a4 -and $a5 -and $a6 -and $a7)
+$runtimeOk   = ($hubExists -and ($b1 -eq $true))
+$completeOk  = ($hubExists -and $null -ne $proof -and $proof.completeness -eq 'COMPLETE')
+$verdict     = if ($staticOk -and $runtimeOk -and $completeOk) { 'PASS' } else { 'FAIL' }
+
+$failReasons = @()
+if (-not $staticOk)   { $failReasons += 'one or more static assertions A1-A7 failed' }
+if (-not $hubExists)  { $failReasons += 'live Hub not found at the resolved path; runtime proof could not run' }
+elseif ($b1 -ne $true) { $failReasons += 'runtime pruning test failed' }
+if ($hubExists -and $null -ne $proof -and $proof.completeness -ne 'COMPLETE') {
+    $failReasons += "traversal completeness is $($proof.completeness)"
+}
+if ($hubExists -and -not $rememberSeen) {
+    $failReasons += 'advisory: no .remember directory was present to prune (not a failure by itself)'
+}
 
 Write-Host ''
 Write-Host '=== PART C — proof artifact ===' -ForegroundColor Cyan
@@ -207,6 +246,16 @@ $P = New-Object System.Collections.Generic.List[string]
 $P.Add('# Pre-Descent Pruning Proof')
 $P.Add('')
 $P.Add("**Verdict:** $verdict")
+$P.Add('')
+$P.Add('Verdict is fail-closed. PASS requires the Hub to exist, A1-A7 to pass, the')
+$P.Add('runtime pruning test to pass, and traversal completeness to be COMPLETE. A')
+$P.Add('skipped runtime proof is not a proof.')
+if (@($failReasons).Count -gt 0) {
+    $P.Add('')
+    $P.Add('Reasons:')
+    $P.Add('')
+    foreach ($fr in $failReasons) { $P.Add("- $fr") }
+}
 $P.Add("**Generated:** $stampISO")
 $P.Add("**Machine:** $env:COMPUTERNAME")
 $P.Add('**Claim under test:** protected directories are pruned before descent, not filtered out of recursive output afterwards.')
@@ -225,12 +274,17 @@ $P.Add("| A3 | Every traversing script dot-sources the module | $(if($a3){'PASS'
 $P.Add("| A4 | Reparse-point containment present and attribute-based | $(if($a4){'PASS'}else{'FAIL'}) |")
 $P.Add("| A5 | Completeness computed and can be INCOMPLETE | $(if($a5){'PASS'}else{'FAIL'}) |")
 $P.Add("| A6 | Inventory consumes completeness rather than ignoring it | $(if($a6){'PASS'}else{'FAIL'}) |")
+$P.Add("| A7 | Runtime test rejects any reparse point inside returned items | $(if($a7){'PASS'}else{'FAIL'}) |")
 $P.Add('')
 $P.Add('Without `-Recurse`, a subtree cannot be traversed before the prune decision is made.')
 $P.Add('')
-$P.Add('A4 matters because a name-based prune list is defeated by an alias: a junction')
-$P.Add('named anything at all can target a protected directory, or a location outside')
-$P.Add('the Hub. Detection is by file attribute, so the name is irrelevant.')
+$P.Add('A4 matters twice over. A name-based prune list is defeated by an alias: a')
+$P.Add('junction named anything can target a protected directory or a location outside')
+$P.Add('the Hub, so detection is by file attribute. And the test must run BEFORE the')
+$P.Add('directory/file split — a container-gated test lets a FILE reparse point reach')
+$P.Add('the file branch, enter `items`, and be hashed, and `Get-FileHash` follows the')
+$P.Add('link. A4 asserts the call site precedes the split by line order:')
+$P.Add("reparse at line $($idxReparse+1), split at line $($idxSplit+1).")
 $P.Add('')
 if ($recurseHits.Count -gt 0) {
     $P.Add('### -Recurse violations'); $P.Add('')
@@ -252,6 +306,7 @@ if ($hubExists) {
     $P.Add("| Noise-pruned | $($proof.prunedForNoiseCount) |")
     $P.Add("| Traversal failures | $($proof.traversalFailureCount) |")
     $P.Add("| Depth-limited | $($proof.depthLimitedCount) |")
+    $P.Add("| Reparse points inside returned items | $($proof.reparsePointsInItems) |")
     $P.Add("| **Completeness** | **$($proof.completeness)** |")
     $P.Add("| Violations | $(@($proof.violations).Count) |")
     $P.Add('')
@@ -299,6 +354,11 @@ $P.Add('  No exhaustiveness claim covers them.')
 ($P -join "`r`n") | Set-Content -LiteralPath $proofPath -Encoding UTF8
 
 Write-Host ''
-if ($verdict -like 'PASS*') { Write-Host "VERDICT: $verdict" -ForegroundColor Green }
-else { Write-Host "VERDICT: $verdict" -ForegroundColor Red }
+if ($verdict -eq 'PASS') {
+    Write-Host 'VERDICT: PASS' -ForegroundColor Green
+} else {
+    Write-Host 'VERDICT: FAIL' -ForegroundColor Red
+    foreach ($fr in $failReasons) { Write-Host "  - $fr" -ForegroundColor Red }
+}
 Write-Host "  Proof: $proofPath"
+if ($verdict -ne 'PASS') { exit 1 }

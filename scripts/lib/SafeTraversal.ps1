@@ -39,19 +39,22 @@ $script:SafetyPrunedNames = @('.remember')
 # Never entered, to keep inventories meaningful. Not safety-critical.
 $script:NoisePrunedNames = @('.git', 'node_modules')
 
-function Test-IsDirectoryReparsePoint {
+function Test-IsReparsePoint {
     <#
     .SYNOPSIS
-      True if the item is a directory reparse point (junction, symlink, mount).
+      True if the item is ANY filesystem reparse point — file or directory.
     .DESCRIPTION
-      Attribute-based so it holds regardless of the link's name or target.
+      Attribute-based, so it holds regardless of the link's name or target.
+      Deliberately NOT restricted to containers: a FILE reparse point that
+      reaches the file branch would be returned in items and then hashed, and
+      Get-FileHash follows the link. That reads content from the link target,
+      which may be inside design-systems\.remember or outside the Hub.
       Errors resolve to $true: an item whose attributes cannot be read is
-      treated as a reparse point and not traversed. Fail closed.
+      treated as a reparse point and excluded. Fail closed.
     #>
     param($Item)
     if ($null -eq $Item) { return $true }
     try {
-        if (-not $Item.PSIsContainer) { return $false }
         return (($Item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0)
     } catch {
         return $true
@@ -121,11 +124,13 @@ function Get-SafeChildItems {
         return $result
     }
     if ($script:SafetyPrunedNames -contains $rootItem.Name) {
+        # Nothing was inventoried, so this is not a complete inventory of
+        # anything. Refuse rather than report success over an empty result.
         $result.prunedForSafety += $Root
-        $result.completeness = 'COMPLETE'
+        $result.incompleteReasons += 'supplied root is itself safety-pruned; nothing was inventoried'
         return $result
     }
-    if (Test-IsDirectoryReparsePoint -Item $rootItem) {
+    if (Test-IsReparsePoint -Item $rootItem) {
         $result.untraversedReparsePoints += [ordered]@{ path=$Root; note='root is a reparse point; not traversed' }
         $result.incompleteReasons += 'root is a reparse point and was not traversed'
         return $result
@@ -154,26 +159,36 @@ function Get-SafeChildItems {
         }
 
         foreach ($c in $children) {
+
+            # ===============================================================
+            # PRE-SPLIT DECISION — reparse point, file OR directory, whatever
+            # the name. This MUST precede the container/file split: a file
+            # reparse point routed to the file branch would be returned in
+            # items and then hashed, and Get-FileHash follows the link.
+            # ===============================================================
+            if (Test-IsReparsePoint -Item $c) {
+                $result.untraversedReparsePoints += [ordered]@{
+                    path = $c.FullName
+                    kind = if ($c.PSIsContainer) { 'directory' } else { 'file' }
+                    note = 'reparse point; not traversed, not returned, not hashed; target not inventoried'
+                }
+                # If it also carries a protected name, disclose it in both
+                # places so the safety record is not lost.
+                if ($script:SafetyPrunedNames -contains $c.Name) {
+                    $result.prunedForSafety += $c.FullName
+                }
+                continue    # never pushed, never listed, never returned
+            }
+
             if ($c.PSIsContainer) {
 
-                # PRE-DESCENT DECISION 1 — protected name.
+                # PRE-DESCENT DECISION — protected name.
                 if ($script:SafetyPrunedNames -contains $c.Name) {
                     $result.prunedForSafety += $c.FullName
                     continue    # never pushed, never listed, never counted
                 }
 
-                # PRE-DESCENT DECISION 2 — reparse point, whatever its name.
-                # Checked before the noise list so an aliased junction is
-                # reported as a boundary rather than silently skipped.
-                if (Test-IsDirectoryReparsePoint -Item $c) {
-                    $result.untraversedReparsePoints += [ordered]@{
-                        path = $c.FullName
-                        note = 'directory reparse point; not traversed; target not inventoried'
-                    }
-                    continue    # never pushed, never listed
-                }
-
-                # PRE-DESCENT DECISION 3 — noise.
+                # PRE-DESCENT DECISION — noise.
                 if ($script:NoisePrunedNames -contains $c.Name) {
                     $result.prunedForNoise += $c.FullName
                     continue
@@ -251,6 +266,17 @@ function Test-SafePruning {
             }
         }
     }
+
+    # No returned item may itself be a reparse point, of either kind. This is
+    # the property that stops a file symlink escaping into the inventory and
+    # being hashed.
+    $reparseInItems = 0
+    foreach ($it in $Traversal.items) {
+        if (Test-IsReparsePoint -Item $it) {
+            $reparseInItems++
+            $violations += "returned item is a reparse point: $($it.FullName)"
+        }
+    }
     return [ordered]@{
         pass                      = ($violations.Count -eq 0)
         prunedForSafetyCount      = @($Traversal.prunedForSafety).Count
@@ -261,6 +287,7 @@ function Test-SafePruning {
         visitedDirectoryCount     = @($Traversal.visitedDirectories).Count
         itemCount                 = @($Traversal.items).Count
         completeness              = $Traversal.completeness
+        reparsePointsInItems      = $reparseInItems
         violations                = $violations
     }
 }

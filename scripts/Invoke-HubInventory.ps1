@@ -112,8 +112,8 @@ if ($hubExists) {
     Write-Host ("  completeness : {0}" -f $trav.completeness) -ForegroundColor $(if ($trav.completeness -eq 'COMPLETE') { 'Green' } else { 'Red' })
     foreach ($r in $trav.incompleteReasons) { Write-Host "    - $r" -ForegroundColor Red }
     if (@($trav.untraversedReparsePoints).Count -gt 0) {
-        Write-Host ("  reparse points not traversed : {0}" -f @($trav.untraversedReparsePoints).Count) -ForegroundColor Yellow
-        foreach ($rp in $trav.untraversedReparsePoints) { Write-Host "    - $($rp.path)" -ForegroundColor Yellow }
+        Write-Host ("  reparse points excluded : {0}" -f @($trav.untraversedReparsePoints).Count) -ForegroundColor Yellow
+        foreach ($rp in $trav.untraversedReparsePoints) { Write-Host "    - [$($rp.kind)] $($rp.path)" -ForegroundColor Yellow }
     }
     $rootLen = ($hubResolved.TrimEnd('\')).Length
     $items = $trav.items
@@ -169,7 +169,7 @@ $R = [ordered]@{
         machine = $env:COMPUTERNAME
         hubPathResolved = $hubResolved
         hubExists = $hubExists
-        traversal = 'pre-descent pruning via lib/SafeTraversal.ps1; no -Recurse; directory reparse points not traversed'
+        traversal = 'pre-descent pruning via lib/SafeTraversal.ps1; no -Recurse; all reparse points (file and directory) excluded before the directory/file split'
         completeness = if ($hubExists) { $trav.completeness } else { 'INCOMPLETE' }
         incompleteReasons = if ($hubExists) { @($trav.incompleteReasons) } else { @('live Hub not found at the resolved path') }
         exhaustivenessScope = 'Complete within the physical Hub tree. Excludes safety-pruned directories, noise-pruned directories, and any reparse-point target. No claim is made about content behind those boundaries.'
@@ -221,7 +221,7 @@ $R = [ordered]@{
         'No file contents were emitted; only path, size, SHA256 and modified time.',
         'Baseline reflects GitHub agents-hub-one at the recorded ref, not any later commit.',
         'A file identical by SHA256 is byte-identical; semantic equivalence was not assessed.',
-        'Directory reparse points were not traversed; nothing behind them is inventoried.',
+        'Reparse points of either kind, file or directory, were excluded before the directory/file split; they were never returned and never hashed, and nothing behind them is inventoried.',
         'The inventory is exhaustive only within the physical Hub tree, excluding pruned directories and reparse-point targets.'
     )
 }
@@ -234,7 +234,7 @@ $L.Add("**Generated:** $stampISO")
 $L.Add("**Machine:** $env:COMPUTERNAME")
 $L.Add("**Live Hub inspected:** ``$hubResolved`` (exists: $hubExists)")
 $L.Add("**Compared against:** ``$(Split-Path $BaselinePath -Leaf)`` at ref ``$($baseline.meta.head)``")
-$L.Add('**Method:** read-only, no network. No file contents emitted. Directory reparse points not traversed.')
+$L.Add('**Method:** read-only, no network. No file contents emitted. Reparse points of either kind excluded; nothing hashed through a link.')
 $L.Add('')
 $travComplete = if ($hubExists) { $trav.completeness } else { 'INCOMPLETE' }
 $L.Add("## Completeness: $travComplete")
@@ -306,10 +306,12 @@ if ($hubExists) {
     $L.Add('')
     if (@($trav.prunedForNoise).Count -gt 0) { foreach ($p in $trav.prunedForNoise) { $L.Add("- ``$p``") } } else { $L.Add('- none found') }
     $L.Add('')
-    $L.Add('**Not traversed — directory reparse points** (junction, symlink, mount). Detected')
-    $L.Add('by attribute, so an alias cannot bypass a name-based rule. Targets are not inventoried:')
+    $L.Add('**Not traversed — reparse points, file and directory** (junction, symlink, mount).')
+    $L.Add('Detected by attribute before the directory/file split, so neither an alias nor a')
+    $L.Add('file link can bypass the name-based rule. Never returned, never hashed. Targets')
+    $L.Add('are not inventoried:')
     $L.Add('')
-    if (@($trav.untraversedReparsePoints).Count -gt 0) { foreach ($rp in $trav.untraversedReparsePoints) { $L.Add("- ``$($rp.path)`` — $($rp.note)") } } else { $L.Add('- none found') }
+    if (@($trav.untraversedReparsePoints).Count -gt 0) { foreach ($rp in $trav.untraversedReparsePoints) { $L.Add("- ``$($rp.path)`` [$($rp.kind)] — $($rp.note)") } } else { $L.Add('- none found') }
     $L.Add('')
     $L.Add('**Traversal failures** (could not enumerate; forces INCOMPLETE):')
     $L.Add('')
