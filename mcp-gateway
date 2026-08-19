@@ -8,22 +8,20 @@ The primary outcome is:
 
 > I manage shared tools, access rules, governance, audit requirements, skills/prompts, and integration policies centrally instead of maintaining equivalent rules separately inside Claude, Codex, and every future agent.
 
-The system must preserve runtime independence.
-
-Claude, Codex, or any future agent must be replaceable without redesigning the shared governance architecture.
+The system must preserve runtime independence. Claude, Codex, or any future agent must be replaceable without redesigning the shared governance architecture.
 
 Do not create separate parallel governance systems for each runtime.
 
 ---
 
-# 2. Core Architecture
+# 2. Architecture
 
 Implement this logical architecture:
 
 ```text
                     ┌──────────────────────────────┐
                     │           ATRIUM             │
-                    │ Dashboard / Visibility / UX  │
+                    │ Visibility / Approvals / UX  │
                     └──────────────┬───────────────┘
                                    │
                                    ▼
@@ -35,45 +33,50 @@ Implement this logical architecture:
 │ Schemas • Registries • Runbooks • Templates • Tests        │
 └────────────────────────────┬────────────────────────────────┘
                              │
-                             │ configures / publishes
+                             │ defines / configures
                              ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                    MCP GATEWAY                              │
-│                  AGENT CONTROL PLANE                        │
+│                  SHARED CONTROL PLANE                      │
 │                                                             │
 │ Catalog / Discovery          Governance Enforcement        │
-│ Tools                        Authentication                │
-│ Resources                    Authorization                 │
-│ Prompts                      RBAC / Capabilities           │
-│ Upstream MCP Registry        Scope Enforcement             │
-│ Custom APIs / Scripts        Input Validation              │
-│                              Sensitive Data Redaction      │
-│                              Rate Limits                   │
-│                              Audit / Observability         │
+│ Tools / Resources / Prompts  Authentication                │
+│ Upstream MCP Registry        Authorization                 │
+│ APIs / Scripts               Scope Enforcement             │
+│                              Validation / Redaction        │
+│                              Rate Limits / Audit           │
 └────────────┬─────────────┬─────────────┬───────────────────┘
              │             │             │
              ▼             ▼             ▼
         GitHub MCP     Notion MCP    Other MCPs
         Files MCP      SaaS MCPs     APIs / Scripts
         Local Tools    Databases     Internal Services
-             ▲
-             │
-┌────────────┴────────────────────────────────────────────────┐
+
+┌─────────────────────────────────────────────────────────────┐
 │                         AGENTS                              │
-│                                                             │
 │          Claude Code │ Codex │ Custom │ Future             │
 │                                                             │
-│              Minimal runtime adapters only                 │
+│     Minimal runtime adapters + native runtime controls     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-The responsibilities must remain clearly separated.
+The governing model is:
+
+```text
+ONE CANONICAL GOVERNANCE SOURCE
+              ↓
+       ONE SHARED CONTROL PLANE
+              ↓
+     MANY RUNTIME ADAPTERS
+              ↓
+        MANY AGENTS
+```
 
 ---
 
-# 3. Architectural Responsibilities
+# 3. Component Responsibilities
 
-## `.agents-hub` = Canonical Source of Truth
+## `.agents-hub` = Canonical Desired State
 
 `.agents-hub` owns the declarative definition of shared:
 
@@ -90,120 +93,96 @@ The responsibilities must remain clearly separated.
 - runbooks
 - templates
 - verification rules
-- approval requirements
+- approval classifications
 - security classifications
 
-Do not move canonical governance into Claude configuration, Codex configuration, or an opaque Gateway database.
+Do not move canonical governance into Claude configuration, Codex configuration, an opaque Gateway database, or Atrium.
 
-The Gateway should **consume and enforce** centrally defined governance.
-
-It should not become an unrelated second source of truth.
-
-If equivalent assets already exist in `.agents-hub`, reuse and refactor them rather than creating duplicates.
-
----
+The Gateway consumes and enforces centrally defined governance. If equivalent assets already exist in `.agents-hub`, reuse or refactor them instead of creating duplicates.
 
 ## MCP Gateway = Enforcement and Access Layer
 
-The Gateway is responsible for:
+The Gateway is responsible for Gateway-routed capabilities only. It must provide:
 
-- exposing a unified MCP interface
-- aggregating upstream MCP servers
-- exposing approved APIs/scripts as governed capabilities
-- capability discovery
-- catalog aggregation
+- a unified MCP interface
+- upstream MCP aggregation
+- approved API/script exposure
+- capability discovery and cataloging
 - authentication
 - authorization
 - role/capability evaluation
-- resource scope evaluation
+- resource-scope evaluation
 - policy enforcement
-- schema validation
-- dangerous parameter validation
-- sensitive-data handling
-- rate limiting
-- auditing
+- schema and parameter validation
+- sensitive-data protection
+- rate/resource controls
+- structured auditing
 - health monitoring
 - upstream routing
 - namespace management
 - failure handling
 
-Every governed tool execution must pass through this layer.
-
----
-
 ## Claude / Codex / Future Agents = Workers
 
-Agents should contain only the minimum runtime-specific configuration required to:
+Each runtime should contain only the minimum configuration required to:
 
 - connect to the Gateway
 - authenticate
-- identify the appropriate principal
-- comply with unavoidable runtime-native security controls
-- locate shared bootstrap instructions where necessary
+- supply trustworthy identity/credential context
+- locate shared bootstrap instructions where needed
+- retain unavoidable runtime-native security controls
 
-Do not duplicate shared business rules or governance separately into:
-
-- Claude rules
-- Codex rules
-- custom-agent configurations
-- future runtime configurations
+Do not duplicate shared business rules or governance separately into Claude, Codex, custom-agent, or future-runtime configuration.
 
 Runtime-specific configuration is an adapter, not the canonical governance layer.
 
----
-
 ## Atrium = Human Control and Visibility Layer
 
-Atrium should eventually consume Gateway and `.agents-hub` information for:
+Atrium may consume structured Gateway and `.agents-hub` information for:
 
 - system status
-- agent status
+- agent/runtime activity
 - available capabilities
 - policy visibility
 - approvals
 - audit events
 - errors
-- tool health
-- MCP server health
+- tool/MCP health
 - execution history
-- governance status
 
-Atrium must not become another independent source of governance truth.
-
-Design the Gateway so Atrium integration can be added cleanly later.
-
-Do not redesign Atrium during this task unless integration work already exists and a minimal compatible interface is required.
+Atrium must not become another independent governance source.
 
 ---
 
-# 4. Critical Design Principle
+# 4. Governance Scope and Security Boundary
 
-The target is:
+This boundary is mandatory:
 
-```text
-DEFINE ONCE
-     ↓
-ENFORCE CENTRALLY
-     ↓
-USE FROM MANY AGENTS
-```
+> The MCP Gateway is authoritative for capabilities routed through it. It does not automatically govern native runtime capabilities such as built-in shell execution, filesystem access, browser capabilities, or other runtime-native tools.
 
-Not:
+Therefore the real security model is:
 
 ```text
-Claude governance
-Codex governance
-Custom-agent governance
-Future-agent governance
+Agent
+├── Native runtime capabilities
+│      └── Claude/Codex/native runtime controls
+│
+└── Shared governed capabilities
+       ↓
+   MCP Gateway
+       ↓
+ Central governance
 ```
 
-The user should not have to manually synchronize equivalent governance between AI runtimes.
+Where practical, sensitive shared capabilities should be routed through the Gateway and direct bypass paths removed after safe verification.
 
-A change to a central tool policy should not normally require manually rewriting the same policy separately for Claude and Codex.
+Do not claim the Gateway governs a capability unless that capability actually passes through the Gateway or an equivalent enforceable control.
+
+Do not accept prompt instructions such as "the agent must not use this tool" as proof of enforcement. A prohibited Gateway-routed operation must be rejected outside the model.
 
 ---
 
-# 5. Start With Discovery — Do Not Build Blindly
+# 5. Discovery and Standards Verification
 
 Before modifying anything:
 
@@ -211,83 +190,60 @@ Before modifying anything:
 2. Locate the current `.agents-hub`.
 3. Read its bootstrap, registries, governance, skills, policies, schemas, and related documentation.
 4. Identify existing MCP configuration.
-5. Identify Claude Code configuration.
-6. Identify Codex configuration.
-7. Identify existing shared assets.
-8. Identify existing tool registries.
-9. Identify existing scripts/APIs that may eventually be exposed.
-10. Identify existing authentication or secrets mechanisms.
-11. Identify existing audit/logging mechanisms.
-12. Identify duplicated governance already present across runtimes.
+5. Identify Claude Code configuration and native controls.
+6. Identify Codex configuration and native controls.
+7. Identify existing shared assets and tool registries.
+8. Identify scripts/APIs that may eventually be exposed.
+9. Identify existing authentication, secrets, audit, and logging mechanisms.
+10. Identify duplicated governance and direct-access bypass paths.
+11. Create an evidence-based current-state map before implementation.
 
-Create an evidence-based current-state map.
+Do not infer file purpose from filenames alone. Read actual contents.
 
-Do not assume filenames or architecture merely from names.
+Before MCP-specific implementation, verify current official documentation for:
 
-Read actual contents before deciding their purpose.
+- the current stable MCP specification
+- transport and protocol-version negotiation
+- authorization
+- security best practices
+- tools
+- resources
+- prompts
+- current Codex MCP/configuration behavior
+- current Claude Code MCP/settings/security behavior
 
-Do not overwrite functioning architecture merely because this directive proposes a cleaner theoretical structure.
-
-Integrate with what exists.
-
----
-
-# 6. Verify Current Official Standards Before Implementation
-
-Before implementing MCP-specific behavior, verify current documentation from authoritative sources.
-
-At minimum verify:
-
-- Model Context Protocol current specification
-- MCP transport specification
-- MCP authorization specification
-- MCP security best practices
-- MCP tools
-- MCP resources
-- MCP prompts
-- current Codex MCP documentation
-- current Codex configuration documentation
-- current Claude Code MCP documentation
-- current Claude Code settings/security documentation
-
-Prefer current official documentation over remembered behavior.
-
-If this directive conflicts with a newer official protocol requirement, follow the current official requirement and document the difference.
-
-Do not silently make assumptions about current MCP behavior.
+If this directive conflicts with newer authoritative documentation, follow the current standard and document the difference.
 
 ---
 
-# 7. Transport
+# 6. Gateway Requirements
 
-For the unified remote Gateway interface, use the current supported **MCP Streamable HTTP transport** unless discovery establishes a material reason not to.
+## Transport and Protocol Compatibility
 
-The desired logical result is one Gateway endpoint such as:
+Use the current supported **MCP Streamable HTTP** transport for the unified remote Gateway interface unless discovery establishes a material reason not to.
+
+Target one logical endpoint such as:
 
 ```text
 http(s)://<gateway-host>/mcp
 ```
 
-Agents connect to that Gateway instead of individually managing every upstream integration.
+The Gateway may connect upstream to:
 
-Local STDIO MCP servers may still exist behind the Gateway where appropriate.
-
-The Gateway may act as a client to upstream:
-
-- STDIO MCP servers
 - Streamable HTTP MCP servers
+- STDIO MCP servers
 - approved APIs
 - approved local scripts
 
-Do not expose unnecessary services directly.
+Do not hard-code assumptions from one MCP revision. Implement protocol-version negotiation and compatibility according to the current MCP specification and the versions actually supported by target clients/upstreams.
 
----
+Do not assume protocol-level sessions, GET streams, SSE behavior, or any other transport detail unless required by the negotiated version.
 
-# 8. Catalog and Discovery
+Where supported MCP versions differ between clients or upstream servers, adapt explicitly and test compatibility.
 
-Create a normalized catalog representing available capabilities.
+## Catalog and Discovery
 
-The Gateway must be able to discover and identify:
+Create a normalized capability catalog covering:
 
 - upstream MCP servers
 - MCP tools
@@ -297,7 +253,7 @@ The Gateway must be able to discover and identify:
 - approved scripts
 - approved APIs
 
-Store enough metadata to determine:
+Track enough metadata to determine:
 
 - canonical name
 - provider
@@ -307,410 +263,25 @@ Store enough metadata to determine:
 - risk classification
 - required role/capability
 - resource scopes
-- approval requirement
+- approval classification
 - upstream origin
 - availability
-- version where relevant
+- supported protocol/runtime constraints where relevant
 
-Prevent naming collisions.
-
-Prefer namespaced capability identifiers when necessary, for example:
+Prevent naming collisions. Prefer namespaced identifiers where necessary, for example:
 
 ```text
 github.issue.create
 github.repository.read
 notion.page.read
-notion.database.query
 filesystem.file.read
 ```
 
-Do not allow two upstream capabilities with the same effective identity to silently overwrite one another.
+New upstream capabilities must not become unrestricted merely because an upstream server exposes them.
 
----
+## Upstream Management
 
-# 9. Skills and Prompts
-
-Do not force every skill into an MCP tool.
-
-Maintain canonical skills in `.agents-hub`.
-
-Where useful, expose shared agent instructions through appropriate MCP mechanisms such as:
-
-- prompts
-- resources
-- server instructions
-- governed retrieval
-
-The canonical version must remain traceable to `.agents-hub`.
-
-Avoid creating copies that can drift.
-
-The architecture must distinguish:
-
-```text
-Tool
-= something that performs or invokes an operation
-
-Resource
-= context/data made available to a client
-
-Prompt
-= reusable prompt/workflow definition
-
-Skill
-= our broader reusable procedural capability, potentially backed by one or more of the above
-```
-
-Do not collapse these concepts into one generic category.
-
----
-
-# 10. Identity Model
-
-Do not rely on an untrusted request field saying:
-
-```text
-agent = claude
-```
-
-or:
-
-```text
-agent = codex
-```
-
-as the security boundary.
-
-Authentication must establish a real principal.
-
-Model identity approximately as:
-
-```text
-Authenticated Principal
-        ↓
-Assigned Role(s)
-        ↓
-Capabilities
-        ↓
-Resource Scopes
-        ↓
-Policy Decision
-```
-
-Runtime metadata such as:
-
-- Claude
-- Codex
-- custom agent
-- project
-- session
-
-may be recorded for auditing and policy context, but must not be trusted as authentication merely because the caller supplied the label.
-
----
-
-# 11. Central Authorization Model
-
-Implement centrally managed authorization.
-
-Support at minimum:
-
-- principals
-- roles
-- capabilities
-- resource scopes
-- tool/action policies
-- approval requirements
-- explicit denies
-
-Example roles may include:
-
-```text
-read-only
-auditor
-project-executor
-maintainer
-administrator
-```
-
-These are examples, not mandatory names.
-
-Do not hard-code policy around Claude versus Codex unless a genuine runtime-specific exception is required.
-
-Prefer:
-
-```text
-principal → role → capability → scope
-```
-
-over:
-
-```text
-claude_allowed_tools
-codex_allowed_tools
-```
-
-The latter may be generated as a compatibility artifact if a runtime requires it, but it must not become the canonical policy model.
-
----
-
-# 12. Policy Decisions
-
-A governed operation should resolve to one of:
-
-```text
-ALLOW
-REQUIRE_APPROVAL
-DENY
-```
-
-Policies should support conditions including:
-
-- principal
-- role
-- capability
-- provider
-- operation
-- project
-- workspace
-- resource
-- resource scope
-- environment
-- destructive classification
-- credential sensitivity
-- external side effect
-- network destination where relevant
-
-Explicit DENY must override ALLOW.
-
-Default behavior for unknown sensitive operations should be fail-safe rather than permissive.
-
----
-
-# 13. Approval Controls
-
-Central governance must be able to classify operations requiring approval.
-
-Examples may include:
-
-```text
-production changes
-destructive actions
-credential-sensitive operations
-external publishing
-deployment
-database deletion
-repository deletion
-large-scale file deletion
-security-policy changes
-privilege escalation
-```
-
-Do not duplicate these classifications individually in every agent.
-
-Where a runtime has unavoidable native approval mechanisms, configure them as a compatibility/safety layer while preserving the central classification as the canonical policy.
-
-The long-term objective is:
-
-```text
-central policy definition
-        ↓
-Gateway enforcement
-        ↓
-runtime-native protection where required
-```
-
-not two independently maintained governance systems.
-
----
-
-# 14. Schema Validation and Input Protection
-
-Do not rely on generic "sanitization" alone.
-
-For every tool invocation:
-
-1. Validate the tool exists.
-2. Validate the caller is authorized to discover/use it.
-3. Validate parameters against the declared schema.
-4. Reject unexpected parameters where appropriate.
-5. Validate values against policy constraints.
-6. Apply scope restrictions.
-7. Protect filesystem paths.
-8. Protect command execution.
-9. Protect URLs/network destinations.
-10. Protect against path traversal.
-11. Protect against shell/command injection where applicable.
-12. Protect against unsafe argument expansion.
-13. Reject malformed requests.
-14. Enforce size/resource limits where appropriate.
-
-Never concatenate untrusted parameters directly into shell commands.
-
-Prefer structured process invocation over shell-string construction.
-
----
-
-# 15. Sensitive Data Protection
-
-Implement sensitive-data controls for both:
-
-```text
-tool output → agent
-```
-
-and:
-
-```text
-execution data → logs
-```
-
-At minimum detect and protect obvious:
-
-- API keys
-- access tokens
-- bearer tokens
-- passwords
-- private keys
-- authorization headers
-- connection strings containing credentials
-- secrets loaded from environment/configuration
-
-Where appropriate, support configurable sensitive-data patterns.
-
-Redaction must not destroy values internally when they are genuinely required to perform an authorized operation.
-
-The principle is:
-
-```text
-Use secret internally when authorized
-        ↓
-Never unnecessarily expose it to model context
-        ↓
-Never unnecessarily write it to logs
-```
-
-Do not log raw secrets.
-
----
-
-# 16. Secrets Management
-
-Do not put secrets directly in:
-
-- policy files
-- source-controlled configuration
-- agent definitions
-- skills
-- prompts
-- audit logs
-- documentation
-
-Use an appropriate secrets mechanism for the actual environment.
-
-For the initial local implementation, prefer a secure and maintainable mechanism compatible with the operating environment.
-
-Separate:
-
-```text
-configuration
-```
-
-from:
-
-```text
-credentials
-```
-
-Document secret references, not secret values.
-
----
-
-# 17. Audit Logging
-
-Create centralized structured audit events.
-
-Do not make a single unstructured text file the only audit system.
-
-A lightweight initial implementation may use append-oriented JSONL with rotation.
-
-Suggested logical categories:
-
-```text
-audit/
-  executions
-  policy-decisions
-  authentication
-  configuration
-  errors
-```
-
-This does not mandate separate physical files if a cleaner structured implementation exists.
-
-Each execution event should be capable of recording:
-
-```text
-timestamp
-request_id
-correlation_id
-authenticated_principal
-runtime/client metadata
-project/workspace if known
-tool/provider
-operation
-policy decision
-approval state
-result status
-duration
-error classification
-```
-
-Sensitive values must be redacted.
-
-Audit records must allow an execution to be traced through:
-
-```text
-client
-  ↓
-Gateway
-  ↓
-policy evaluation
-  ↓
-upstream execution
-  ↓
-result
-```
-
-Design the event schema so Atrium can consume it later.
-
----
-
-# 18. Rate Limiting and Resource Controls
-
-Support centrally configurable protections including:
-
-- per-principal limits
-- per-role limits
-- per-tool limits
-- upstream-provider limits
-- concurrency limits where appropriate
-- request-size limits
-- timeout limits
-- retry limits
-
-Do not create retry storms.
-
-Respect upstream limits.
-
-Dangerous or expensive operations may have stricter limits.
-
----
-
-# 19. Upstream MCP Management
-
-Treat every upstream MCP server as a dependency.
-
-Track:
+Track each upstream dependency by:
 
 - identifier
 - transport
@@ -720,421 +291,303 @@ Track:
 - available capabilities
 - trust classification
 - health
-- timeout
-- retry policy
-- version where available
+- timeout/retry policy
+- protocol/version compatibility where known
 
-The Gateway must not silently expose every tool provided by a newly connected upstream server.
+## Fail-Safe Behavior
 
-New capabilities should be subject to central policy/catalog classification before unrestricted use.
+- Invalid policy/configuration reload: reject it, preserve the last known valid state when safe, and audit the failure.
+- Cold start with unusable policy: fail closed for protected capabilities.
+- Gateway unavailable: managed agents must not silently bypass it for sensitive governed capabilities.
+- Upstream unavailable: return a clear dependency failure.
+- Timeout: terminate or safely abandon according to tool semantics and record the outcome.
 
----
+Configuration reloads should be validated, atomic, auditable, and reversible.
 
-# 20. Direct-Access Bypass
+## Health and Diagnostics
 
-The architecture should prevent governance from being meaningless.
-
-If a governed tool is supposed to pass through the Gateway, agents should not simultaneously receive unrestricted direct access to the same sensitive upstream integration unless explicitly justified.
-
-Identify existing bypass paths.
-
-Do not automatically break them during discovery.
-
-Document them and migrate safely.
-
-For managed capabilities, the desired state is:
-
-```text
-Agent
- ↓
-Gateway
- ↓
-Upstream
-```
-
-rather than:
-
-```text
-Agent ──────────────→ Upstream
-  └→ Gateway
-```
-
-for the same governed capability.
-
----
-
-# 21. Fail-Safe Behavior
-
-Implement explicit failure behavior.
-
-## Invalid policy reload
-
-If a new policy/configuration cannot be validated:
-
-- reject the new version
-- preserve the last known valid configuration when safely possible
-- emit an audit/error event
-- do not partially apply the invalid configuration
-
-## Cold start with unusable policy
-
-Fail closed for protected capabilities.
-
-## Gateway unavailable
-
-Managed agents must not silently bypass the Gateway to sensitive upstream systems.
-
-## Upstream unavailable
-
-Return a clear dependency failure.
-
-Do not represent the operation as successful.
-
-## Timeout
-
-Terminate or safely abandon the request according to tool semantics and record the failure.
-
----
-
-# 22. Configuration Reload
-
-Where practical, support validated configuration reload without requiring complete manual reconfiguration of every client.
-
-Reload must be:
-
-- validated
-- atomic
-- auditable
-- reversible to last known good state
-
-Do not permit partially loaded policy state.
-
----
-
-# 23. Health and Diagnostics
-
-Provide diagnostics capable of showing:
+Expose non-sensitive diagnostics for:
 
 - Gateway status
 - loaded configuration version
 - policy status
-- registered upstream servers
-- upstream health
+- upstream registration/health
 - catalog health
-- failed integrations
-- authentication failures
-- policy failures
+- authentication/policy failures
 - recent errors
 
-Do not reveal credentials or sensitive configuration through diagnostics.
-
-Provide a simple verification command/script for local troubleshooting.
+Provide one simple verification entry point with clear PASS / FAIL output.
 
 ---
 
-# 24. Runtime Integration — Codex
+# 7. Security, Identity, Authorization, and Approval
 
-Configure Codex to use the Gateway through the currently supported MCP configuration mechanism.
+## Identity Model
 
-Keep Codex-specific configuration minimal.
+Do not use caller-supplied labels such as `agent=claude` or `agent=codex` as authentication.
 
-Codex configuration should primarily establish:
-
-- Gateway connection
-- required authentication reference
-- minimal runtime-native safety configuration
-- bootstrap pointer where necessary
-
-Do not reproduce the entire shared policy set manually inside Codex.
-
-Document exactly which settings remain Codex-specific and why they cannot be centralized.
-
----
-
-# 25. Runtime Integration — Claude Code
-
-Configure Claude Code to use the same Gateway through the currently supported MCP configuration mechanism.
-
-Keep Claude-specific configuration minimal.
-
-Claude configuration should primarily establish:
-
-- Gateway connection
-- required authentication reference
-- minimal runtime-native safety configuration
-- bootstrap pointer where necessary
-
-Do not reproduce the entire shared policy set manually inside Claude.
-
-Document exactly which settings remain Claude-specific and why they cannot be centralized.
-
----
-
-# 26. Future Runtime Requirement
-
-Adding a future agent should ideally require:
+Distinguish:
 
 ```text
-1. Authenticate principal
-2. Assign role/capabilities
+Authenticated identity
+├── user or service principal
+├── client identity where supported
+└── credential context
+
+Policy/audit context
+├── runtime: Claude / Codex / other
+├── project
+├── workspace
+└── session/request metadata
+```
+
+Identity establishes who/what is authenticated. Runtime/project/workspace metadata may inform policy and auditing but must not independently create privilege.
+
+## Central Authorization
+
+Support at minimum:
+
+- principals
+- roles
+- capabilities
+- resource scopes
+- tool/action policies
+- approval classifications
+- explicit denies
+
+Prefer:
+
+```text
+identity + trusted context
+          ↓
+role / capability / scope
+          ↓
+policy decision
+```
+
+Do not make `claude_allowed_tools` and `codex_allowed_tools` the canonical policy model. Runtime-specific allow/deny artifacts may be generated when required, but they remain derived compatibility artifacts.
+
+## Policy Decisions
+
+A governed operation resolves to:
+
+```text
+ALLOW
+REQUIRE_APPROVAL
+DENY
+```
+
+Explicit DENY overrides ALLOW. Unknown sensitive operations default to fail-safe behavior.
+
+Policy conditions may include:
+
+- identity/principal
+- role
+- capability
+- provider
+- operation
+- project/workspace
+- resource/scope
+- environment
+- destructive classification
+- credential sensitivity
+- external side effect
+- network destination where relevant
+
+## Approval Architecture
+
+`REQUIRE_APPROVAL` is a **policy decision**, not necessarily the approval UI itself.
+
+Separate:
+
+```text
+Central policy engine
+       ↓
+REQUIRE_APPROVAL
+       ↓
+Approval broker / adapter
+   ↙          ↓          ↘
+Codex      Claude      Atrium/future
+```
+
+Use runtime-native approval mechanisms where required and compatible, while preserving the central classification as canonical.
+
+Do not claim centralized approval is implemented until the approval path is actually enforceable for that runtime/capability.
+
+## Schema and Input Protection
+
+For each governed invocation:
+
+1. Validate the capability exists.
+2. Validate discovery/use authorization.
+3. Validate parameters against schema.
+4. Reject unexpected parameters where appropriate.
+5. Validate values against policy constraints.
+6. Apply resource scopes.
+7. Protect filesystem paths.
+8. Protect command execution.
+9. Protect network destinations.
+10. Prevent path traversal, unsafe expansion, and injection where applicable.
+11. Enforce size, timeout, concurrency, and retry limits where appropriate.
+
+Never concatenate untrusted parameters directly into shell commands.
+
+## Sensitive Data and Secrets
+
+Protect sensitive values in both:
+
+```text
+tool output → agent
+execution data → logs/diagnostics
+```
+
+At minimum protect obvious API keys, access/bearer tokens, passwords, private keys, authorization headers, credential-bearing connection strings, and loaded secrets.
+
+Use secrets internally when authorized, but do not unnecessarily expose them to model context or logs.
+
+Do not store secrets in source-controlled policy/configuration, prompts, skills, agent definitions, audit logs, or documentation.
+
+## Audit Logging
+
+Use structured events, such as append-oriented JSONL initially, covering:
+
+- executions
+- policy decisions
+- authentication
+- configuration changes
+- errors
+- approvals where relevant
+
+Events should support fields such as:
+
+```text
+timestamp
+request_id / correlation_id
+authenticated identity
+client/runtime metadata
+project/workspace if known
+tool/provider/operation
+policy decision
+approval state
+result status
+duration
+error classification
+```
+
+Redact sensitive values before storage.
+
+## Rate and Resource Controls
+
+Support centrally configurable per-principal, per-role, per-tool, and upstream limits plus concurrency, request-size, timeout, and retry controls where appropriate.
+
+---
+
+# 8. Skills, Prompts, Resources, and Runtime Capability Differences
+
+Do not force every skill into an MCP tool.
+
+Keep canonical skills in `.agents-hub` and expose appropriate portions through supported MCP mechanisms such as prompts, resources, tools, server instructions, or governed retrieval.
+
+Maintain the distinction:
+
+```text
+Tool     = performs/invokes an operation
+Resource = provides contextual data
+Prompt   = reusable prompt/workflow definition
+Skill    = broader reusable procedural capability that may use one or more MCP primitives
+```
+
+The Gateway may expose standards-compliant MCP capabilities, but do **not** assume every runtime supports every MCP feature identically.
+
+Each runtime adapter must:
+
+1. Detect/document the currently supported MCP capability subset.
+2. Test the capabilities actually required by this system.
+3. Degrade cleanly when an optional capability is unavailable.
+4. Avoid designing the entire architecture only to the temporary intersection of Claude and Codex features.
+
+A missing optional capability in one runtime must not silently become a security bypass.
+
+---
+
+# 9. Runtime Adapters
+
+## Codex
+
+Configure Codex through its current supported MCP mechanism with only what is necessary for:
+
+- Gateway connection
+- authentication reference
+- bootstrap pointer where needed
+- unavoidable Codex-native safety/approval/tool controls
+
+Do not manually reproduce the shared policy set inside Codex.
+
+## Claude Code
+
+Configure Claude Code through its current supported MCP mechanism with only what is necessary for:
+
+- Gateway connection
+- authentication reference
+- bootstrap pointer where needed
+- unavoidable Claude-native safety/approval/tool controls
+
+Do not manually reproduce the shared policy set inside Claude.
+
+## Future Runtimes
+
+Adding a future runtime should ideally require only:
+
+```text
+1. Establish supported authentication/client identity
+2. Assign central roles/capabilities
 3. Configure Gateway connection
-4. Add minimal runtime adapter
-5. Run compatibility tests
+4. Add minimal runtime adapter/native controls
+5. Run compatibility and security tests
 ```
 
-It should **not** require rebuilding:
+It must not require rebuilding the catalog, central governance, audit system, redaction logic, or upstream integrations.
 
-- tool policies
-- permissions architecture
-- audit system
-- redaction logic
-- catalog
-- upstream integrations
-- shared skills
-- governance
-
-Those remain centralized.
+Where runtime-specific derived configuration is unavoidable, generate it from canonical governance when practical and mark it clearly as generated/non-canonical.
 
 ---
 
-# 27. Implementation Technology
+# 10. Canonical Configuration vs Runtime State
 
-Use either:
-
-- Node.js / TypeScript
-- Python
-
-Choose based on:
-
-- existing workspace technology
-- maintained MCP SDK support
-- compatibility with current upstream integrations
-- maintainability
-- operational simplicity
-- testing support
-
-Do not select a language merely because this directive lists it first.
-
-Document the selection rationale briefly.
-
-Do not require Docker.
-
-The implementation must work cleanly on the existing Windows environment.
-
-Do not introduce unnecessary infrastructure.
-
----
-
-# 28. Repository / Directory Integration
-
-Do not create a new disconnected configuration universe.
-
-First inspect the existing `.agents-hub` organization.
-
-Then place new components where they logically belong.
-
-A conceptual organization might include:
+Keep **desired state** separate from **operational state**.
 
 ```text
-.agents-hub/
-  governance/
-  policies/
-  registry/
-  skills/
-  schemas/
-  gateway/
-  tests/
+.agents-hub
+├── policies
+├── roles
+├── capabilities
+├── schemas
+└── registries
+     ↓
+canonical desired state
+
+MCP Gateway runtime
+├── active connections
+├── health/state
+├── request state
+├── token/session material where required
+├── runtime cache
+└── audit events
+     ↓
+operational state
 ```
 
-This is illustrative only.
+Do not use `.agents-hub` or Git as a runtime database.
 
-If equivalent canonical locations already exist:
+The Gateway may load/compile/cache canonical configuration, but operational noise, request state, tokens, health data, logs, and ephemeral state must not be written back into canonical governance files merely because they are convenient.
 
-**use them.**
-
-Do not create:
-
-```text
-policies/
-gateway-policies/
-security-policies/
-shared-policies/
-```
-
-when they contain the same concept.
-
-Fold semantically equivalent rules together.
-
-Avoid bloating the hub.
-
-Every canonical file must have a clear owner/purpose and be registered according to the existing registry system.
+Runtime state must never silently become a competing source of governance truth.
 
 ---
 
-# 29. Preserve Bootstrap Behavior
+# 11. Atrium Integration Contract
 
-The existing agent bootstrap architecture must continue working.
-
-After implementation verify:
-
-- Claude can bootstrap correctly.
-- Codex can bootstrap correctly.
-- `.agents-hub` remains discoverable.
-- canonical registries remain valid.
-- existing references are not broken.
-- shared skills remain discoverable.
-- Gateway configuration can be found from the canonical architecture.
-- no required runtime configuration was accidentally removed.
-
-Do not sacrifice existing bootstrapping merely to make the Gateway cleaner.
-
----
-
-# 30. Governance Compilation / Generation
-
-Where runtime-specific derived configuration is unavoidable, prefer generation from the central canonical policy.
-
-Example:
-
-```text
-.agents-hub canonical governance
-              ↓
-       validated compiler
-        ↙             ↘
-Codex adapter       Claude adapter
-```
-
-Generated compatibility artifacts must clearly identify themselves as generated and not canonical.
-
-Do not manually maintain equivalent policies in multiple destinations if they can be generated.
-
----
-
-# 31. Policy Validation
-
-Create machine-verifiable policy schemas.
-
-Validate at minimum:
-
-- unknown roles
-- unknown capabilities
-- invalid tool references
-- duplicate identifiers
-- contradictory definitions
-- invalid scopes
-- malformed rules
-- unreachable/unused policies where detectable
-- unsafe permissive defaults
-- references to nonexistent upstream capabilities
-
-Configuration errors must be visible.
-
-Do not silently ignore invalid policy entries.
-
----
-
-# 32. Security Tests
-
-Build tests proving enforcement rather than merely checking configuration files exist.
-
-At minimum test:
-
-### Authorization
-
-- allowed operation succeeds
-- denied operation fails
-- approval-required operation cannot bypass approval
-- read-only principal cannot perform write action
-- privilege change is respected
-- unknown principal cannot gain access
-
-### Identity
-
-- caller cannot gain privileges by changing an `agent` or `runtime` string
-- credentials map to intended principal
-- invalid credentials fail
-
-### Schema/input
-
-- malformed arguments fail
-- unexpected fields fail where appropriate
-- path traversal attempt fails
-- command-injection attempt fails where command execution exists
-- unauthorized resource scope fails
-
-### Redaction
-
-Inject test secrets and verify they do not appear in:
-
-- agent-visible output where prohibited
-- audit logs
-- error logs
-- diagnostics
-
-### Audit
-
-Verify successful and failed operations produce traceable events.
-
-### Catalog
-
-Verify:
-
-- duplicate tool names are handled
-- disabled tools are unavailable
-- unauthorized tools are filtered or rejected
-- upstream failure is represented correctly
-
-### Rate limits
-
-Verify configured limits actually enforce.
-
-### Configuration
-
-Verify:
-
-- invalid configuration cannot partially load
-- last known valid configuration survives rejected reload
-- changes to central policy affect both Claude and Codex without independently rewriting the policy in each runtime
-
----
-
-# 33. Cross-Agent Acceptance Test
-
-This is a critical acceptance requirement.
-
-Using equivalent authorized identities:
-
-1. Connect Codex to the Gateway.
-2. Connect Claude Code to the Gateway.
-3. Confirm both can access a shared allowed capability.
-4. Change its policy centrally.
-5. Confirm the changed policy is enforced for both without manually recreating the policy in both runtimes.
-6. Confirm audit records identify the separate callers.
-7. Confirm forbidden operations remain forbidden even if the model explicitly requests them.
-
-This proves the architecture is actually agent-agnostic.
-
----
-
-# 34. Security Boundary Test
-
-Do not accept:
-
-```text
-"The prompt tells the agent not to use the tool."
-```
-
-as proof of governance.
-
-A prohibited operation must be rejected by the enforcement layer even if the requesting model attempts it.
-
-Governance must exist outside the model's willingness to obey instructions.
-
----
-
-# 35. Observability for Atrium
-
-Design a stable read interface that Atrium can eventually use for:
+Design a stable structured read/control interface that Atrium can later consume for:
 
 ```text
 gateway health
@@ -1147,148 +600,30 @@ errors
 agent/runtime activity
 ```
 
-Do not tightly couple the Gateway implementation to the current Atrium UI.
+Do not tightly couple Gateway internals to the current Atrium UI.
 
-Expose stable structured data instead.
-
-Atrium should consume the control plane rather than become the control plane.
+Atrium may become a unified human approval surface later, but approval authority must remain backed by enforceable policy/broker behavior rather than UI state alone.
 
 ---
 
-# 36. Documentation
+# 12. Migration and Repository Integration
 
-Create or update documentation sufficient for another agent to understand:
+Do not build a disconnected configuration universe.
 
-## Architecture
+Inspect the existing `.agents-hub` layout first and place new canonical assets into existing logical locations. Fold semantically equivalent rules together instead of creating duplicate policy/registry/security directories.
 
-- what `.agents-hub` owns
-- what the Gateway owns
-- what agents own
-- what Atrium owns
-- what upstream MCP servers own
+Preserve existing bootstrap behavior for Claude, Codex, and future agents.
 
-## Operation
-
-- starting the Gateway
-- stopping the Gateway
-- checking status
-- validating configuration
-- viewing audit information
-- adding an upstream MCP
-- disabling an upstream MCP
-- adding a capability
-- changing a role
-- changing policy
-- connecting an additional agent
-
-## Recovery
-
-- revert configuration
-- recover from invalid configuration
-- disable a broken upstream
-- disable the Gateway safely
-- find logs/errors
-- restore last known valid policy
-
-Keep documentation concise and operational.
-
-Do not duplicate information already canonical elsewhere; link/reference it.
-
----
-
-# 37. Build Verification Script
-
-Provide one straightforward verification entry point.
-
-It should be able to check, as applicable:
-
-```text
-Gateway running
-configuration valid
-policy valid
-registry valid
-upstreams reachable
-catalog loads
-authentication works
-basic authorization works
-audit writable
-runtime adapters configured
-```
-
-Return clear PASS / FAIL results.
-
-A nontechnical operator should be able to run it and understand whether the system is healthy.
-
----
-
-# 38. Do Not Overengineer Version One
-
-Version one should be production-minded but lightweight.
-
-Prefer:
-
-```text
-one Gateway service
-structured configuration
-central policies
-central catalog
-structured audit logs
-strong tests
-minimal runtime adapters
-```
-
-over immediately introducing:
-
-```text
-Kubernetes
-microservices
-distributed databases
-service mesh
-large observability stacks
-complex message queues
-```
-
-unless the existing environment genuinely requires them.
-
-Build clean extension points instead.
-
----
-
-# 39. Non-Goals
-
-Do not:
-
-- replace `.agents-hub`
-- rebuild Atrium
-- create a new agent framework
-- lock the architecture to Claude
-- lock the architecture to Codex
-- duplicate governance per runtime
-- hide policy inside application code when it belongs in declarative configuration
-- put secrets into source control
-- expose all upstream MCP tools automatically
-- trust caller-provided agent names as authentication
-- rely only on prompts for security
-- unnecessarily containerize the solution
-- create duplicate documentation
-- create duplicate registries
-- create duplicate skills
-- create duplicate policies
-- break existing bootstrapping
-- perform destructive cleanup merely to achieve a prettier directory structure
-
----
-
-# 40. Migration Strategy
-
-Do not switch everything at once without verification.
+Identify direct-access bypass paths but do not destructively remove them before replacement behavior is proven.
 
 Use controlled migration:
 
 ```text
 DISCOVER
    ↓
-MAP
+MAP CURRENT STATE
+   ↓
+VERIFY CURRENT STANDARDS
    ↓
 DESIGN AGAINST EXISTING STATE
    ↓
@@ -1312,180 +647,176 @@ MIGRATE ADDITIONAL CAPABILITIES
    ↓
 VERIFY
    ↓
-IDENTIFY OBSOLETE DUPLICATE CONFIG
-   ↓
-RETIRE SAFELY
+RETIRE PROVEN-OBSOLETE DUPLICATES SAFELY
 ```
 
-Do not delete old configuration until replacement behavior is proven.
+Do not delete functioning legacy configuration until replacement behavior is verified.
 
-Archive/deprecate safely according to existing workspace governance.
+Version one should remain lightweight. Prefer one Gateway service, structured configuration, central policy/catalog, structured audit logs, strong tests, and minimal adapters over unnecessary containers, microservices, distributed infrastructure, or service meshes.
+
+Implementation may use Node.js/TypeScript or Python based on actual environment fit, maintained MCP SDK support, testing support, Windows compatibility, and maintainability. Docker must not be required unless discovery demonstrates a real need.
 
 ---
 
-# 41. Required Deliverables
+# 13. Verification and Acceptance Tests
+
+Build tests proving enforcement, not merely file existence.
+
+## Authorization and Identity
+
+Verify:
+
+- allowed operations succeed
+- denied operations fail
+- approval-required operations cannot bypass approval
+- read-only identities cannot write
+- unknown/invalid identities cannot gain access
+- changing `agent`, `runtime`, project, or other untrusted metadata cannot create privilege
+
+## Schema/Input Protection
+
+Verify:
+
+- malformed arguments fail
+- unexpected fields fail where appropriate
+- path traversal fails
+- command injection fails where command execution exists
+- unauthorized resource scopes fail
+
+## Redaction and Audit
+
+Inject test secrets and verify they do not appear where prohibited in:
+
+- agent-visible outputs
+- audit logs
+- error logs
+- diagnostics
+
+Verify successful and failed requests are traceable end-to-end.
+
+## Catalog and Upstreams
+
+Verify:
+
+- duplicate names are handled
+- disabled/unauthorized tools are unavailable or rejected
+- upstream failures are represented accurately
+- new upstream capabilities are not unrestricted by default
+
+## Configuration
+
+Verify:
+
+- invalid configuration cannot partially load
+- last known valid configuration survives rejected reload when safe
+- runtime operational state does not overwrite canonical governance
+
+## Protocol Compatibility
+
+Verify actual negotiated MCP compatibility for each supported client/upstream combination used by the system. Document unsupported optional capabilities and required graceful-degradation behavior.
+
+## Cross-Agent Acceptance Test
+
+Using appropriate authenticated identities:
+
+1. Connect Codex to the Gateway.
+2. Connect Claude Code to the Gateway.
+3. Confirm both can use a shared allowed Gateway-routed capability.
+4. Change its policy centrally.
+5. Confirm the change is enforced for both without manually recreating the equivalent policy in both runtimes.
+6. Confirm audit records distinguish callers/context.
+7. Confirm forbidden operations remain forbidden even when explicitly requested by the model.
+
+Also document any native runtime capability that remains outside Gateway authority and identify the native control protecting it.
+
+---
+
+# 14. Required Deliverables and Done-When Criteria
 
 The task is not complete with only a design document.
 
-Deliver a functioning implementation plus:
+Deliver only real, functional artifacts required by the implementation, including as applicable:
 
-1. Gateway service
-2. central configuration
-3. policy model
-4. policy schemas
-5. capability/catalog registry
-6. upstream MCP configuration
-7. authorization implementation
-8. authentication implementation
-9. sensitive-data protections
-10. structured auditing
-11. rate/resource controls
-12. health/diagnostic interface
-13. Codex adapter/configuration
-14. Claude Code adapter/configuration
-15. automated tests
-16. verification script
-17. concise architecture documentation
-18. operator runbook
-19. migration record
-20. implementation report
+- Gateway service
+- central configuration and policy model
+- policy schemas/validation
+- capability/catalog registry
+- upstream MCP configuration
+- authentication/authorization implementation
+- approval broker/adapters where required
+- sensitive-data protections
+- structured auditing
+- rate/resource controls
+- health/diagnostic interface
+- Codex adapter/configuration
+- Claude Code adapter/configuration
+- automated tests
+- verification script
+- concise architecture/operator/recovery documentation
+- migration record
+- implementation report
 
-Do not generate placeholder files merely to satisfy this list.
+Do not generate placeholder files merely to satisfy a list.
 
-Only create artifacts that have a real functional purpose.
-
----
-
-# 42. Completion Criteria
-
-This project is DONE only when the following have been verified:
+The project is DONE only when verified that:
 
 - [ ] `.agents-hub` remains the canonical governance source.
+- [ ] Canonical desired state is separated from Gateway runtime operational state.
 - [ ] A functioning MCP Gateway exists.
-- [ ] The Gateway exposes a unified MCP interface.
+- [ ] Gateway governance scope is explicitly limited to Gateway-routed capabilities.
 - [ ] At least one real upstream capability works through the Gateway.
-- [ ] Authentication works.
-- [ ] Central authorization works.
-- [ ] ALLOW / APPROVAL / DENY behavior is enforceable.
-- [ ] Unauthorized tool execution is rejected outside the model.
+- [ ] Authentication and central authorization work.
+- [ ] ALLOW / REQUIRE_APPROVAL / DENY behavior is enforceable for supported Gateway-routed capabilities.
+- [ ] Approval decisions are separated from runtime/Atrium approval UX and cannot be bypassed.
+- [ ] Unauthorized Gateway-routed execution is rejected outside the model.
 - [ ] Sensitive output/log redaction is tested.
 - [ ] Structured audit events are generated.
 - [ ] Policy/configuration validation works.
 - [ ] Invalid configuration cannot partially apply.
 - [ ] Gateway/upstream health can be checked.
+- [ ] Protocol compatibility is verified for actual supported clients/upstreams.
 - [ ] Codex connects successfully.
 - [ ] Claude Code connects successfully.
-- [ ] Shared policy can govern both agents.
-- [ ] A central policy change does not require manually duplicating the equivalent rule in both agents.
+- [ ] Runtime MCP capability differences are documented and degrade safely.
+- [ ] A central policy change can govern both agents without manually duplicating the equivalent policy.
+- [ ] Native runtime capabilities outside Gateway authority are documented with their protecting controls.
 - [ ] Existing `.agents-hub` bootstrap behavior still works.
 - [ ] No unnecessary duplicate governance was introduced.
 - [ ] No secrets were committed.
 - [ ] Verification tests pass.
 - [ ] Recovery/rollback instructions exist.
-- [ ] Architecture is documented.
-- [ ] Remaining runtime-specific controls are explicitly documented with the reason each must remain runtime-specific.
+
+Final reporting must state:
+
+- operational verdict
+- actual implemented architecture
+- files created/modified/retired and why
+- connected upstream integrations
+- Codex status: PASS / FAIL / PARTIAL
+- Claude Code status: PASS / FAIL / PARTIAL
+- governance/security test results
+- cross-agent test result
+- protocol/capability compatibility findings
+- native runtime controls that remain and why
+- risks/unknowns marked clearly
+- shortest operator instructions for Start, Stop, Verify, Health, Audit, Policy Change, Add/Disable MCP, Approval handling, and Rollback
 
 ---
 
-# 43. Required Final Report
-
-When implementation is complete, provide a concise final report containing:
-
-## A. Verdict
-
-State whether the Gateway is operational.
-
-## B. Architecture Implemented
-
-Show the final actual architecture, not merely the proposed architecture.
-
-## C. Files Changed
-
-List:
-
-- created
-- modified
-- retired/archived
-
-Explain why each exists.
-
-## D. Integrations
-
-State which upstream MCP servers/tools are actually connected.
-
-## E. Runtime Status
-
-Report separately:
-
-```text
-Codex: PASS / FAIL / PARTIAL
-Claude Code: PASS / FAIL / PARTIAL
-```
-
-## F. Governance Tests
-
-Report:
-
-```text
-Authentication
-Authorization
-RBAC/capabilities
-Approval enforcement
-Input validation
-Secret redaction
-Audit logging
-Rate limiting
-Configuration validation
-```
-
-with PASS / FAIL / NOT TESTED.
-
-## G. Cross-Agent Test
-
-State whether a central policy was successfully enforced across both Claude and Codex.
-
-## H. Remaining Runtime-Specific Configuration
-
-List only controls that genuinely must remain runtime-specific and explain why.
-
-## I. Risks / Unknowns
-
-Clearly mark anything not verified.
-
-## J. Operator Instructions
-
-Give the shortest possible instructions for:
-
-```text
-Start
-Stop
-Verify
-View health
-View audit
-Change policy
-Add an MCP
-Disable an MCP
-Rollback
-```
-
----
-
-# 44. Execution Rules
+# 15. Execution Rules
 
 You are responsible for implementing and verifying the system, not merely describing how it could be implemented.
 
-Proceed autonomously through discovery, design, implementation, configuration, testing, refactoring, and documentation.
-
-Use evidence from the existing environment and current official documentation.
+Proceed autonomously through discovery, standards verification, design, implementation, configuration, testing, refactoring, and documentation.
 
 Do not ask the user to make technical architecture decisions that can be resolved through inspection, testing, or authoritative documentation.
 
-When multiple implementation choices are viable, choose the option that best supports:
+When multiple implementation choices are viable, prioritize:
 
 1. agent independence
 2. centralized management
-3. reliability
-4. security
+3. enforceable security boundaries
+4. reliability
 5. maintainability
 6. automation
 7. low operational burden
@@ -1501,25 +832,10 @@ Do not silently weaken existing security.
 
 Do not delete functioning legacy configuration until its replacement has been tested.
 
-If credentials or external authorization are required, complete all work possible without them first, then identify precisely what remains blocked.
-
----
-
-# 45. Governing Principle
+If credentials or external authorization are required, complete all unblocked work first, then identify precisely what remains blocked.
 
 The final system should make this statement true:
 
-> I configure shared agent governance and capabilities centrally. Claude, Codex, and future agents connect to that governed control plane rather than requiring me to recreate the same tools, permissions, policies, and safety controls separately for every runtime.
-
-The architecture must therefore optimize for:
-
-```text
-ONE GOVERNANCE SOURCE
-ONE CONTROL PLANE
-MANY AGENTS
-MANY CAPABILITIES
-MINIMAL DUPLICATION
-CENTRAL AUDITABILITY
-```
+> I define shared agent governance and capabilities centrally. The MCP Gateway enforces that governance for capabilities routed through it. Claude, Codex, and future runtimes connect through thin adapters while retaining only unavoidable runtime-native controls. Atrium provides human visibility and approvals without becoming a second governance source.
 
 Build and verify that system.
