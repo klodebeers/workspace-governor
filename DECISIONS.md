@@ -21,6 +21,7 @@ human decisions; the agent owns and must prove ordinary engineering decisions.
 | D-08 | SSOT `communication_preferences.tone` and `.format` own rendering. `agents-hub-one/rules/ENGINEER-OWNERSHIP.md` § Communication owns substance. No edit to either file. | Agent | 2026-08-19 |
 | D-09 | The user SSOT is an asset, not a governance owner. | Agent | 2026-08-19 |
 | D-10 | Durable project information must be written to this repository, not left only in session state. | User | 2026-08-19 |
+| D-11 | The Codex stale-authority conflict is required before Gateway runtime integration and completion, but is not a blocker to the Hub consolidation phase. | User | 2026-08-19 |
 
 ## Rationale
 
@@ -69,6 +70,13 @@ behaviour. It is data consumed by the governance owners, not an owner itself. It
 therefore fails the governance-owner eligibility test — no distinct governed issue
 with distinct observable activation. Its placement remains open (`STATE.md` open
 work item 3 and 5).
+
+**D-11.** The conflict is confined to a runtime adapter's authority file. Hub
+consolidation operates on two source repositories and produces a target tree; it
+does not activate a Codex adapter and does not read the Codex authority file.
+Gateway directive sections 34 and 43 still require Codex to connect, so the
+conflict remains mandatory before Gateway completion — it is sequenced later, not
+dismissed.
 
 **D-10.** Session state is not durable. Project decisions and current state held
 only in a conversation are lost when the session ends and are invisible to any

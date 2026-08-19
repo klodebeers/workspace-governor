@@ -1,7 +1,7 @@
 # Workspace Governor State
 
 **Updated:** 2026-08-19
-**Phase:** Repository bootstrap complete. Hub reconciliation not started.
+**Phase:** Hub consolidation — reconciliation assessment in progress. Repository bootstrap complete.
 **Authority:** Non-authoritative continuity record. Settled decisions live in `DECISIONS.md`.
 
 This file records current state only. It defines no rules. Replace stale
@@ -20,26 +20,35 @@ Verified by direct inspection during the session dated 2026-08-19.
 | `agents-hub-two` is an agent operating package: 15 agent definitions, a registry, a JSON schema, 4 prompts, 4 templates. Contains no governance layer — zero occurrences of "governance", "precedence", "runtime-neutral", "catalog", "provenance" | Clone inspection and keyword scan |
 | Both source repositories declare themselves to be `.agents-hub` | `agents-hub-one/README.md`; `agents-hub-two/docs/README.md` and `package-layout.json` |
 | `agent-governance-toolkit` is an unmodified fork of `microsoft/agent-governance-toolkit`, MIT, HEAD authored upstream 2026-05-11, zero local commits | `git log -1 --format='%an %ad'`; `LICENSE`; `MAINTAINERS.md` |
-| Discovery tooling exists on branch `claude/add-github-repos-projects-6r1jgy` at `1d96626`, never executed | `git ls-tree`; no PowerShell available in the authoring environment |
+| Discovery tooling is present on `main` (`scripts/`), never executed | `git ls-tree -r --name-only origin/main`; no PowerShell in the authoring environment |
+| Root `CLAUDE.md` is tracked on `main`, is 11 bytes, and contains only the line `@AGENTS.md` | `wc -c`; `grep -cv '^@AGENTS.md$'` returned 0 |
 
 ## Blockers
 
+Current phase is Hub consolidation. Blockers are grouped by the phase they bind.
+
+### Binding the current phase
+
 | # | Blocker | Effect | Owner |
 |---|---|---|---|
-| 1 | Codex authority file contains stale absolute paths and overlaps Hub-owned responsibilities. Recorded as an active conflict in `workspace-governor-agents-hub-one/STATE.md`, which halts Codex adapter activation. | Directive sections 34 and 43 both require Codex to connect, so the Gateway cannot reach DONE. Not deferrable. | Requires user authorization to open as a separate scoped change |
-| 2 | Final canonical `.agents-hub` does not exist. Two competing source repositories both claim the identity. | Blocks Gateway directive section 29 rule-folding and final environment discovery | Hub reconciliation |
-| 3 | Hub One target tree and ownership map not accepted. `workspace-governor-agents-hub-one/STATE.md` stop condition: do not refactor before acceptance. | Blocks any fold of existing rules | Hub reconciliation |
-| 4 | `design-systems/.remember` has unresolved provenance and sensitivity. | Must not be read, hashed, moved, or classified | Requires separate review |
-| 5 | Live Windows environment is unreachable from a cloud session. | Gateway directive section 5 items covering local MCP, Claude Code, Codex, secrets and audit mechanisms cannot be collected remotely | Local agent executes discovery |
+| B-1 | Hub One target tree and ownership map not accepted. `workspace-governor-agents-hub-one/STATE.md` stop condition: do not refactor before acceptance. | Assessment and a proposed target tree are permitted. Refactoring either source repository is not. | Resolved by accepting the deliverable of this phase |
+| B-2 | `design-systems/.remember` has unresolved provenance and sensitivity. | Must not be read, hashed, moved, or classified | Requires separate review |
+
+### Required before Gateway runtime integration and completion — not binding this phase
+
+| # | Blocker | Effect | Owner |
+|---|---|---|---|
+| B-3 | Codex authority file contains stale absolute paths and overlaps Hub-owned responsibilities. Recorded as an active conflict in `workspace-governor-agents-hub-one/STATE.md`, which halts Codex adapter activation. | Gateway directive sections 34 and 43 require Codex to connect, so the Gateway cannot reach DONE until this is reconciled. Does not block Hub consolidation. | Requires user authorization to open as a separate scoped change (`DECISIONS.md` D-11) |
+| B-4 | Final canonical `.agents-hub` does not exist. Two source repositories both claim the identity. | Blocks Gateway directive section 29 rule-folding and final environment discovery | Resolved by Hub consolidation |
+| B-5 | Live Windows environment is unreachable from a cloud session. | Gateway directive section 5 items covering local MCP, Claude Code, Codex, secrets and audit mechanisms cannot be collected remotely | Local agent executes discovery |
 
 ## Open work
 
-1. Revise the discovery tooling so it does not presuppose that `.agents-hub` exists. Current defaults target `$env:USERPROFILE\.agents-hub` and frame the hub as the subject of inspection.
+1. Revise the discovery tooling so it does not presuppose that `.agents-hub` exists (`DECISIONS.md` D-06). It is present on `main` and unexecuted. Current defaults target `$env:USERPROFILE\.agents-hub` and frame the hub as the subject of inspection.
 2. Reconcile `agents-hub-one` and `agents-hub-two` into the final canonical `.agents-hub`. Operation is a consolidation: inspect, classify per item, change, reference-update, verify.
 3. Persist the user SSOT. `USERSSOT.json` was supplied in session as an authoritative user-side responsibilities file and exists in no repository. Its placement is undecided.
-4. Open blocker 1 as a separate scoped change once authorized.
+4. Open B-3 as a separate scoped change once authorized.
 5. Determine placement of the three agent rulings recorded in `DECISIONS.md` under D-07 through D-09.
-6. Merge branch `claude/add-github-repos-projects-6r1jgy` once its tooling is revised per item 1.
 
 ## Next action
 
@@ -53,6 +62,7 @@ Do not run Gateway environment discovery, and do not implement the Gateway, befo
 - Do not activate a Codex adapter while blocker 1 is unresolved.
 - Do not fold existing Hub rules before the target tree and ownership map are accepted.
 - Do not reopen the 46-section directive structure (`DECISIONS.md` D-04).
+- Do not run the discovery tooling in `scripts/` until it is revised per open work item 1 **and** Hub consolidation is complete (`DECISIONS.md` D-05, D-06).
 - Do not adopt `agent-governance-toolkit` without provenance, licence, and generated-output review.
 
 Reinspect live sources before acting. This record is continuity evidence, not proof that anything remains unchanged.
