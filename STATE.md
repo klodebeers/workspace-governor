@@ -107,7 +107,7 @@ unexercised. Live-Hub evidence cannot be accepted until
 1. Inventory the live local Hub against the committed GitHub baseline, then revise the preliminary target tree against that evidence.
 2. ~~Revise the Gateway discovery tooling so it does not presuppose `.agents-hub` exists.~~ **Closed** — semantics verified across the full report, and the `00_hubState` ordering defect fixed. Still unexecuted; awaits the local Windows runtime test recorded under Verification assignments.
 3. Execute the accepted classification once the target tree is accepted. Assessment and classification are complete; `change`, `reference-update` and `verify` remain. See `evidence/HUB-RECONCILIATION-ASSESSMENT-2026-08-19.md`.
-4. Persist `USER-SSOT.json`. Named second in `AGENT-SSOT.json` § `load_order`; not present in any repository or on any accessible path as of 2026-08-20. The declared load order cannot be satisfied until the file is supplied. Placement decided: repository root, alongside `AGENT-SSOT.json`. **Blocked on the artifact, not on a decision** -- the user is resending it.
+4. ~~Persist the SSOT pair.~~ **Closed** — `AGENT-SSOT.json` v1.1 and `USER-SSOT.json` v1.3 are at the repository root and the declared `load_order` is satisfiable. Both validated by a JSON parser; one missing-comma defect corrected in each. Bound in `AGENTS.md` bootstrap item 0.
 5. Open B-3 as a separate scoped change once authorized.
 6. Determine placement of the three agent rulings recorded in `DECISIONS.md` under D-07 through D-09.
 7. Trim the duplicated live-state narrative in `workspace-governor-agents-hub-one/research/` per D-15. Edits another repository; sequenced separately.

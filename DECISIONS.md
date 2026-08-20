@@ -228,6 +228,26 @@ single new file spanning all three would cut across three owners' concerns and
 reintroduce the duplication the package exists to prevent. Recorded as gaps in
 `PENDING-GLOBAL-PROMOTIONS.md` P-04.
 
+**D-23.** `USER-SSOT.json` is persisted at the `workspace-governor` repository
+root, completing the declared SSOT load order. It is **not** a candidate for
+promotion into the canonical `.agents-hub`. Decided by: User (authority and
+content); Agent (placement and promotion scope).
+
+Rationale: the file is authoritative for the user's Greyed responsibilities,
+decision authority and limits, and the agent file's `load_order` names it second,
+so both must be resident for bootstrap to be complete. One supplied syntax defect
+was corrected -- a missing comma after `profile_name`, the same class as in the
+agent file -- and the content is otherwise verbatim and parses. Promotion is
+withheld deliberately: the file is explicitly Greyed-scoped by its own
+`agent_rules.company_scope`, and the Hub root contract requires shared governance
+to be runtime- and business-neutral. Promoting it would put one company's
+business scope into cross-agent governance. It belongs to workspace or company
+governance instead. Agent duties are never inferred from it; `AGENT-SSOT.json`
+§ meta states this and the two files are complementary rather than competing --
+`agent_rules.technical_boundary` reinforces the agent file's
+`must_not_transfer_to_user` rather than contradicting it. No governance conflict
+between the pair was found.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

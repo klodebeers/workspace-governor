@@ -1,0 +1,129 @@
+{
+  "document": "User SSOT — Greyed SaaS Operations",
+  "purpose": "Authoritative machine-readable file for the user's Greyed responsibilities, capabilities, limitations, decision authorities, and domain ownership.",
+  "profile_name": "SaaS Operations Manager",
+
+  "company": {
+    "name": "Greyed",
+    "role": "Sole SaaS Operations owner",
+    "responsibilities": [
+      "Sourcing vendors, creating vendor accounts, processing payments, and managing the full end-to-end vendor account lifecycle",
+      "Coordinate with company owners, PSP support, developer teams, internal desk managers, and team leaders",
+      "Set up and integrate vendor and service accounts, including domain and DNS configuration and connecting vendor APIs to the Account Manager system for payment and vendor activity tracking",
+      "Troubleshoot vendor, SaaS, account, integration, and payment-service issues",
+      "Purchase and manage domains and URLs, track renewals, and make renewal or disablement decisions within authority",
+      "Own IAM and account provisioning for all Greyed company users",
+      "Create and manage user accounts for CRM, internal chat, and company email systems",
+      "Define and maintain role templates that establish baseline access for company users",
+      "Manage user permissions and access changes",
+      "Monitor inactive accounts and disable them after the applicable policy threshold"
+    ],
+    "payment_execution": "The user executes authorised Greyed vendor and service payments using approved payment methods, including credit card, crypto, and other permitted methods."
+  },
+
+  "primary_responsibilities": [
+    {
+      "area": "IAM",
+      "description": "The user owns IAM and account provisioning for all Greyed company users. This includes creation and lifecycle management of CRM, internal chat, and company email accounts; user permissions; baseline access requirements; role templates; access changes; and deprovisioning.",
+      "implementation_owner": "The user defines IAM requirements, account provisioning rules, role templates, baseline access, permissions, configuration, and approvals; Agent/IT/Dev implement where scripts, automation, integrations, or other technical actions are required and not performed directly by the user."
+    },
+    {
+      "area": "CRMs",
+      "description": "The user is responsible for configuration, data integrity, imports and exports, field mapping, and lifecycle mappings.",
+      "implementation_owner": "The user defines requirements, configuration, and approvals; Agent/Dev performs technical implementation as needed."
+    },
+    {
+      "area": "Vendor & Service Integrations",
+      "description": "The user owns the operational setup and integration of vendor and service accounts into Greyed's environment. This includes connecting vendor services to company domains, adding or updating vendor-provided DNS records in Cloudflare, configuring required domain and service settings, and adding or configuring vendor API connections in the Account Manager system so payment and vendor activity can be tracked.",
+      "implementation_owner": "The user handles vendor account setup, operational configuration, domain association, vendor-provided DNS configuration, Account Manager vendor/API setup, and operational verification; Agent/IT/Dev handles technical implementation or troubleshooting when scripts, code, infrastructure changes, API development, or other technical work outside the user's operational scope is required."
+    },
+    {
+      "area": "Domains & DNS",
+      "description": "The user purchases and tracks domains, makes lifecycle and renewal decisions, and defines or approves required DNS changes.",
+      "implementation_owner": "The user makes business decisions and approvals; IT/Agent performs technical DNS implementation where not performed directly by the user."
+    },
+    {
+      "area": "Payments & Billing",
+      "description": "The user manages vendor and SaaS payment requirements, subscription lifecycles, reconciliation, billing exceptions, and authorised payment execution.",
+      "implementation_owner": "The user handles oversight, reconciliation, and authorised payment execution; Agent supports preparation, analysis, exports, and verification."
+    },
+    {
+      "area": "Business Intelligence and Dashboard Requirements",
+      "description": "The user defines the business problem, required reports, operational views, and acceptance criteria for dashboards.",
+      "implementation_owner": "The user defines business intent and approval; Agent translates requirements into technical specifications; Dev performs implementation and build."
+    }
+  ],
+
+  "capabilities": [
+    "Vendor negotiation and relationship management",
+    "Operational ownership of SaaS lifecycle and vendor accounts",
+    "Vendor and service account integration",
+    "Domain and DNS configuration for vendor services",
+    "Vendor API connection and configuration in the Account Manager system",
+    "IAM and access control governance for all company users",
+    "User account provisioning and lifecycle management",
+    "Role template and baseline access management",
+    "Vendor and SaaS payment reconciliation",
+    "Billing exception handling",
+    "Operational troubleshooting and escalation",
+    "Designing governance, SOPs, and runbooks",
+    "Defining business requirements and acceptance criteria"
+  ],
+
+  "limitations": {
+    "cannot_do": [
+      "The user does not write or maintain production code or complex scripts; short snippets may be used but agent-produced runnable artifacts are preferred.",
+      "The user does not share secrets in chat; privileged credentials and MFA flows are executed locally.",
+      "Where organisation policy forbids an action, the user will not perform it and will specify the restriction for the applicable case."
+    ]
+  },
+
+  "decision_authority": [
+    "Operational ownership of Greyed vendor, SaaS, and service accounts",
+    "Vendor account lifecycle decisions",
+    "Vendor and service integration configuration within the user's operational scope",
+    "Subscription renewals and cancellations within approved budgets and authority",
+    "Authorised vendor and service payment execution",
+    "IAM requirements and account provisioning for all Greyed company users",
+    "Creation and lifecycle management of CRM, internal chat, and company email accounts",
+    "Role templates, baseline access requirements, permissions, and account lifecycle policies",
+    "Acceptance criteria for vendor integrations and vendor deliverables",
+    "Escalation paths for vendor disputes and operational issues",
+    "Domain and URL lifecycle, renewal, and disablement decisions",
+    "Final business intent and approval for dashboard, reporting, and operational-view requirements"
+  ],
+
+  "conflict_handling": {
+    "principles": [
+      "Convert disputes into written rules and escalation ladders.",
+      "Prioritise irreversible or money-moving issues and external deadlines such as renewals and expirations.",
+      "Document decisions and submit or escalate them to the appropriate authority when required."
+    ]
+  },
+
+  "communication_preferences": {
+    "tone": "Direct, Action-Oriented, Precise",
+    "format": "Label: Value for lists; short sentences; bullet points; tables for comparisons",
+    "verification_rule": "For technical changes, provide the applicable UI path or technical execution method and a verification step before treating the change as confirmed."
+  },
+
+  "operating_model": {
+    "ownership": "The user is the sole SaaS Operations owner at Greyed.",
+    "handoff_requirements": "When technical implementation is required, translate operational requirements into implementation-ready instructions with required fields, acceptance criteria, and expected outputs."
+  },
+
+  "agent_rules": {
+    "company_scope": "This file applies only to Greyed. Agents must not introduce responsibilities, processes, authority, terminology, or assumptions from FINA or any other company.",
+    "payment_scope": "Payment responsibilities in this file refer only to Greyed vendor, SaaS, service, subscription, and related operational payments.",
+    "iam_scope": "IAM applies to all Greyed company users and includes provisioning and lifecycle management of CRM, internal chat, and company email accounts, together with role templates and baseline access requirements.",
+    "integration_scope": "Vendor and service integrations refer to operational setup and configuration of existing vendor services, including domain and DNS configuration and connecting existing vendor APIs to the Account Manager system for tracking. The user is not responsible for developing APIs, writing integration code, or implementing software-level integrations.",
+    "technical_boundary": "The user defines operational intent, requirements, configuration needs, and acceptance criteria but must not be treated as the technical implementation authority or technical validator.",
+    "uncertainty_rule": "If a responsibility cannot be confirmed as part of the user's Greyed role, agents must mark it as NOT VERIFIED rather than infer ownership."
+  },
+
+  "meta": {
+    "created": "2026-08-19",
+    "version": "1.3",
+    "ssot_role": "Authoritative Greyed-only user responsibilities file; agents must read but not overwrite this file without explicit user instruction."
+  }
+}

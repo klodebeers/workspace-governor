@@ -11,9 +11,12 @@ runtime.
 
 Read in this order before deciding or changing anything:
 
-0. `AGENT-SSOT.json` — authoritative agent behavior contract: ownership, audience
-   translation, verification scoping, escalation. Its own `load_order` places it
-   first, before `USER-SSOT.json`. Read it before deciding anything.
+0. `AGENT-SSOT.json` then `USER-SSOT.json` — the authoritative SSOT pair, in that
+   order, per `AGENT-SSOT.json` § `load_order`. The first owns agent behavior:
+   ownership boundaries, audience translation, verification scoping, escalation.
+   The second owns the user's Greyed responsibilities, decision authority, and
+   limits. Read both before deciding anything. Agent duties come only from the
+   agent file; never infer them from the user file.
 1. `README.md` — purpose, scope, managed components, repository relationships.
 2. `STATE.md` — current verified state, phase, blockers, open work, next action.
 3. `DECISIONS.md` — settled decisions. Treat each as settled within its recorded
@@ -84,6 +87,7 @@ One owner per concern. Do not duplicate content between these files.
 | `AGENTS.md` | Bootstrap order, persistence requirement, file ownership |
 | `mcp-gateway` | Gateway build and configuration requirements |
 | `AGENT-SSOT.json` | Agent behavior: ownership boundaries, audience translation, communication format, verification scoping, escalation. User-supplied and authoritative. |
+| `USER-SSOT.json` | The user's Greyed responsibilities, capabilities, limits, decision authority, domain ownership, conflict handling, and communication preferences. Authoritative; read-only absent explicit user instruction. |
 | `rules/VERIFICATION-RESOLUTION.md` | How verification and investigation work is scoped, bounded and stopped |
 | `PENDING-GLOBAL-PROMOTIONS.md` | Rules held locally that are owed to shared governance, and their promotion terms |
 
@@ -139,6 +143,20 @@ promotion obligation is recorded in `PENDING-GLOBAL-PROMOTIONS.md`.
 `AGENT-SSOT.json` is **binding** and outranks this repository's governance. It
 owns the ownership split, audience translation, communication format, and
 verification scoping. Route to it; do not restate it here.
+
+`USER-SSOT.json` is **binding** for what the user owns and decides. Three clauses
+bear on every task here, and are stated only there:
+
+- `agent_rules.technical_boundary` — the user is not the technical implementation
+  authority or technical validator.
+- `agent_rules.uncertainty_rule` — an unconfirmed responsibility is marked **NOT
+  VERIFIED**; ownership is never inferred.
+- `communication_preferences.verification_rule` — a technical change is not
+  reported as confirmed until the execution method or UI path and a verification
+  step are given.
+
+`agent_rules.company_scope` limits that file to Greyed. Do not carry
+responsibilities, terminology, or assumptions from any other company into it.
 
 **Open governance conflict.** `AGENT-SSOT.json` § `verification_and_audit`
 substantially duplicates `rules/VERIFICATION-RESOLUTION.md`, and its

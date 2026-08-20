@@ -87,9 +87,13 @@ behavior contract rather than a routed topic owner -- the same structural point
 recorded as Observation 1 in
 `evidence/GOVERNANCE-STRUCTURE-OBSERVATIONS-2026-08-20.md`.
 
-`USER-SSOT.json`, named second in its `load_order`, **is not persisted in any
-repository**. It was supplied in an earlier session and exists in no accessible
-location. The declared load order cannot be satisfied until it is supplied again.
+`USER-SSOT.json` v1.3 is persisted alongside it at the repository root, so the
+declared `load_order` is satisfiable. It is a **separate promotion item**: it
+carries Greyed-specific business scope, so it belongs to workspace or company
+governance, not to the runtime-neutral shared Hub. Do not promote it into
+`.agents-hub` alongside the agent file. Its own `agent_rules.company_scope`
+forbids widening it, and the Hub root contract requires shared governance to stay
+runtime- and business-neutral.
 
 ### Terms
 
@@ -133,7 +137,7 @@ of conflict classes already owned. Three gaps remain:
 | Gap | Class | Currency | Recommended home |
 |---|---|---|---|
 | G-1 | Peer agent output conflict, outside any delegation hierarchy | Live | Section in `CONTEXT-AND-ORCHESTRATION.md` |
-| G-2 | Contradiction between requirements or constraints at the **same** authority level | Plausible now | Section in `AGENTS.md` § Normative Authority |
+| G-2 | Contradiction between requirements or constraints at the **same** authority level | Plausible now. **Narrowed, not closed,** by `USER-SSOT.json` § `conflict_handling`: convert disputes into written rules and escalation ladders, and prioritise irreversible or money-moving issues and external deadlines. That supplies a business prioritisation principle, scoped to Greyed and to the user's own disputes. It does not establish a cross-agent owner for two contradicting instructions of equal standing. | Section in `AGENTS.md` § Normative Authority, routing to the SSOT principle for business prioritisation |
 | G-3 | Stakeholder-goal conflict under multiple principals | Latent | Defer; record only |
 
 `CONFLICT-RESOLUTION.md` is **not** recommended. Each gap is the missing branch
