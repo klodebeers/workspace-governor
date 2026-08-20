@@ -696,6 +696,52 @@ enforcement carrier -- a managed setting or a hook -- chosen per rule. Machine-l
 placement is not a ceiling in either runtime, which strengthens rather than weakens
 that conclusion.
 
+**D-39.** A confirmed defect is treated as an instance of a **class**. On
+confirmation, the class is swept across the scope the same change affected, every
+confirmed instance inside the approved change is fixed, the class is verified, and
+work stops before anything outside that boundary. The person who reports the first
+defect is not responsible for enumerating the rest. Recorded in
+`rules/VERIFICATION-RESOLUTION.md` § Defect class. Decided by: User.
+
+Rationale: one stale reference was reported after the Step 1 restructuring. Rather
+than sweeping the class, the literal instance was fixed and the siblings were listed
+back for approval -- making the user the defect enumerator. The sweep found **twelve**
+instances where five had been reported.
+
+The class was dangling references created by one commit. Its cause was checking one
+direction only: references to the file that **moved** were verified, references to
+the files that were **deleted** were never checked, and the result was reported as
+"dangling references verified".
+
+Eleven instances fixed, one deliberately not: the `CATALOG.md` row for
+`design-systems/.remember`, which is absent from the repository but present in the
+materialized Hub, sits inside a `Conflict`-classified area preserved untouched, and
+correctly instructs preservation. Recorded as a documented exception in the check.
+
+The check itself needed two corrections before its result meant anything. It
+resolved paths from the repository root, so valid sibling references between rule
+files read as dangling -- acting on that would have broken six correct references.
+And it discarded trailing-separator tokens as bare words, so directory references
+were never examined, which is why the first pass reported five of twelve. Both are
+recorded in the rule: a sweep is only as good as its check, and the check must be
+verified against a known instance and a known-good one before its output is trusted.
+
+**D-40.** Dangling references introduced by the Step 1 restructuring are cleared.
+`klodebeers/.agents-hub` `80dff05` -> `0517a4b` -> `c6c966b`. Verified against the
+extracted remote, not a working copy: 0 dangling references across the 8 live
+documents, dated evidence excluded. Decided by: Agent, under ENGINEER-OWNERSHIP.
+
+`README.md`: step 4 repointed to the fully qualified Workspace Governor path so it
+cannot read as repo-relative; the `runtime-adapters/` and `governance-templates/`
+source-area lines removed; the blockers pointer repointed. `CATALOG.md`: the
+`STATE.md` row removed, the two runtime-adapter rows replaced with the true state,
+the four governance-template rows removed.
+
+A retirement row was briefly written in place of the removed rows and then removed
+as well. A live inventory lists what exists, not what was removed or what may exist
+later; retirement belongs in the backoffice record. `design-systems/` untouched,
+verified by zero staged and unstaged changes.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

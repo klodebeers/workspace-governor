@@ -89,8 +89,9 @@ records the decision.
 
 ### Canonical Hub -- current verified state
 
-`klodebeers/.agents-hub` at **`80dff05`**, Step 1 restructuring applied and verified
-in sync with the remote. Nine tracked files:
+`klodebeers/.agents-hub` at **`c6c966b`**, Step 1 restructuring applied and all
+dangling references cleared. Verified against the extracted remote: 0 dangling
+references across the 8 live documents, dated evidence excluded. Nine tracked files:
 
 ```text
 AGENTS.md                                     root bootstrap, router, precedence

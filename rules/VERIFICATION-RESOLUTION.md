@@ -52,6 +52,34 @@ re-derived wrongly, each time. Neither this rule nor `AGENT-SSOT.json`
 Where a class is absent from this table, apply step 2 and add the class once
 resolved.
 
+## Defect class
+
+A confirmed defect is treated as an **instance of a class**, never as a lone fact.
+When one is confirmed, inspect that class across the scope the same change
+affected, fix every confirmed instance already inside the approved change, verify
+the class, and stop.
+
+Do not wait to be told about sibling instances. Whoever reports the first defect is
+not the enumerator of the rest.
+
+Stop before: work outside the approved change, an area classified `Conflict`, or
+anything requiring a decision that has not been made. Report those; do not fold
+them in.
+
+Two failure modes make a class sweep worse than useless, and both occurred here:
+
+- **A subset reported as the class.** Checking one direction of a change and
+  reporting the class as clear. A rename has two directions -- references *to* the
+  moved file and references *from* it -- and a deletion has its own. Verify each
+  direction that the change created.
+- **A check that is not itself verified.** A sweep is only as good as its check.
+  Confirm the check finds a known instance and does not flag a known-good one
+  before trusting its result. An over-broad check invites "fixing" correct
+  references; an over-narrow one certifies a subset as complete.
+
+Where a known instance is a legitimate exception, record it in the check with its
+reason. A check that always reports a known false failure stops being read.
+
 ## Core standard
 
 > Choose the simplest reliable method that is proportionate to the risk and sufficient for the next decision, **against the source that actually holds the answer**. Prefer existing capabilities and perform checks in the environment containing the evidence. Escalate only when the current method cannot answer the question reliably. Stop once the required decision is adequately supported.
