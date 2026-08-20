@@ -13,7 +13,7 @@ Read in this order before deciding or changing anything:
 
 0. **Not a bootstrap authority.** `AGENT-SSOT.json` and `USER-SSOT.json` are
    **Agent Hub assets**. The copies in this repository are backoffice staging and
-   provenance copies only, held pending placement in `agents-hub`. They are not
+   provenance copies only, held pending placement in `.agents-hub`. They are not
    live governing authorities here and do not outrank anything. The Hub's root
    `AGENTS.md` is the bootstrap, router and authority mechanism, and routes agents
    to the applicable SSOT or rule by scope. See
@@ -100,8 +100,8 @@ One owner per concern. Do not duplicate content between these files.
 | `AGENTS.md` | Bootstrap order, persistence requirement, file ownership |
 | `plans/MCP-GATEWAY.md` | Gateway build and configuration requirements. Backoffice planning record, not governance. |
 | `plans/AGENT-HUB-CONSOLIDATION.md` | Sequence of Hub consolidation work. Backoffice planning record, not governance. |
-| `AGENT-SSOT.json` | **Agent Hub asset.** Backoffice staging/provenance copy only, pending placement in `agents-hub`. Not a live authority here. |
-| `USER-SSOT.json` | **Agent Hub asset, Greyed-scoped.** Backoffice staging/provenance copy only, pending placement in `agents-hub`. Loaded only in Greyed context. Read-only absent explicit user instruction. |
+| `AGENT-SSOT.json` | **Agent Hub asset.** Backoffice staging/provenance copy only, pending placement in `.agents-hub`. Not a live authority here. |
+| `USER-SSOT.json` | **Agent Hub asset, Greyed-scoped.** Backoffice staging/provenance copy only, pending placement in `.agents-hub`. Loaded only in Greyed context. Read-only absent explicit user instruction. |
 | `rules/VERIFICATION-RESOLUTION.md` | How verification and investigation work is scoped, bounded and stopped |
 | `PENDING-GLOBAL-PROMOTIONS.md` | Rules held locally that are owed to shared governance, and their promotion terms |
 
@@ -127,7 +127,7 @@ resolve it silently.
 
 ## Ownership split
 
-Per `rules/ENGINEER-OWNERSHIP.md` — currently in `agents-hub`, destined for
+Per `rules/ENGINEER-OWNERSHIP.md` — currently in `.agents-hub`, destined for
 `.agents-hub/rules/` after consolidation: the user owns intended outcome,
 business rules, acceptance criteria, risk tolerance and reserved human decisions.
 The agent owns ordinary engineering decisions and must make and prove them rather
@@ -159,7 +159,7 @@ promotion obligation is recorded in `PENDING-GLOBAL-PROMOTIONS.md`.
 `AGENT-SSOT.json` bootstrap item 0 and described it as outranking this
 repository's governance. That was wrong: it installed a live governing authority
 inside the Hub backoffice. The copies here are staging and provenance only. Once
-`agents-hub` holds them, the Hub root `AGENTS.md` routes to them by scope, and any
+`.agents-hub` holds them, the Hub root `AGENTS.md` routes to them by scope, and any
 copy retained here is a backup or archive that must never act as a competing
 authority.
 

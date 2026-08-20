@@ -364,6 +364,45 @@ recorded because they were errors rather than mere gaps:
 - **C-03 was missed.** A Claude Code runtime precedence conflict was in the
   predecessor register and absent from this one. Now open work item 13.
 
+**D-26.** The canonical Agent Hub repository is `.agents-hub`. The repository and
+`C:\Users\Chloe\.agents-hub` are **the same logical Hub** in two
+representations -- canonical source and local materialized location for agent
+consumption. They are not separate governance authorities and must not drift
+independently. Decided by: User.
+
+This corrects the repository name recorded in D-24, which said `agents-hub`. The
+authority relationship in D-24 is otherwise unchanged. 52 references across
+`README.md`, `STATE.md`, `AGENTS.md`, `PENDING-GLOBAL-PROMOTIONS.md`,
+`plans/AGENT-HUB-CONSOLIDATION.md` and the two PowerShell scripts were updated;
+`agents-hub-two` and `workspace-governor-agents-hub-one` were left intact.
+
+Operational consequence: a change lands in the repository and is materialized
+locally. A local-only edit is drift, not a decision. Discovery tooling reports the
+local path state without implying the canonical repository is absent.
+
+**D-27.** The canonical Hub taxonomy is directive-given as of 2026-08-20 and
+recorded in `plans/AGENT-HUB-CONSOLIDATION.md` § 6, with root `.agents-hub/AGENTS.md`
+as the non-negotiable bootstrap, router and precedence entrypoint. Decided by: User.
+
+This supersedes the predecessor decision placing the router at `rules/AGENTS.md`,
+in both v0.4.2 § 4.1 and `HUB-ARCHITECTURE.md`. Three further taxonomy conflicts
+with the predecessor architecture are surfaced rather than blended and are
+resolved in favour of the directive: `policies/` and `prompts/` are required where
+the predecessor said not to create them, and `references/` is narrowed to exclude
+backoffice history. `archive/` is not a Hub domain -- history belongs to this
+backoffice. Full table in § 6.2.
+
+Two concerns are recorded as already owned, so no new rule file is created for
+either: Technical Translation is owned by `AGENT-SSOT.json`
+§ `technical_translation_and_audience`, and verification scoping reconciles into
+the existing verification and engineering-ownership owners rather than carrying
+`rules/VERIFICATION-RESOLUTION.md` into the Hub. See § 6.4, and
+`PENDING-GLOBAL-PROMOTIONS.md` P-01 and P-03.
+
+The immediate task remains reconciliation, not implementation. Approval is
+required before applying any canonical restructuring or touching live Hub
+governance, runtime configuration, code, manifests or lockfiles.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

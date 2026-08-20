@@ -1,11 +1,11 @@
 <#
 .SYNOPSIS
   Read-only inventory of the live local .agents-hub, compared against the
-  committed GitHub baseline for agents-hub (captured while named agents-hub-one).
+  committed GitHub baseline for .agents-hub (captured while named agents-hub-one).
 
 .DESCRIPTION
   Answers one question: what exists in the live local Hub that is absent,
-  different, or only a placeholder in GitHub agents-hub?
+  different, or only a placeholder in GitHub .agents-hub?
 
   No network access and no clone required. The GitHub side is read from
   evidence\AGENTS-HUB-ONE-BASELINE-<date>.json, which was generated from a
@@ -219,7 +219,7 @@ $R = [ordered]@{
     unverified = @(
         'design-systems\.remember: existence only. Nothing inside was read, hashed, enumerated, or counted (stop condition B-2).',
         'No file contents were emitted; only path, size, SHA256 and modified time.',
-        'Baseline reflects GitHub agents-hub -- captured while named agents-hub-one -- at the recorded ref, not any later commit.',
+        'Baseline reflects GitHub .agents-hub -- captured while named agents-hub-one -- at the recorded ref, not any later commit.',
         'A file identical by SHA256 is byte-identical; semantic equivalence was not assessed.',
         'Reparse points of either kind, file or directory, were excluded before the directory/file split; they were never returned and never hashed, and nothing behind them is inventoried.',
         'The inventory is exhaustive only within the physical Hub tree, excluding pruned directories and reparse-point targets.'
@@ -268,7 +268,7 @@ $L.Add('')
 if ($onlyLive.Count -gt 0) {
     $L.Add('## Present live, absent from GitHub')
     $L.Add('')
-    $L.Add('These are unrepresented in `agents-hub` and must be classified before consolidation.')
+    $L.Add('These are unrepresented in `.agents-hub` and must be classified before consolidation.')
     $L.Add('')
     foreach ($p in ($onlyLive | Sort-Object)) { $L.Add("- ``$p`` ($($live[$p].size) bytes)") }
     $L.Add('')

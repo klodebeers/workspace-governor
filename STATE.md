@@ -16,13 +16,13 @@ Verified by direct inspection during the session dated 2026-08-19.
 | `workspace-governor` `main` is at `d57deb9` and contained only the Gateway directive file before this bootstrap | `git ls-tree -r --name-only origin/main` |
 | The Gateway directive is settled: 46 sections, 1,940 lines, contiguous numbering 1–46, 41 Done-When checkboxes. Now at `plans/MCP-GATEWAY.md`; moved 2026-08-20, content unchanged | 22-check verification pass against `origin/main`; post-move byte comparison |
 | Directive revision history | `30229ae` v1 45 sections → `b8e38d2` v2 15 sections → `85ac462` v3 46 sections → `d57deb9` three defect fixes |
-| `agents-hub` (renamed from `agents-hub-one` 2026-08-20) is a governance tree with a five-file `rules/` contract, zero runtime-specific names across all five files, and seven 0-byte placeholder files | Clone inspection; `grep -ric` for runtime names returned 0 on all five |
+| `.agents-hub` (renamed from `agents-hub-one` 2026-08-20) is a governance tree with a five-file `rules/` contract, zero runtime-specific names across all five files, and seven 0-byte placeholder files | Clone inspection; `grep -ric` for runtime names returned 0 on all five |
 | `agents-hub-two` is an agent operating package: 15 agent definitions, a registry, a JSON schema, 4 prompts, 4 templates. Contains no governance layer — zero occurrences of "governance", "precedence", "runtime-neutral", "catalog", "provenance" | Clone inspection and keyword scan |
-| `agents-hub-two` still declares itself to be `.agents-hub` in its own content. Superseded by D-24; correcting the stale claim is reconciliation work, not an open authority question. | `agents-hub-two/docs/README.md` and `package-layout.json`; the same claim in `agents-hub/README.md` is now correct |
+| `agents-hub-two` still declares itself to be `.agents-hub` in its own content. Superseded by D-24; correcting the stale claim is reconciliation work, not an open authority question. | `agents-hub-two/docs/README.md` and `package-layout.json`; the same claim in `.agents-hub/README.md` is now correct |
 | `agent-governance-toolkit` is an unmodified fork of `microsoft/agent-governance-toolkit`, MIT, HEAD authored upstream 2026-05-11, zero local commits | `git log -1 --format='%an %ad'`; `LICENSE`; `MAINTAINERS.md` |
 | Four engineering items resolved from evidence under `ENGINEER-OWNERSHIP`; zero items remain classified `Conflict` or unresolved | `DECISIONS.md` D-12 to D-16; assessment revision 2 |
-| GitHub `agents-hub` @ `47c0187` -- captured while named `agents-hub-one` -- holds 16 files, 7 of them 0-byte placeholders; baseline manifest captured for live comparison | `evidence/AGENTS-HUB-ONE-BASELINE-2026-08-19.json` |
-| Gateway discovery no longer presupposes the canonical Hub, and canonical-Hub semantics are kept separate from pre-consolidation-source findings. `hubState` is computed before the report object; hub-derived sections carry `canonicalHubApplicable` plus separate `preConsolidation*` fields rather than substituting source results into canonical field names; overlapping scan roots are disclosed and findings deduplicated by canonical full path; section 14 probes `agents-hub`, the legacy `agents-hub-one` leaf, and `agents-hub-two` and states canonical `.agents-hub` absence explicitly. Satisfies D-06 | `scripts/Invoke-GatewayDiscovery.ps1` |
+| GitHub `.agents-hub` @ `47c0187` -- captured while named `agents-hub-one` -- holds 16 files, 7 of them 0-byte placeholders; baseline manifest captured for live comparison | `evidence/AGENTS-HUB-ONE-BASELINE-2026-08-19.json` |
+| Gateway discovery no longer presupposes the canonical Hub, and canonical-Hub semantics are kept separate from pre-consolidation-source findings. `hubState` is computed before the report object; hub-derived sections carry `canonicalHubApplicable` plus separate `preConsolidation*` fields rather than substituting source results into canonical field names; overlapping scan roots are disclosed and findings deduplicated by canonical full path; section 14 probes `.agents-hub`, the legacy `agents-hub-one` leaf, and `agents-hub-two` and states canonical `.agents-hub` absence explicitly. Satisfies D-06 | `scripts/Invoke-GatewayDiscovery.ps1` |
 | Live-Hub inventory procedure prepared, unexecuted. Requires no network and no clone; compares the live Hub against the committed baseline | `scripts/Invoke-HubInventory.ps1` |
 | Traversal consolidated into one owner with pre-descent pruning. Six recursive enumerations that traversed `.remember` before filtering it from output were removed; zero `Get-ChildItem -Recurse` remain in executable code | `scripts/lib/SafeTraversal.ps1`; `scripts/Assert-RememberPruning.ps1` |
 | Reparse points of either kind, file and directory, are detected by attribute **before** the directory/file split and are never traversed, returned, or hashed. A file link routed to the file branch would have been hashed, and `Get-FileHash` follows links | `scripts/lib/SafeTraversal.ps1` — `Test-IsReparsePoint`; A4 and A7 in the pruning proof |
@@ -42,8 +42,13 @@ Verified by direct inspection during the session dated 2026-08-19.
 
 ### Authority relationship
 
+**One Hub, two representations.** The `.agents-hub` repository is canonical source;
+`C:\Users\Chloe\.agents-hub` is its local materialized location for agent
+consumption. Same logical Hub, not two authorities; they must not drift
+independently (`DECISIONS.md` D-26). A local-only edit is drift, not a decision.
+
 ```
-agents-hub         = current canonical Agent Hub and live governance authority
+.agents-hub         = current canonical Agent Hub and live governance authority
 workspace-governor = Agent Hub backoffice; manages, researches, reconciles,
                      backs up, archives, and improves the Hub
 agents-hub-two     = source material pending reconciliation
@@ -66,14 +71,14 @@ Current phase is Hub consolidation. Blockers are grouped by the phase they bind.
 |---|---|---|---|
 | B-1 | Hub One target tree and ownership map not accepted. `workspace-governor-agents-hub-one/STATE.md` stop condition: do not refactor before acceptance. | Assessment and a proposed target tree are permitted. Refactoring either source repository is not. | Resolved by accepting the deliverable of this phase |
 | B-2 | `design-systems/.remember` has unresolved provenance and sensitivity. | Must not be read, hashed, moved, or classified | Requires separate review |
-| B-6 | The content of the live local `.agents-hub` directory is not **currently** verified. **Narrowed 2026-08-20:** a read-only inventory of it exists in the predecessor backoffice -- `workspace-governor-agents-hub-one/evidence/BASELINE-AUDIT-2026-08-16.md` -- covering root structure, the five-file `rules/` contract, empty `runtime-adapters/`, `references/`, empty `governance-templates/`, and `.remember` presence. It is 4 days stale and instructs re-inspection, so a current inventory is still required, but the content was not unknown. The canonical `agents-hub` repository is a placeholder skeleton at `47c0187`: 7 of its 16 files are 0-byte. Note the distinction -- the canonical *repository* is settled; the local runtime *directory* content is not. | The proposed target tree cannot be accepted as canonical, because the consolidation inputs are not fully known. | Local agent runs `scripts/Invoke-HubInventory.ps1` and commits the evidence |
+| B-6 | The content of the live local `.agents-hub` directory is not **currently** verified. **Narrowed 2026-08-20:** a read-only inventory of it exists in the predecessor backoffice -- `workspace-governor-agents-hub-one/evidence/BASELINE-AUDIT-2026-08-16.md` -- covering root structure, the five-file `rules/` contract, empty `runtime-adapters/`, `references/`, empty `governance-templates/`, and `.remember` presence. It is 4 days stale and instructs re-inspection, so a current inventory is still required, but the content was not unknown. The canonical `.agents-hub` repository is a placeholder skeleton at `47c0187`: 7 of its 16 files are 0-byte. Note the distinction -- the canonical *repository* is settled; the local runtime *directory* content is not. | The proposed target tree cannot be accepted as canonical, because the consolidation inputs are not fully known. | Local agent runs `scripts/Invoke-HubInventory.ps1` and commits the evidence |
 
 ### Required before Gateway runtime integration and completion — not binding this phase
 
 | # | Blocker | Effect | Owner |
 |---|---|---|---|
 | B-3 | Codex authority file contains stale absolute paths and overlaps Hub-owned responsibilities. Recorded as an active conflict in `workspace-governor-agents-hub-one/STATE.md`, which halts Codex adapter activation. | Gateway directive sections 34 and 43 require Codex to connect, so the Gateway cannot reach DONE until this is reconciled. Does not block Hub consolidation. | Requires user authorization to open as a separate scoped change (`DECISIONS.md` D-11) |
-| B-4 | ~~Canonical Hub identity contested.~~ **Resolved 2026-08-20** by `DECISIONS.md` D-24: `agents-hub` is the canonical Agent Hub and live governance authority. The remaining gap is **structural, not authority** -- the canonical Hub is under active consolidation and incomplete where known gaps exist, so Gateway directive section 29 rule-folding still waits on consolidation, not on deciding which repository governs. | Section 29 rule-folding waits on consolidation completeness | Resolved by Hub consolidation |
+| B-4 | ~~Canonical Hub identity contested.~~ **Resolved 2026-08-20** by `DECISIONS.md` D-24: `.agents-hub` is the canonical Agent Hub and live governance authority. The remaining gap is **structural, not authority** -- the canonical Hub is under active consolidation and incomplete where known gaps exist, so Gateway directive section 29 rule-folding still waits on consolidation, not on deciding which repository governs. | Section 29 rule-folding waits on consolidation completeness | Resolved by Hub consolidation |
 | B-5 | Live Windows environment is unreachable from a cloud session. | Gateway directive section 5 items covering local MCP, Claude Code, Codex, secrets and audit mechanisms cannot be collected remotely | Local agent executes discovery |
 
 ## Verification assignments
@@ -88,12 +93,12 @@ pending verification is not a defect and is not re-flagged each session; see
 | Field | Value |
 |---|---|
 | Status | PENDING |
-| Action | Rename `klodebeers/agents-hub-one` to `agents-hub` |
+| Action | Rename `klodebeers/agents-hub-one` to `.agents-hub` |
 | Assigned executor | Klo |
 | Reason not done in cloud | No rename capability exists in the GitHub tooling available to this session. `create_repository` and `fork_repository` exist; no update or rename operation does. Creating a new repository and copying content is **not** a rename: it loses the redirect and history association and leaves two repositories competing for authority. Not attempted. |
-| Execution method | GitHub web UI: repository -> **Settings** -> **General** -> **Repository name** -> enter `agents-hub` -> **Rename**. |
-| Verification step | `https://github.com/klodebeers/agents-hub` loads and the page header shows `agents-hub`; `https://github.com/klodebeers/agents-hub-one` redirects to it. Then locally: `git -C <clone> remote -v` still resolves via the redirect, and `git -C <clone> fetch` succeeds. |
-| Effect while pending | Repository references in this repository already point to `agents-hub`, so they are correct on completion and stale until then. Cloning `agents-hub` fails until the rename is done; `agents-hub-one` still works. |
+| Execution method | GitHub web UI: repository -> **Settings** -> **General** -> **Repository name** -> enter `.agents-hub` -> **Rename**. |
+| Verification step | `https://github.com/klodebeers/.agents-hub` loads and the page header shows `.agents-hub`; `https://github.com/klodebeers/agents-hub-one` redirects to it. Then locally: `git -C <clone> remote -v` still resolves via the redirect, and `git -C <clone> fetch` succeeds. |
+| Effect while pending | Repository references in this repository already point to `.agents-hub`, so they are correct on completion and stale until then. Cloning `.agents-hub` fails until the rename is done; `agents-hub-one` still works. |
 | Recheck trigger | Rename confirmed, or a decision to keep the current name |
 
 ### PowerShell runtime verification
@@ -136,17 +141,17 @@ unexercised. Live-Hub evidence cannot be accepted until
 
 ## Open work
 
-1. Inventory the live local Hub, then complete Step 1 of `plans/AGENT-HUB-CONSOLIDATION.md`: accept the target tree and classify every item across the three inputs -- live `.agents-hub`, canonical `agents-hub`, `agents-hub-two`. Start from the carried-forward v0.4.2 ledger and the 2026-08-16 baseline, not from zero.
+1. Inventory the live local Hub, then complete Step 1 of `plans/AGENT-HUB-CONSOLIDATION.md`: accept the target tree and classify every item across the three inputs -- live `.agents-hub`, canonical `.agents-hub`, `agents-hub-two`. Start from the carried-forward v0.4.2 ledger and the 2026-08-16 baseline, not from zero.
 2. ~~Revise the Gateway discovery tooling so it does not presuppose `.agents-hub` exists.~~ **Closed** — semantics verified across the full report, and the `00_hubState` ordering defect fixed. Still unexecuted; awaits the local Windows runtime test recorded under Verification assignments.
 3. Execute plan Steps 2 onward once the target tree is accepted. Assessment and classification are complete; `change`, `reference-update` and `verify` remain. See `evidence/HUB-RECONCILIATION-ASSESSMENT-2026-08-19.md`.
-4. Place the SSOT pair in `agents-hub` as Hub assets, then reduce the `workspace-governor` copies to backups/provenance. Both files are staged here and validated; placement is the remaining step. `AGENT-SSOT.json` v1.1, `USER-SSOT.json` v1.3 (Greyed-scoped, scope-loaded). Blocked on the rename landing. See `evidence/HUB-ASSET-PLACEMENT-CORRECTION-2026-08-20.md`.
+4. Place the SSOT pair in `.agents-hub` as Hub assets, then reduce the `workspace-governor` copies to backups/provenance. Both files are staged here and validated; placement is the remaining step. `AGENT-SSOT.json` v1.1, `USER-SSOT.json` v1.3 (Greyed-scoped, scope-loaded). Blocked on the rename landing. See `evidence/HUB-ASSET-PLACEMENT-CORRECTION-2026-08-20.md`.
 5. Open B-3 as a separate scoped change once authorized.
 6. Determine placement of the three agent rulings recorded in `DECISIONS.md` under D-07 through D-09.
 7. Trim the duplicated live-state narrative in `workspace-governor-agents-hub-one/research/` per D-15. Edits another repository; sequenced separately.
 8. ~~Correct the case-insensitive variable collisions found in four scripts, two of them live defects in the assigned local commands.~~ **Closed** — fixed, and a static gate added to prevent the class. See `evidence/SCRIPT-STRUCTURE-DEFECTS-2026-08-20.md`.
 9. Promote the Verification Resolution Rule into the canonical `.agents-hub` once its structure and rule ownership are finalized. Held locally as an interim binding; terms and on-promotion steps in `PENDING-GLOBAL-PROMOTIONS.md` P-01. Blocked by the same absence of a canonical Hub as B-4.
 10. Resolve the duplicate ownership between `AGENT-SSOT.json` and `rules/VERIFICATION-RESOLUTION.md` / `rules/ENGINEER-OWNERSHIP.md` at consolidation. Open governance conflict, surfaced not blended. `PENDING-GLOBAL-PROMOTIONS.md` P-03.
-11. Correct `AGENTS.md` placement in the canonical Hub: root, not `rules/`. Structural only. `evidence/GOVERNANCE-STRUCTURE-OBSERVATIONS-2026-08-20.md` Observation 1. Do not refactor `agents-hub` now.
+11. Correct `AGENTS.md` placement in the canonical Hub: root, not `rules/`. Structural only. `evidence/GOVERNANCE-STRUCTURE-OBSERVATIONS-2026-08-20.md` Observation 1. Do not refactor `.agents-hub` now.
 12. Close conflict-resolution gaps G-1 and G-2 as sections in existing owners at consolidation. G-3 deferred. `PENDING-GLOBAL-PROMOTIONS.md` P-04. No new rule file.
 13. Resolve C-03, carried from the predecessor backoffice: Claude Code project-versus-global loading can let project instructions take priority while semantic governance forbids lower layers weakening global governance. Blocks Claude Code adapter finalization only. Plan Step 9.
 14. Adapt the predecessor `tasks/` audit prompts into coverage checklists for `scripts/Invoke-GatewayDiscovery.ps1`. They name checks the script does not make -- notably dependency auditing and command-availability breadth. `evidence/PREDECESSOR-BACKOFFICE-REVIEW-2026-08-20.md`.
@@ -194,6 +199,8 @@ consolidation. Do not run Gateway discovery.
 - Do not run the discovery tooling in `scripts/` until it is revised per open work item 2 **and** Hub consolidation is complete (`DECISIONS.md` D-05, D-06).
 - Do not adopt `agent-governance-toolkit` without provenance, licence, and generated-output review.
 - Do not commit a `.ps1` under `scripts/` containing any byte above 0x7F. Windows PowerShell 5.1 reads non-BOM sources as ANSI, and U+2014 becomes a string delimiter.
+- Do not apply canonical restructuring, or modify live Hub governance, runtime configuration, code, manifests or lockfiles, without approval. The current task is reconciliation, not implementation (`plans/AGENT-HUB-CONSOLIDATION.md` § 6.7).
+- Do not create a Technical Translation rule file or carry `rules/VERIFICATION-RESOLUTION.md` into the Hub. Both concerns already have owners (`plans/AGENT-HUB-CONSOLIDATION.md` § 6.4).
 - Do not treat `AGENT-SSOT.json` or `USER-SSOT.json` in this repository as live governing authorities. They are Agent Hub assets; the copies here are backoffice staging and provenance. The Hub root `AGENTS.md` is the bootstrap and routing authority. Do not restate their content here either.
 - Do not choose a verification method before reading `rules/VERIFICATION-RESOLUTION.md`. It is binding, and it bounds the method, the stopping condition, and when new tooling is justified.
 - Do not hand any script under `scripts/` to the local operator until

@@ -36,7 +36,7 @@
 [CmdletBinding()]
 param(
     # Candidate location of the canonical .agents-hub. It may not exist: the
-    # canonical Hub is the agents-hub repository, still under consolidation with
+    # canonical Hub is the .agents-hub repository, still under consolidation with
     # agents-hub-two, and is not a precondition of discovery (DECISIONS.md D-24,
     # D-06). Absence is a valid, reportable state, not an error.
     [string]$HubPath       = (Join-Path $env:USERPROFILE '.agents-hub'),
@@ -249,10 +249,10 @@ $resolvedSources = @()
 if (@($SourceRepoPaths).Count -gt 0) {
     foreach ($sp in $SourceRepoPaths) { if (Test-Path -LiteralPath $sp) { $resolvedSources += $sp } }
 } else {
-    # 'agents-hub' is the current canonical Hub repository. 'agents-hub-one' is
+    # '.agents-hub' is the current canonical Hub repository. 'agents-hub-one' is
     # its former name and is retained because renaming a GitHub repository does
     # not rename an existing local clone directory.
-    foreach ($n in @('agents-hub','agents-hub-one','agents-hub-two')) {
+    foreach ($n in @('.agents-hub','agents-hub-one','agents-hub-two')) {
         $cand = Join-Path $WorkspaceRoot $n
         if (Test-Path -LiteralPath $cand) { $resolvedSources += $cand }
     }
@@ -264,7 +264,7 @@ $hubState =
     elseif (@($resolvedSources).Count -gt 0) { 'ABSENT_PRE_CONSOLIDATION_SOURCES_FOUND' }
     else { 'ABSENT' }
 
-$hubAbsentReason = 'No Hub directory exists at the supplied local path. The canonical Hub is the agents-hub repository (formerly agents-hub-one), canonical as of 2026-08-20 per DECISIONS.md D-24 -- canonical now, under active consolidation, structurally incomplete where known gaps remain. Its absence here means the local runtime path is not populated, not that no canonical Hub exists. Hub-derived findings are not applicable, not empty.'
+$hubAbsentReason = 'No Hub directory exists at the supplied local path. The canonical Hub is the .agents-hub repository (formerly agents-hub-one), canonical as of 2026-08-20 per DECISIONS.md D-24 -- canonical now, under active consolidation, structurally incomplete where known gaps remain. Its absence here means the local runtime path is not populated, not that no canonical Hub exists. Hub-derived findings are not applicable, not empty.'
 
 # Roots to scan. When the canonical Hub is absent its path contributes nothing,
 # so the pre-consolidation sources stand in.
@@ -718,7 +718,7 @@ Write-Host '[14/14] repository and workspace paths'
 # architecture that does not yet exist while hiding the one that does.
 $repoCandidates = @(
     (Join-Path $WorkspaceRoot 'workspace-governor'),
-    (Join-Path $WorkspaceRoot 'agents-hub'),
+    (Join-Path $WorkspaceRoot '.agents-hub'),
     (Join-Path $WorkspaceRoot 'agents-hub-one'),
     (Join-Path $WorkspaceRoot 'agents-hub-two'),
     (Join-Path $WorkspaceRoot 'mcp-gateway'),
@@ -742,19 +742,19 @@ $R['14_repositoryPaths'] = [ordered]@{
             path = $HubPath
             present = $hubPresent
             state = $hubState
-            note = if ($hubPresent) { 'Hub present at the local path' } else { 'local Hub path: ABSENT. Canonical Hub is the agents-hub repository; this reports the local runtime path only' }
+            note = if ($hubPresent) { 'Hub present at the local path' } else { 'local Hub path: ABSENT. Canonical Hub is the .agents-hub repository; this reports the local runtime path only' }
             repo = ($repos | Where-Object { $_.path -eq $HubPath } | Select-Object -First 1)
         }
     }
     preConsolidationSourceRepositories = [ordered]@{
         inspected = $true
-        'agents-hub' = Get-RepoByLeaf -Leaf 'agents-hub'
-        'agents-hub-one (former name of agents-hub)' = Get-RepoByLeaf -Leaf 'agents-hub-one'
+        '.agents-hub' = Get-RepoByLeaf -Leaf '.agents-hub'
+        'agents-hub-one (former name of .agents-hub)' = Get-RepoByLeaf -Leaf 'agents-hub-one'
         'agents-hub-two' = Get-RepoByLeaf -Leaf 'agents-hub-two'
     }
     humanLayer = [ordered]@{ 'atrium_workspace' = Get-RepoByLeaf -Leaf 'atrium_workspace' }
     allProbed = $repos
-    note = 'Architecture: agents-hub is the current canonical Hub and live governance authority; workspace-governor is the Hub backoffice -- research, reconciliation, change preparation, evidence, backups, archives, provenance; agents-hub-two is source material pending reconciliation and is not a competing authority; mcp-gateway is enforcement. The canonical Hub is under active consolidation and is not described as final.'
+    note = 'Architecture: .agents-hub is the current canonical Hub and live governance authority; workspace-governor is the Hub backoffice -- research, reconciliation, change preparation, evidence, backups, archives, provenance; agents-hub-two is source material pending reconciliation and is not a competing authority; mcp-gateway is enforcement. The canonical Hub is under active consolidation and is not described as final.'
 }
 
 # --- Explicit non-verification ---------------------------------------------
@@ -793,7 +793,7 @@ $L.Add("**Hub state:** $hubState")
 $L.Add('')
 if (-not $hubPresent) {
     $L.Add('The canonical `.agents-hub` does not exist at the supplied path. It is the')
-    $L.Add('the `agents-hub` repository, under consolidation with `agents-hub-two`, not a')
+    $L.Add('the `.agents-hub` repository, under consolidation with `agents-hub-two`, not a')
     $L.Add('precondition of discovery. Sections whose meaning depends on it are marked')
     $L.Add('**not applicable** rather than reported as empty -- an empty result would read')
     $L.Add('as "nothing exists", which is a different and false claim.')
@@ -823,7 +823,7 @@ $L.Add("| 10 | Audit/logging | canonical Hub: $($R['10_auditAndLogging'].canonic
 $L.Add("| 11 | Duplicated governance | $($R['11_duplicatedGovernance'].identicalContentGroups.Count) identical-content groups |")
 $L.Add("| 12 | Native capabilities | candidate list requires confirmation |")
 $L.Add("| 13 | Bypass paths | $(@($R['13_bypassPaths'].configuredInBothRuntimes).Count) servers configured in both runtimes |")
-$L.Add("| 14 | Repositories | workspace root exists=$($R['14_repositoryPaths'].workspaceRoot.exists); canonical .agents-hub present=$hubPresent; sources probed: agents-hub (canonical), agents-hub-one (former name), agents-hub-two |")
+$L.Add("| 14 | Repositories | workspace root exists=$($R['14_repositoryPaths'].workspaceRoot.exists); canonical .agents-hub present=$hubPresent; sources probed: .agents-hub (canonical), agents-hub-one (former name), agents-hub-two |")
 $L.Add('')
 $L.Add('## Codex governance-conflict check')
 $L.Add('')
