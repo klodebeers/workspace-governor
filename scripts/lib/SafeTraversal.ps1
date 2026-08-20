@@ -33,7 +33,7 @@
 #>
 
 # Never entered, for safety. Recorded as existing only.
-# design-systems\.remember — unresolved provenance and sensitivity, STATE.md B-2.
+# design-systems\.remember -- unresolved provenance and sensitivity, STATE.md B-2.
 $script:SafetyPrunedNames = @('.remember')
 
 # Never entered, to keep inventories meaningful. Not safety-critical.
@@ -42,7 +42,7 @@ $script:NoisePrunedNames = @('.git', 'node_modules')
 function Test-IsReparsePoint {
     <#
     .SYNOPSIS
-      True if the item is ANY filesystem reparse point — file or directory.
+      True if the item is ANY filesystem reparse point -- file or directory.
     .DESCRIPTION
       Attribute-based, so it holds regardless of the link's name or target.
       Deliberately NOT restricted to containers: a FILE reparse point that
@@ -161,7 +161,7 @@ function Get-SafeChildItems {
         foreach ($c in $children) {
 
             # ===============================================================
-            # PRE-SPLIT DECISION — reparse point, file OR directory, whatever
+            # PRE-SPLIT DECISION -- reparse point, file OR directory, whatever
             # the name. This MUST precede the container/file split: a file
             # reparse point routed to the file branch would be returned in
             # items and then hashed, and Get-FileHash follows the link.
@@ -182,13 +182,13 @@ function Get-SafeChildItems {
 
             if ($c.PSIsContainer) {
 
-                # PRE-DESCENT DECISION — protected name.
+                # PRE-DESCENT DECISION -- protected name.
                 if ($script:SafetyPrunedNames -contains $c.Name) {
                     $result.prunedForSafety += $c.FullName
                     continue    # never pushed, never listed, never counted
                 }
 
-                # PRE-DESCENT DECISION — noise.
+                # PRE-DESCENT DECISION -- noise.
                 if ($script:NoisePrunedNames -contains $c.Name) {
                     $result.prunedForNoise += $c.FullName
                     continue
@@ -201,7 +201,7 @@ function Get-SafeChildItems {
                     }
                 }
 
-                # PRE-DESCENT DECISION 4 — depth cap. Recorded, not silent.
+                # PRE-DESCENT DECISION 4 -- depth cap. Recorded, not silent.
                 if (($node.Depth + 1) -gt $MaxDepth) {
                     $result.depthLimited += [ordered]@{
                         path = $c.FullName
@@ -240,7 +240,7 @@ function Test-SafePruning {
       Proves pre-descent pruning and reparse-point containment from run data.
     .DESCRIPTION
       Positive proof, not absence-from-output. Asserts that no directory in
-      visitedDirectories is the same as, or beneath, any excluded directory —
+      visitedDirectories is the same as, or beneath, any excluded directory --
       safety-pruned or untraversed reparse point. A traversed exclusion would
       appear in visitedDirectories and fail this check.
     #>

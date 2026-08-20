@@ -182,14 +182,49 @@ or network state — Part A establishes the script contains no cmdlet that
 touches them. Reading a file updates last-*access* time; the comparison uses
 last-*write* time and size, which reads do not alter.
 
-## Static structure gate — `Assert-ScriptStructure.py`
+## Pre-handoff gates
 
-Because this repository is maintained from an environment with no PowerShell,
-nothing here can be executed before it is handed to the local Windows operator.
-Delimiter balance was the only static gate, and it catches neither ordering nor
-name-collision defects. Two such defects reached committed code.
+Run all three before handing anything here to the local operator. In this order.
 
-`Assert-ScriptStructure.py` closes that gap. Run it before every handoff:
+### 1. Encoding -- ASCII only
+
+Every `.ps1` in this repository must be **pure ASCII**. Windows PowerShell 5.1
+reads a `.ps1` without a byte-order mark using the system ANSI code page, so a
+UTF-8 em dash arrives as `â€”`; its third byte is U+201D, which PowerShell accepts
+as a string delimiter, and every affected literal terminates early. That produced
+a full parse cascade on the operator's machine. Pure ASCII decodes identically
+under UTF-8 and any ANSI code page, which removes the class rather than relying
+on a BOM surviving every checkout and editor.
+
+```bash
+! grep -rIPl '[^\x00-\x7F]' scripts --include='*.ps1' || echo "NON-ASCII FOUND"
+```
+
+### 2. Parse -- with a real PowerShell parser
+
+```powershell
+Get-ChildItem scripts,scripts/lib -Filter *.ps1 -File | ForEach-Object {
+    $e = $null
+    [void][System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$null, [ref]$e)
+    '{0,-40} {1}' -f $_.Name, $(if ($e.Count) { "FAIL ($($e.Count))" } else { 'OK' })
+    $e | ForEach-Object { "    L$($_.Extent.StartLineNumber): $($_.Message)" }
+}
+```
+
+Use the parser, not a hand-rolled check. Three successive custom static gates
+were built here before anyone tried an actual PowerShell parser, and none of them
+could detect a parse error, because none of them was a parser. `pwsh` is
+available for Linux as a self-contained tarball from the PowerShell releases page
+and needs no install.
+
+### 3. Semantics -- `Assert-ScriptStructure.py`
+
+This is **not** a syntax gate; step 2 is. It catches defects that are valid
+PowerShell and therefore invisible to a parser: indexed assignment before the
+container is constructed, and case-insensitive loop/container collisions. Two
+such defects reached committed code and broke the assigned commands.
+
+Run it before every handoff:
 
 ```bash
 python3 scripts/Assert-ScriptStructure.py --selftest
@@ -218,11 +253,19 @@ This is a static gate only. It does not verify behaviour, and it does not
 replace or weaken the required local Windows runtime verification recorded in
 `STATE.md` § Verification assignments.
 
-## Not verified at authoring time
+## Verification status
 
-These scripts were written in a Linux container with no PowerShell available,
-so they have **not been executed**. Static validation performed: the four
-`Assert-ScriptStructure.py` checks above, plus a manual pass for pipeline and
-cmdlet syntax. Runtime behaviour remains unverified — expect the possibility of
-a runtime error on first run. If one occurs, send the error text; the scripts
-are read-only, so a failure cannot damage anything.
+These scripts have been **parsed and executed** under PowerShell 7.4.6 on Linux
+against synthetic fixtures, including a Hub containing `.remember`, a file
+symlink and a directory symlink, and both the COMPLETE and INCOMPLETE traversal
+paths. Results, including exit codes and the leak check on `.remember`, are in
+`evidence/POWERSHELL-EXECUTION-2026-08-20.md`.
+
+Not verified: **Windows PowerShell 5.1** specifically, and the **live Hub**.
+Pure-ASCII sources remove the encoding difference that broke 5.1, and no
+PowerShell 7-only syntax is present, but 5.1 has not run these scripts. Windows
+junction semantics, ACL-denied directories and long paths were not exercised;
+Linux symlinks stood in for reparse points and were correctly excluded.
+
+The scripts are read-only, so a failure cannot damage anything. If one errors,
+send the error text.

@@ -333,7 +333,7 @@ $R = [ordered]@{
         generatedUtc  = $stampISO
         script        = 'Invoke-GatewayDiscovery.ps1'
         schemaVersion = '1.1'
-        directive     = 'mcp-gateway section 5 — Discovery. Evidence collection only.'
+        directive     = 'mcp-gateway section 5 -- Discovery. Evidence collection only.'
         readOnly      = $true
         networkCalls  = $false
         secretsPolicy = 'names, locations and configuration metadata only; values never collected'
@@ -362,7 +362,7 @@ $R['00_hubState'] = [ordered]@{
     interpretation = if ($hubPresent) { 'Canonical Hub present at the supplied path.' } else { $hubAbsentReason }
     note = 'Discovery does not presuppose the canonical Hub exists. Sections whose meaning depends on it carry an applicable flag.'
 }
-Write-Host '=== MCP Gateway Discovery — read-only evidence collection ===' -ForegroundColor Cyan
+Write-Host '=== MCP Gateway Discovery -- read-only evidence collection ===' -ForegroundColor Cyan
 
 # --- 1. .agents-hub location and structure ----------------------------------
 Write-Host '[ 1/14] .agents-hub location and structure'
@@ -515,7 +515,7 @@ Write-Host '[ 7/14] shared assets and tool registries'
 $regPatterns = @('CATALOG.md','agent-registry.json','registry.json','catalog.json','package-layout.json','*.schema.json')
 
 # Canonical Hub registries. Populated ONLY from the canonical Hub. Empty and
-# not-applicable when the Hub is absent — never backfilled from a source repo.
+# not-applicable when the Hub is absent -- never backfilled from a source repo.
 $regHub = @()
 if ($hubPresent) {
     foreach ($n in $regPatterns) {
@@ -666,8 +666,8 @@ foreach ($g in ($present | Group-Object -Property sha256)) {
 }
 # Duplication is assessed across every governance file actually inspected:
 # canonical Hub (if present), pre-consolidation sources (if the Hub is absent),
-# and the runtime files. Grouping by hash spans all three sets on purpose —
-# that is the point of the check — but each set is reported separately so no
+# and the runtime files. Grouping by hash spans all three sets on purpose --
+# that is the point of the check -- but each set is reported separately so no
 # source finding is presented as a canonical-Hub finding.
 $govAll = Select-UniqueByFullName -Items (@($govHub) + @($govSrc) + @($gov))
 $presentAll = @($govAll | Where-Object { $_.exists -and $_.sha256 })
@@ -738,7 +738,7 @@ $R['14_repositoryPaths'] = [ordered]@{
             path = $HubPath
             present = $hubPresent
             state = $hubState
-            note = if ($hubPresent) { 'canonical Hub present' } else { 'canonical .agents-hub: ABSENT — it is the output of consolidating agents-hub-one and agents-hub-two' }
+            note = if ($hubPresent) { 'canonical Hub present' } else { 'canonical .agents-hub: ABSENT -- it is the output of consolidating agents-hub-one and agents-hub-two' }
             repo = ($repos | Where-Object { $_.path -eq $HubPath } | Select-Object -First 1)
         }
     }
@@ -774,11 +774,11 @@ $mdPath   = Join-Path $OutDir "GATEWAY-DISCOVERY-$stamp.md"
 $R | ConvertTo-Json -Depth 14 | Set-Content -LiteralPath $jsonPath -Encoding UTF8
 
 $L = New-Object System.Collections.Generic.List[string]
-$L.Add('# Gateway Discovery — Current-State Map')
+$L.Add('# Gateway Discovery -- Current-State Map')
 $L.Add('')
 $L.Add("**Generated:** $stampISO")
 $L.Add("**Machine:** $env:COMPUTERNAME")
-$L.Add('**Scope:** `mcp-gateway` directive section 5 — Discovery. Evidence collection only.')
+$L.Add('**Scope:** `mcp-gateway` directive section 5 -- Discovery. Evidence collection only.')
 $L.Add('**Method:** read-only. Nothing was installed, modified, deleted, moved, renamed, reconfigured or repaired.')
 $L.Add('**Secrets:** names, locations and metadata only. No secret value was collected.')
 $L.Add('')
@@ -790,7 +790,7 @@ if (-not $hubPresent) {
     $L.Add('The canonical `.agents-hub` does not exist at the supplied path. It is the')
     $L.Add('output of consolidating `agents-hub-one` and `agents-hub-two`, not a')
     $L.Add('precondition of discovery. Sections whose meaning depends on it are marked')
-    $L.Add('**not applicable** rather than reported as empty — an empty result would read')
+    $L.Add('**not applicable** rather than reported as empty -- an empty result would read')
     $L.Add('as "nothing exists", which is a different and false claim.')
     $L.Add('')
     if (@($resolvedSources).Count -gt 0) {
@@ -842,6 +842,6 @@ $L.Add("See ``$(Split-Path $jsonPath -Leaf)`` in this directory.")
 ($L -join "`r`n") | Set-Content -LiteralPath $mdPath -Encoding UTF8
 
 Write-Host ''
-Write-Host 'DISCOVERY COMPLETE — no system changes were made.' -ForegroundColor Green
+Write-Host 'DISCOVERY COMPLETE -- no system changes were made.' -ForegroundColor Green
 Write-Host "  JSON : $jsonPath"
 Write-Host "  MD   : $mdPath"

@@ -6,14 +6,14 @@
 .DESCRIPTION
   Three parts. All read-only.
 
-    PART A — static invariant.
+    PART A -- static invariant.
       Asserts that no script under scripts/ uses `Get-ChildItem -Recurse` in
       executable code, that the traversal path contains exactly one
       Get-ChildItem call (single-level, in lib/SafeTraversal.ps1), and that
       every traversing script dot-sources that module. If -Recurse is absent,
       traversal cannot pre-traverse a subtree before the prune decision.
 
-    PART B — runtime proof from traversal data.
+    PART B -- runtime proof from traversal data.
       Runs the real traversal against the Hub and asserts a positive property:
       no directory in visitedDirectories is the same as, or beneath, any
       directory in prunedForSafety. visitedDirectories records every directory
@@ -21,7 +21,7 @@
       would appear there. This is stronger than checking that .remember is
       merely absent from the output.
 
-    PART C — proof artifact for committing.
+    PART C -- proof artifact for committing.
 
   Absence from output is NOT accepted as evidence here. Filtering after
   recursion produces identical output to pruning before descent; only the
@@ -63,7 +63,7 @@ function Remove-PsStringLiterals {
       Whichever quote character opens first wins, so a double-quoted string
       containing single quotes is handled correctly. A regex that strips
       single-quoted strings first would consume across the double-quoted
-      boundary and corrupt the rest of the line — which silently breaks any
+      boundary and corrupt the rest of the line -- which silently breaks any
       check built on top of it.
     #>
     param([string]$Line)
@@ -106,7 +106,7 @@ function Get-CodeLines {
     return $out
 }
 
-Write-Host '=== PART A — static invariant ===' -ForegroundColor Cyan
+Write-Host '=== PART A -- static invariant ===' -ForegroundColor Cyan
 
 $scripts = @(Get-ChildItem -LiteralPath $scriptDir -Filter '*.ps1' -File -ErrorAction SilentlyContinue)
 $libs    = @(Get-ChildItem -LiteralPath (Join-Path $scriptDir 'lib') -Filter '*.ps1' -File -ErrorAction SilentlyContinue)
@@ -139,7 +139,7 @@ $modText = Get-Content -LiteralPath $libPath -Raw
 $a1 = ($recurseHits.Count -eq 0)
 $a2 = ($traversalSites.Count -eq 1)
 $a3 = ($missingDotSource.Count -eq 0)
-# A4 — reparse containment covers ALL items and is decided BEFORE the
+# A4 -- reparse containment covers ALL items and is decided BEFORE the
 # directory/file split. Proving the code merely exists is not enough: a
 # container-gated test lets a file reparse point into items, where it is hashed.
 $a4Exists   = ($modText -match 'Test-IsReparsePoint') -and
@@ -155,13 +155,13 @@ for ($k = 0; $k -lt $modLines.Count; $k++) {
 }
 $a4Order = ($idxReparse -ge 0 -and $idxSplit -ge 0 -and $idxReparse -lt $idxSplit)
 $a4 = $a4Exists -and $a4NotGated -and $a4Order
-# A7 — the runtime test asserts no returned item is itself a reparse point.
+# A7 -- the runtime test asserts no returned item is itself a reparse point.
 $a7 = ($modText -match 'reparsePointsInItems') -and
       ($modText -match 'returned item is a reparse point')
-# A5 — completeness is computed and can be INCOMPLETE.
+# A5 -- completeness is computed and can be INCOMPLETE.
 $a5 = ($modText -match "completeness\s*=") -and ($modText -match 'INCOMPLETE') -and
       ($modText -match 'incompleteReasons')
-# A6 — the inventory consumes completeness rather than ignoring it.
+# A6 -- the inventory consumes completeness rather than ignoring it.
 $invPath = Join-Path $scriptDir 'Invoke-HubInventory.ps1'
 $a6 = $false
 if (Test-Path -LiteralPath $invPath) {
@@ -183,7 +183,7 @@ Write-Host ("  other single-level filesystem reads      : {0}" -f $otherSites.Co
 foreach ($s in $otherSites) { Write-Host ("    {0}:{1}" -f $s.File,$s.Line) -ForegroundColor DarkGray }
 
 Write-Host ''
-Write-Host '=== PART B — runtime proof ===' -ForegroundColor Cyan
+Write-Host '=== PART B -- runtime proof ===' -ForegroundColor Cyan
 
 $hubResolved = $HubPath
 try { $hubResolved = (Resolve-Path -LiteralPath $HubPath -ErrorAction Stop).Path } catch { }
@@ -238,7 +238,7 @@ if ($hubExists -and -not $rememberSeen) {
 }
 
 Write-Host ''
-Write-Host '=== PART C — proof artifact ===' -ForegroundColor Cyan
+Write-Host '=== PART C -- proof artifact ===' -ForegroundColor Cyan
 if (-not (Test-Path -LiteralPath $OutDir)) { New-Item -ItemType Directory -Path $OutDir -Force | Out-Null }
 $proofPath = Join-Path $OutDir "REMEMBER-PRUNING-PROOF-$stamp.md"
 
@@ -264,12 +264,12 @@ $P.Add('Filtering after recursion and pruning before descent produce identical')
 $P.Add('output. Absence of `.remember` from a report therefore proves nothing. This')
 $P.Add('proof rests on the record of directories actually passed to `Get-ChildItem`.')
 $P.Add('')
-$P.Add('## Part A — static invariant')
+$P.Add('## Part A -- static invariant')
 $P.Add('')
 $P.Add('| # | Assertion | Result |')
 $P.Add('|---|---|---|')
-$P.Add("| A1 | No ``Get-ChildItem -Recurse`` in executable code | $(if($a1){'PASS'}else{'FAIL'}) — $($recurseHits.Count) hits |")
-$P.Add("| A2 | Exactly one traversal ``Get-ChildItem``, single-level, in ``lib/SafeTraversal.ps1`` | $(if($a2){'PASS'}else{'FAIL'}) — $($traversalSites.Count) found |")
+$P.Add("| A1 | No ``Get-ChildItem -Recurse`` in executable code | $(if($a1){'PASS'}else{'FAIL'}) -- $($recurseHits.Count) hits |")
+$P.Add("| A2 | Exactly one traversal ``Get-ChildItem``, single-level, in ``lib/SafeTraversal.ps1`` | $(if($a2){'PASS'}else{'FAIL'}) -- $($traversalSites.Count) found |")
 $P.Add("| A3 | Every traversing script dot-sources the module | $(if($a3){'PASS'}else{'FAIL'}) |")
 $P.Add("| A4 | Reparse-point containment present and attribute-based | $(if($a4){'PASS'}else{'FAIL'}) |")
 $P.Add("| A5 | Completeness computed and can be INCOMPLETE | $(if($a5){'PASS'}else{'FAIL'}) |")
@@ -281,17 +281,17 @@ $P.Add('')
 $P.Add('A4 matters twice over. A name-based prune list is defeated by an alias: a')
 $P.Add('junction named anything can target a protected directory or a location outside')
 $P.Add('the Hub, so detection is by file attribute. And the test must run BEFORE the')
-$P.Add('directory/file split — a container-gated test lets a FILE reparse point reach')
+$P.Add('directory/file split -- a container-gated test lets a FILE reparse point reach')
 $P.Add('the file branch, enter `items`, and be hashed, and `Get-FileHash` follows the')
 $P.Add('link. A4 asserts the call site precedes the split by line order:')
 $P.Add("reparse at line $($idxReparse+1), split at line $($idxSplit+1).")
 $P.Add('')
 if ($recurseHits.Count -gt 0) {
     $P.Add('### -Recurse violations'); $P.Add('')
-    foreach ($h in $recurseHits) { $P.Add("- ``$($h.File):$($h.Line)`` — ``$($h.Text)``") }
+    foreach ($h in $recurseHits) { $P.Add("- ``$($h.File):$($h.Line)`` -- ``$($h.Text)``") }
     $P.Add('')
 }
-$P.Add('## Part B — runtime proof')
+$P.Add('## Part B -- runtime proof')
 $P.Add('')
 if ($hubExists) {
     $P.Add("Hub traversed: ``$hubResolved``")
@@ -316,21 +316,21 @@ if ($hubExists) {
         $P.Add('')
     }
     if (@($trav.untraversedReparsePoints).Count -gt 0) {
-        $P.Add('### Not traversed — directory reparse points'); $P.Add('')
-        foreach ($rp in $trav.untraversedReparsePoints) { $P.Add("- ``$($rp.path)`` — $($rp.note)") }
+        $P.Add('### Not traversed -- directory reparse points'); $P.Add('')
+        foreach ($rp in $trav.untraversedReparsePoints) { $P.Add("- ``$($rp.path)`` -- $($rp.note)") }
         $P.Add('')
     }
     if (@($trav.traversalFailures).Count -gt 0) {
         $P.Add('### Traversal failures'); $P.Add('')
-        foreach ($tf in $trav.traversalFailures) { $P.Add("- ``$($tf.path)`` — $($tf.reason)") }
+        foreach ($tf in $trav.traversalFailures) { $P.Add("- ``$($tf.path)`` -- $($tf.reason)") }
         $P.Add('')
     }
     if (@($trav.depthLimited).Count -gt 0) {
         $P.Add('### Depth-limited'); $P.Add('')
-        foreach ($dl in $trav.depthLimited) { $P.Add("- ``$($dl.path)`` — $($dl.note)") }
+        foreach ($dl in $trav.depthLimited) { $P.Add("- ``$($dl.path)`` -- $($dl.note)") }
         $P.Add('')
     }
-    $P.Add("**B1 — no visited directory is at or beneath a pruned directory: $(if($b1){'PASS'}else{'FAIL'})**")
+    $P.Add("**B1 -- no visited directory is at or beneath a pruned directory: $(if($b1){'PASS'}else{'FAIL'})**")
     $P.Add('')
     if (@($proof.violations).Count -gt 0) {
         foreach ($v in $proof.violations) { $P.Add("- $v") }

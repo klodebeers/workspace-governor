@@ -306,21 +306,21 @@ if ($hubExists) {
     $L.Add('')
     if (@($trav.prunedForNoise).Count -gt 0) { foreach ($p in $trav.prunedForNoise) { $L.Add("- ``$p``") } } else { $L.Add('- none found') }
     $L.Add('')
-    $L.Add('**Not traversed — reparse points, file and directory** (junction, symlink, mount).')
+    $L.Add('**Not traversed -- reparse points, file and directory** (junction, symlink, mount).')
     $L.Add('Detected by attribute before the directory/file split, so neither an alias nor a')
     $L.Add('file link can bypass the name-based rule. Never returned, never hashed. Targets')
     $L.Add('are not inventoried:')
     $L.Add('')
-    if (@($trav.untraversedReparsePoints).Count -gt 0) { foreach ($rp in $trav.untraversedReparsePoints) { $L.Add("- ``$($rp.path)`` [$($rp.kind)] — $($rp.note)") } } else { $L.Add('- none found') }
+    if (@($trav.untraversedReparsePoints).Count -gt 0) { foreach ($rp in $trav.untraversedReparsePoints) { $L.Add("- ``$($rp.path)`` [$($rp.kind)] -- $($rp.note)") } } else { $L.Add('- none found') }
     $L.Add('')
     $L.Add('**Traversal failures** (could not enumerate; forces INCOMPLETE):')
     $L.Add('')
-    if (@($trav.traversalFailures).Count -gt 0) { foreach ($tf in $trav.traversalFailures) { $L.Add("- ``$($tf.path)`` — $($tf.reason)") } } else { $L.Add('- none')
+    if (@($trav.traversalFailures).Count -gt 0) { foreach ($tf in $trav.traversalFailures) { $L.Add("- ``$($tf.path)`` -- $($tf.reason)") } } else { $L.Add('- none')
     }
     $L.Add('')
     $L.Add('**Depth-limited** (not descended; forces INCOMPLETE):')
     $L.Add('')
-    if (@($trav.depthLimited).Count -gt 0) { foreach ($dl in $trav.depthLimited) { $L.Add("- ``$($dl.path)`` — $($dl.note)") } } else { $L.Add('- none') }
+    if (@($trav.depthLimited).Count -gt 0) { foreach ($dl in $trav.depthLimited) { $L.Add("- ``$($dl.path)`` -- $($dl.note)") } } else { $L.Add('- none') }
     $L.Add('')
     $L.Add("**Item cap reached:** $($trav.truncated)")
 } else {
@@ -340,7 +340,7 @@ $L.Add('### Pre-descent pruning proof')
 $L.Add('')
 if ($hubExists) {
     $L.Add("- Safety-pruned directories: $(@($trav.prunedForSafety).Count)")
-    foreach ($p in $trav.prunedForSafety) { $L.Add("  - ``$p`` — identified while listing its parent; never entered") }
+    foreach ($p in $trav.prunedForSafety) { $L.Add("  - ``$p`` -- identified while listing its parent; never entered") }
     $L.Add("- Directories actually passed to Get-ChildItem: $($pruneProof.visitedDirectoryCount)")
     $L.Add("- Violations (visited at or beneath a pruned directory): $(@($pruneProof.violations).Count)")
     $L.Add("- Verdict: **$(if ($pruneProof.pass) { 'PASS' } else { 'FAIL' })**")
@@ -358,11 +358,11 @@ Write-Host "  JSON : $jsonPath"
 Write-Host "  MD   : $mdPath"
 Write-Host ''
 if ($travComplete -eq 'COMPLETE') {
-    Write-Host 'INVENTORY WRITTEN — Completeness: COMPLETE. No system changes were made.' -ForegroundColor Green
+    Write-Host 'INVENTORY WRITTEN -- Completeness: COMPLETE. No system changes were made.' -ForegroundColor Green
     Write-Host 'Commit both files to workspace-governor.' -ForegroundColor Yellow
     exit 0
 } else {
-    Write-Host 'INVENTORY WRITTEN — Completeness: INCOMPLETE.' -ForegroundColor Red
+    Write-Host 'INVENTORY WRITTEN -- Completeness: INCOMPLETE.' -ForegroundColor Red
     Write-Host 'Part of the accessible Hub tree was skipped. The reports say so explicitly.' -ForegroundColor Red
     Write-Host 'Do not use this as the reconciliation input until the cause is resolved.' -ForegroundColor Red
     exit 2

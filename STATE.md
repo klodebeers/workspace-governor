@@ -71,7 +71,7 @@ pending verification is not a defect and is not re-flagged each session; see
 | Status | PENDING |
 | Assigned environment | Local Windows |
 | Assigned executor | Klo / local Windows agent |
-| Cloud Claude responsibility | Static review and preparation only |
+| Cloud Claude responsibility | Parse and execute under PowerShell 7 on Linux against synthetic fixtures. Done. |
 | Cloud blocker | No |
 | Current phase blocker | Yes, only when the live-Hub inventory result is required to continue consolidation |
 | Recheck trigger | Local execution evidence is committed to `workspace-governor` |
@@ -80,12 +80,27 @@ Scope: `scripts/Invoke-HubInventory.ps1`, `scripts/Assert-RememberPruning.ps1`,
 `scripts/Invoke-GatewayDiscovery.ps1`, `scripts/Assert-DiscoveryReadOnly.ps1`,
 `scripts/lib/SafeTraversal.ps1`.
 
-Completed in cloud: delimiter validation on all five files; static invariants A1
-to A7; source-level review across five rounds. No script has been executed.
+**Correction to a premise this phase was built on.** "No PowerShell in this
+environment" was accepted without testing it. PowerShell 7 is available here as a
+self-contained tarball and needs no install. The scripts have now been parsed and
+executed in cloud. The three hand-rolled static gates built earlier were an
+avoidable substitute for an existing capability -- see
+`rules/VERIFICATION-RESOLUTION.md` and
+`evidence/POWERSHELL-EXECUTION-2026-08-20.md`.
 
-Still required: the Windows runtime test. It is not waived. Live-Hub evidence
-cannot be accepted until `Assert-RememberPruning.ps1` returns `PASS` and
-`Invoke-HubInventory.ps1` reports `Completeness: COMPLETE` on the local machine.
+Completed in cloud: parse of all five files with `[Parser]::ParseFile` (0
+errors); execution of `Assert-RememberPruning.ps1` on both the no-Hub and
+Hub-present paths, and `Invoke-HubInventory.ps1` on both the COMPLETE and
+INCOMPLETE paths, against synthetic fixtures including `.remember`, a file
+symlink and a directory symlink; confirmation that no `.remember` content reaches
+any emitted file; static invariants A1 to A7.
+
+Still required: **Windows PowerShell 5.1** specifically, against the **live
+Hub**. Neither is waived, and cloud execution does not substitute for either.
+Windows junction semantics, ACL-denied directories and long paths remain
+unexercised. Live-Hub evidence cannot be accepted until
+`Assert-RememberPruning.ps1` returns `PASS` and `Invoke-HubInventory.ps1` reports
+`Completeness: COMPLETE` on the local machine.
 
 ## Open work
 
@@ -106,7 +121,10 @@ it emits. This is the only remaining input needed to make the target tree
 acceptable.
 
 **Pull current `main` first. Do not run any script copied earlier.** The versions
-at `068dfa4` and before carried case-insensitive variable collisions:
+before `main` failed to parse on Windows PowerShell 5.1: 61 em dashes in
+non-BOM UTF-8 sources were decoded as ANSI, and one of the resulting bytes is a
+character PowerShell treats as a string delimiter. All `.ps1` files are now pure
+ASCII. Earlier versions also carried case-insensitive variable collisions:
 `Assert-RememberPruning.ps1` would have failed before writing its verdict, and
 `Invoke-HubInventory.ps1` would have dropped its unverified list whenever the
 inventory came back INCOMPLETE. Both are fixed on `main`. See
@@ -137,6 +155,7 @@ consolidation. Do not run Gateway discovery.
 - Do not reopen the 46-section directive structure (`DECISIONS.md` D-04).
 - Do not run the discovery tooling in `scripts/` until it is revised per open work item 2 **and** Hub consolidation is complete (`DECISIONS.md` D-05, D-06).
 - Do not adopt `agent-governance-toolkit` without provenance, licence, and generated-output review.
+- Do not commit a `.ps1` under `scripts/` containing any byte above 0x7F. Windows PowerShell 5.1 reads non-BOM sources as ANSI, and U+2014 becomes a string delimiter.
 - Do not choose a verification method before reading `rules/VERIFICATION-RESOLUTION.md`. It is binding, and it bounds the method, the stopping condition, and when new tooling is justified.
 - Do not hand any script under `scripts/` to the local operator until
   `python3 scripts/Assert-ScriptStructure.py --selftest` and the same tool run

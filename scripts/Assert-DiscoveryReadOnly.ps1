@@ -5,18 +5,18 @@
 .DESCRIPTION
   Three-part verification:
 
-    PART A — Static analysis.
+    PART A -- Static analysis.
       Scans Invoke-GatewayDiscovery.ps1 for every mutating cmdlet and for
       install/network/process-start verbs. Each hit is listed with its line so
       it can be eyeballed. Expected: mutations confined to the emit block
       (New-Item / Set-Content targeting -OutDir only).
 
-    PART B — Filesystem baseline and comparison.
+    PART B -- Filesystem baseline and comparison.
       Records path, size and last-write time for every file under the inspected
       roots BEFORE running discovery, runs discovery, then re-records and
       compares. Any modification, creation or deletion outside -OutDir fails.
 
-    PART C — Verdict and proof artifact.
+    PART C -- Verdict and proof artifact.
       Writes a committable proof document stating PASS or FAIL with counts.
 
   This wrapper is itself read-only apart from the proof file and whatever
@@ -69,7 +69,7 @@ if (-not (Test-Path -LiteralPath $discovery)) {
     exit 1
 }
 
-Write-Host '=== PART A — static analysis of the discovery script ===' -ForegroundColor Cyan
+Write-Host '=== PART A -- static analysis of the discovery script ===' -ForegroundColor Cyan
 
 $MutatingPatterns = @(
     'Set-Content','Add-Content','Out-File','New-Item','Remove-Item','Move-Item',
@@ -104,11 +104,11 @@ foreach ($h in $hits) {
     $col = if ($h.permitted) { 'DarkGray' } else { 'Yellow' }
     Write-Host ("    L{0,-4} {1,-22} {2}" -f $h.line, $h.cmdlet, $tag) -ForegroundColor $col
 }
-Write-Host ("  PART A: {0}" -f $(if ($emitOnly) { 'PASS — all mutations target the output directory' } else { 'REVIEW REQUIRED — see lines marked REVIEW above' })) `
+Write-Host ("  PART A: {0}" -f $(if ($emitOnly) { 'PASS -- all mutations target the output directory' } else { 'REVIEW REQUIRED -- see lines marked REVIEW above' })) `
     -ForegroundColor $(if ($emitOnly) { 'Green' } else { 'Yellow' })
 
 Write-Host ''
-Write-Host '=== PART B — filesystem baseline ===' -ForegroundColor Cyan
+Write-Host '=== PART B -- filesystem baseline ===' -ForegroundColor Cyan
 
 $roots = @($HubPath, $WorkspaceRoot, (Join-Path $env:USERPROFILE '.claude'), (Join-Path $env:USERPROFILE '.codex')) |
          Where-Object { Test-Path -LiteralPath $_ }
@@ -146,7 +146,7 @@ Write-Host '=== running discovery ===' -ForegroundColor Cyan
 $discoveryExit = $LASTEXITCODE
 
 Write-Host ''
-Write-Host '=== PART B — comparison ===' -ForegroundColor Cyan
+Write-Host '=== PART B -- comparison ===' -ForegroundColor Cyan
 $after = Get-Manifest -Roots $roots
 
 $modified = @(); $created = @(); $deleted = @()
@@ -162,11 +162,11 @@ Write-Host ("  deleted                 : {0}" -f $deleted.Count)
 foreach ($f in (($modified + $created + $deleted) | Select-Object -First 25)) { Write-Host "    $f" -ForegroundColor Yellow }
 
 $partB = ($modified.Count -eq 0 -and $created.Count -eq 0 -and $deleted.Count -eq 0)
-Write-Host ("  PART B: {0}" -f $(if ($partB) { 'PASS — no filesystem changes outside the output directory' } else { 'FAIL — see files listed above' })) `
+Write-Host ("  PART B: {0}" -f $(if ($partB) { 'PASS -- no filesystem changes outside the output directory' } else { 'FAIL -- see files listed above' })) `
     -ForegroundColor $(if ($partB) { 'Green' } else { 'Red' })
 
 Write-Host ''
-Write-Host '=== PART C — verdict ===' -ForegroundColor Cyan
+Write-Host '=== PART C -- verdict ===' -ForegroundColor Cyan
 $verdict = if ($emitOnly -and $partB) { 'PASS' } else { 'FAIL' }
 
 $proof = Join-Path $OutDir "GATEWAY-DISCOVERY-$stamp-READONLY-PROOF.md"
@@ -179,7 +179,7 @@ $P.Add("**Machine:** $env:COMPUTERNAME")
 $P.Add("**Discovery script:** ``Invoke-GatewayDiscovery.ps1``")
 $P.Add("**Comparison mode:** $(if ($Thorough) { 'size + mtime + sha256 (<2MB)' } else { 'size + mtime' })")
 $P.Add('')
-$P.Add('## Part A — static analysis')
+$P.Add('## Part A -- static analysis')
 $P.Add('')
 $P.Add("Mutating-cmdlet occurrences found: **$($hits.Count)**")
 $P.Add('')
@@ -189,7 +189,7 @@ foreach ($h in $hits) { $P.Add("| $($h.line) | ``$($h.cmdlet)`` | $($h.permitted
 $P.Add('')
 $P.Add("Result: **$(if ($emitOnly) { 'PASS' } else { 'REVIEW REQUIRED' })**")
 $P.Add('')
-$P.Add('## Part B — filesystem comparison')
+$P.Add('## Part B -- filesystem comparison')
 $P.Add('')
 $P.Add("Roots monitored: $($roots -join ', ')")
 $P.Add('')
@@ -220,9 +220,9 @@ $P.Add('- File read operations may update last-access time; this proof compares 
 
 Write-Host ''
 if ($verdict -eq 'PASS') {
-    Write-Host 'VERDICT: PASS — discovery made no system changes.' -ForegroundColor Green
+    Write-Host 'VERDICT: PASS -- discovery made no system changes.' -ForegroundColor Green
 } else {
-    Write-Host 'VERDICT: FAIL — review the proof document before committing.' -ForegroundColor Red
+    Write-Host 'VERDICT: FAIL -- review the proof document before committing.' -ForegroundColor Red
 }
 Write-Host "  Proof: $proof"
 Write-Host ''

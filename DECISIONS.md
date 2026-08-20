@@ -176,6 +176,27 @@ using it is not licence to repeat the pattern. The rule is cross-agent, not loca
 to this repository; it is held here only until the canonical `.agents-hub` can
 own it, per `PENDING-GLOBAL-PROMOTIONS.md`.
 
+**D-20.** Syntax verification of PowerShell in this repository uses a real
+PowerShell parser and runtime, not hand-rolled static checks. `.ps1` sources must
+be pure ASCII. Decided by: Agent, under ENGINEER-OWNERSHIP.
+
+Rationale: `Assert-RememberPruning.ps1` failed to parse on Windows because 61 em
+dashes in non-BOM UTF-8 were decoded as ANSI, and U+201D -- the third byte of the
+mis-decoded sequence -- is accepted by PowerShell as a string delimiter. Three
+hand-rolled static gates had passed the file, because none of them was a parser.
+PowerShell 7 turned out to be obtainable in this environment as a self-contained
+tarball needing no install; the premise that no PowerShell was available had been
+accepted without testing it. The parser now handles syntax and the scripts are
+executed against fixtures. `Assert-ScriptStructure.py` is retained only for the
+semantic classes a parser cannot see -- indexed assignment before construction,
+and case-insensitive loop/container collisions -- and is no longer described as a
+syntax gate. ASCII-only is preferred over adding a BOM because pure ASCII decodes
+identically under UTF-8 and any ANSI code page, so it removes the class instead of
+depending on a BOM surviving future checkouts and editors. This is the first
+application of `rules/VERIFICATION-RESOLUTION.md`, and it indicts the earlier
+tooling built in this repository rather than vindicating it. Evidence:
+`evidence/POWERSHELL-EXECUTION-2026-08-20.md`.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.
