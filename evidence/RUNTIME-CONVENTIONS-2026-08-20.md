@@ -4,8 +4,9 @@
 **Method:** independent subagent review against current official vendor
 documentation. Findings integrated here by the parent agent; this is a backoffice
 evidence record, not an authority.
-**Status:** Claude Code section verified against current docs. Codex section
-pending a parallel review.
+**Status:** Both sections verified by independent review. Claude Code against
+current published docs; Codex against pinned implementation source, with the
+canonical prose docs egress-blocked and a recheck owed.
 
 ## Claude Code
 
@@ -88,4 +89,108 @@ mechanism.
 
 ## OpenAI / Codex
 
-Pending independent review. Not asserted here until that evidence exists.
+**Source:** the `openai/codex` implementation at pinned commit
+`9e680a52e7008684062144ba86850be90b1c60d1` (2026-08-20), corroborated where they
+overlap by the published OpenAI prose mirror. **`developers.openai.com` is
+egress-blocked from this environment**, and every `docs/*.md` in the repository is
+a stub pointing there, so the behavioural detail below is read from shipped source
+rather than canonical prose. A recheck from an unrestricted environment is owed.
+
+### Cross-confirmation of predecessor research
+
+The predecessor's `research/AGENTS-MD-RESEARCH-AND-LIVE-AUDIT-2026-08-16.md`
+recorded a 32 KiB combined instruction budget, `project_doc_max_bytes` unset, and
+root-to-cwd one-file-per-directory concatenation. **Independently confirmed from
+source, four days later.** Two separate reviews, four days apart, different
+methods, same numbers. That research is therefore a live design constraint, not
+"re-verify only" as previously classified.
+
+### The binding constraint on the root bootstrap
+
+| Property | Value |
+|---|---|
+| AGENTS.md budget | `project_doc_max_bytes`, default **32 KiB** |
+| Scope of the budget | **Shared across the whole root-to-cwd chain**, and further shared across turn environments |
+| Consumption order | **Root first** |
+| Over-budget behaviour | The file is **truncated mid-content at the byte boundary**. The warning goes to logs only, **never to the model** |
+| `= 0` | Disables AGENTS.md entirely |
+| Files per directory | Exactly one: `AGENTS.override.md` > `AGENTS.md` > configured fallbacks |
+| Count of files | No cap. The byte budget is the only limit |
+
+**Consequence, and it is severe.** An oversized root `AGENTS.md` **silently starves
+every nested one**. No error surfaces to the model or the user; governance simply
+stops being present. Since D-27 makes root `.agents-hub/AGENTS.md` the
+non-negotiable always-loaded bootstrap, its size is a correctness property, not a
+style preference. Governance content belongs **behind router references from a
+small root file**, never inline.
+
+This is exactly the constraint class held only in the predecessor's
+`research/GOVERNANCE-FILE-CREATION-GUIDE-2026-08-16.md` -- per-file size and
+truncation budgets, and "critical content appears before any known truncation
+boundary." That guide is a bound dependency of `HUB-DOCUMENTATION.md`, not
+optional reading.
+
+### The one affordance that makes a neutral tree workable
+
+**`AGENTS.md` may be a symlink.** Path resolution follows symlinks, and the source
+states plainly that symlinks are allowed. This is the verified mechanism by which a
+runtime-bound path can resolve to canonical neutral content without copying it --
+the Codex counterpart to Claude Code's `@path` imports.
+
+### Concrete conflicts with a semantic-ownership tree
+
+Named failures, not general caution. All read from source.
+
+| # | Conflict |
+|---|---|
+| 1 | **A top-level `skills/` is invisible.** Discovery roots are `.agents/skills` and `.codex/skills` per directory, `~/.agents/skills`, `$CODEX_HOME/skills`, a system config root, and plugin roots. A neutral `skills/` matches none |
+| 2 | **No configuration key registers an extra skills root.** An internal parameter exists but nothing populates it from config. A neutral tree must be symlinked into `.agents/skills` or shipped as a plugin |
+| 3 | **A top-level `agents/` is not read, and the native format is TOML.** Agent roles are discovered under `<config folder>/agents/**/*.toml`. A Markdown `agents/` tree has no consumer |
+| 4 | **`tools/` is inert.** MCP servers come only from TOML config layers or a plugin manifest |
+| 5 | **`prompts/` has no located native consumer**; slash commands are migrated into skills. Marked NOT VERIFIED -- the relevant doc page is blocked |
+| 6 | **`rules/`, `policies/`, `registry/`, `orchestration/`, `runbooks/`, `templates/`, `context/`, `references/`, `runtime-adapters/` are never auto-loaded.** Reachable only if the root `AGENTS.md` routes to them and the agent reads them on demand |
+| 7 | **Directory-scoped precedence cannot express cross-cutting ownership.** An `AGENTS.md` inside `policies/` scopes to `policies/**` only. Only the root file has repository-wide scope |
+| 8 | **`.agents/` and `.codex/` are read-only to the agent by default** in the workspace-write sandbox. Authoring must happen with the canonical repository as its own project root |
+| 9 | **A nested git checkout severs the chain.** Project-root discovery stops at the first `.git` and never walks past it. **Vendoring the Hub as a nested git repository silently breaks the consumer repository's bootstrap** -- its root `AGENTS.md` is not loaded at all when cwd is inside the nested repo |
+| 10 | **Skill scan depth is 6.** Deep semantic nesting under a skills root can exceed it |
+
+Conflict 6 is not a defect -- it is the expected shape for a neutral source, and it
+restates the standing rule that placement establishes neither discovery nor
+enforcement. Conflicts 1 to 4 mean the taxonomy's `skills/`, `agents/`, `tools/`
+and `prompts/` are **canonical source directories only**, never runtime-consumed
+directly. Every one requires an adapter projection.
+
+Conflict 9 is the most dangerous operationally, because it fails silently and would
+be attributed to anything but its cause.
+
+### Runtime-native, cannot be centralised
+
+`AGENTS.md` at the repository root and at each governed directory (symlinkable, but
+the path is fixed); `$CODEX_HOME/AGENTS.md` and its override; all TOML config
+layers, which carry **MCP declarations, hooks, agent roles, sandbox and approval
+policy, and model settings**; project trust state, held per machine; the skill roots
+listed above, with `SKILL.md` a fixed filename; agent role TOML; plugin manifests;
+hook declarations; and auth and session state.
+
+### Selected hard limits
+
+Skill `description` required and capped at 1,024 characters; injected `SKILL.md`
+body truncated at 8,000 bytes; skills catalogue budget defaults to 2% of the
+context window with a 10,000-token cap, and **over-budget skills are silently
+omitted**; skill name 64 characters, qualified name 129.
+
+Silent omission and silent truncation appear three times in this section. Every
+one of them is a case where governance stops applying and nothing says so.
+
+### Not verified
+
+- Canonical prose docs: `developers.openai.com` is egress-blocked here. Recheck owed
+  from an unrestricted environment.
+- **Global versus repository precedence.** The home file is concatenated first, but
+  the only stated override rule is depth-based, which would place the repository
+  root *above* the home file. No vendor statement resolves it. Third-party claims
+  that a home override beats everything are not vendor sources. **Unresolved, and it
+  matters**: it determines whether machine-level governance can be overridden by a
+  repository.
+- Whether the global `AGENTS.md` counts against the 32 KiB budget. Code path
+  suggests not; not documented.

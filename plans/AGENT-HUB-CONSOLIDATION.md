@@ -4,7 +4,7 @@
 competing authority.
 **Plan owner:** `workspace-governor` (Agent Hub backoffice)
 **Target:** the single logical Agent Hub, in both its representations
-**Version:** 0.6.0
+**Version:** 0.7.0
 **Baseline date:** 2026-08-20
 
 **One Hub, two representations.** The `.agents-hub` repository is the canonical
@@ -30,8 +30,16 @@ file.
 This is **not a new plan.** It carries forward
 `AGENT-HUB-IMPLEMENTATION-PLAN.md` v0.4.2 from the predecessor backoffice
 `workspace-governor-agents-hub-one` @ `24798d0`, which was verified twice and left
-execution-ready but never started. A verbatim provenance copy is at
-`plans/reference/AGENT-HUB-IMPLEMENTATION-PLAN-v0.4.2-predecessor.md`.
+execution-ready but never started. A provenance copy is at
+`plans/reference/AGENT-HUB-IMPLEMENTATION-PLAN-v0.4.2-predecessor.md`. Its **body**
+is verbatim; the file is not byte-identical because a 12-line banner was prepended.
+Source SHA-256 for identity checks:
+`fbf32864381c5e29cffdf401bf1d561902d62616d4f8387b048a6558884642ea`.
+
+The three carried-forward owner files are also copied, with banners and source
+hashes, to `plans/reference/HUB-{ARCHITECTURE,MANAGEMENT,DOCUMENTATION}-predecessor.md`.
+They previously existed only in a repository declared a non-authoritative input,
+which left carried obligations depending on an external path.
 
 Its 12-step sequence, authority and boundary map, execution controls, rollback
 strategy and completion criteria are **reused unchanged** unless a delta is
@@ -44,13 +52,14 @@ Reuse these directly. Do not re-derive them.
 
 | Carried forward | Source | Why still valid |
 |---|---|---|
-| 12-step execution sequence, Step 0 to Step 12, with prerequisites, prohibited changes, verification method, evidence and completion gate per step | v0.4.2 § 6 | Structure is target-agnostic; each gate remains correct |
-| Authority and boundary map across Governor / Hub / adapters / projects | v0.4.2 § 2 | Matches the current authority relationship |
-| Execution controls common to every step, 10 items | v0.4.2 § 5 | Version-preservation and smallest-change discipline unchanged |
-| Rollback and recovery strategy | v0.4.2 § 7 | Unchanged |
-| Final completion criteria | v0.4.2 § 8 | Unchanged |
+| **13-step** execution sequence, Step 0 to Step 12, with prerequisites, prohibited changes, verification method, evidence and completion gate per step | v0.4.2 § 6 | Structure is target-agnostic. **Corrected from "12-step": Step 0 to Step 12 is thirteen steps.** Each gate remains correct except where section 4 records a delta |
+| Authority and boundary map | v0.4.2 § 2 | Carried **with two declared edits**, not unchanged. The predecessor map has five layers; its fifth, a future dashboard-driven Workspace Orchestrator, is out of scope here and its exclusion is restated in section 7. The map has **no Gateway layer**, so `mcp-gateway` is added per section 6.3 |
+| Execution controls common to every step, 10 items | v0.4.2 § 5 | Smallest-change discipline unchanged. **Version preservation is NOT unchanged** -- see delta D-i. Controls 1 and 2 route to `rules/AGENTS.md` as the owner to load, superseded by D-27's root router. Control 7 requires a `research/` directory this backoffice does not have |
+| Rollback and recovery strategy | v0.4.2 § 7 | **Not unchanged.** Four of its seven rows recover by "restore exact pre-edit version" or "rollback manifest". See delta D-i |
+| Final completion criteria | v0.4.2 § 8 | **Not unchanged.** Criterion 1 makes the tree conform to `HUB-ARCHITECTURE.md`, superseded as taxonomy authority by D-27. **Criterion 3 says "five-file" contract, re-importing a constraint the predecessor's own decision record explicitly rejects** -- read it as "the routed contract", with no fixed count. Criterion 7 presumes a Hub-root `STATE.md` that section 6.2 leaves undecided. Criterion 13 depends on delta D-i |
 | Four placement layers; one-owner-per-concern; governance-owner creation test | `HUB-ARCHITECTURE.md`, Hub `rules/AGENTS.md` | Already canonical |
-| Classification verbs: Keep, Move, Generalize, Specialize, Merge, Retire, Conflict | v0.4.2 § 4.1, `HUB-MANAGEMENT.md` | Already in use in this backoffice |
+| Classification verbs: Keep, Move, Generalize, Specialize, Merge, Retire, Conflict | v0.4.2 § 4.1, `HUB-MANAGEMENT.md` | Already in use. **`Generalize` and `Specialize` are opposite directions** and must not be collapsed: Generalize extracts a reusable core *into* the Hub leaving specifics outside; Specialize keeps the core in the Hub and creates a thin representation *elsewhere* |
+| **Conflict guard:** a `Conflict` classification cannot be silently converted. Other classifications may change only if new evidence invalidates a premise **and the decision record explains why** | v0.4.2 § 4.1 | Restated explicitly. This is the protection against a blocked area being quietly reclassified, and it did not survive into version 0.6.0 |
 | Dated-baseline supersession rule: never silently rewrite a dated baseline; issue a later dated audit citing it | `evidence/BASELINE-AUDIT-2026-08-16.md` | Adopted as the standard for every inventory this plan produces |
 
 ## 4. Deltas since v0.4.2
@@ -66,7 +75,11 @@ Only these change. Everything else in section 3 stands.
 | D-e | **Three conflict-resolution coverage gaps** are recorded: peer agent output conflict (live), same-level requirement contradiction (plausible), stakeholder-goal conflict (latent). | Step 3 semantic-owner work must close G-1 and G-2 as sections in existing owners. No new rule file. `PENDING-GLOBAL-PROMOTIONS.md` P-04. |
 | D-f | **Verification scoping is now a rule** and duplicates an SSOT section. | Step 3 must resolve the duplicate ownership. `PENDING-GLOBAL-PROMOTIONS.md` P-01, P-03. |
 | D-g | **Live-Hub evidence exists but is stale.** `BASELINE-AUDIT-2026-08-16.md` inventories the live `.agents-hub` as of 2026-08-16. It is 4 days old and says to re-inspect. | Step 1 does not start from zero. Use it as the prior baseline and produce a later dated audit citing it, per the supersession rule. Read-only tooling exists: `scripts/Invoke-HubInventory.ps1`. |
-| D-h | **Read-only inventory tooling now exists and is executed-verified** under PowerShell 7 against fixtures. | Step 1 inventory is a tooling run, not a manual walk. Windows PowerShell 5.1 and the live Hub remain unverified. |
+| D-h | **Read-only inventory tooling now exists and is executed-verified** under PowerShell 7 against fixtures. | Step 1 inventory is a tooling run, not a manual walk. Windows PowerShell 5.1 and the live Hub remain unverified. `scripts/Collect-LocalEvidence.ps1` is the single-run collector. |
+| **D-i** | **Version preservation has no mechanism in this backoffice.** v0.4.2 § 5 control 5, Step 4 in full, four rows of § 7, and criterion 13 all require an immutable pre-edit snapshot under `versions/project/` or `versions/hub/`, hash-verified and registered in `CHANGELOG.md`. **Neither directory nor file exists here**, and nothing stated that git satisfies the obligation. Step 4's completion gate was therefore unreachable and Step 5, which lists Step 4 as a prerequisite, was blocked by its own plan. | **Resolved by substitution, per `DECISIONS.md` D-28.** Git is the snapshot mechanism: the pre-edit commit SHA per edit set is the snapshot, recorded in that step's evidence record; `git diff <sha>..HEAD -- <path>` is the deterministic rollback instruction; `DECISIONS.md` plus commit history replace `CHANGELOG.md` registration. Discretionary version *numbering* stays retired. The obligation does not. |
+| **D-j** | **The taxonomy authority changed.** Section 6 and D-27 override the tree authority that carried-forward Steps 1, 5 and 7 and criterion 1 point at. Version 0.6.0 declared section 4 exhaustive while overriding it elsewhere in the same document. | Recorded as a delta so the exhaustive claim holds. `HUB-ARCHITECTURE.md` is **reusable with adaptation, and is not an authority** -- it declares itself owner of Hub architecture, which is the error D-25 corrected for the SSOT pair. Adaptations in section 6.2. |
+| **D-k** | **Vendor constraints are now evidenced**, independently and twice for Codex. | Binding on Steps 5 and 9. The root `AGENTS.md` has a hard **32 KiB shared instruction budget consumed root-first with silent truncation**, so an oversized root file starves nested files with no error. Governance goes behind router references, not inline. Symlinks are the verified affordance for resolving a runtime-bound path to neutral content. `skills/`, `agents/`, `tools/` and `prompts/` are canonical source only and each needs an adapter projection. A **nested git checkout severs the bootstrap chain**. `evidence/RUNTIME-CONVENTIONS-2026-08-20.md`. |
+| **D-l** | **The live Codex global instruction file requires Hub `README.md` and `CATALOG.md`.** Section 6 makes `CATALOG.md` conditional. | A runtime consumer already depends on it. Resolve in Step 1: either the requirement is stale and the inbound reference is corrected, or `CATALOG.md` is not conditional. Recorded from the predecessor's dated Codex research. |
 
 ## 5. Conflict and gap register
 
@@ -77,8 +90,9 @@ Predecessor identifiers mapped to current ones. One row per real issue; no dupli
 | C-01 | B-3 | Codex authority file has stale `C:\Users\ByteBoss\...` paths and overlaps Hub-owned responsibilities | Open. Blocks Codex adapter activation only. Needs user authorization to open as a scoped change (D-11). |
 | C-02 | B-2 | `design-systems/.remember` provenance and sensitivity unresolved | Open. Existence-only handling enforced in tooling. Blocks classification of that area only. |
 | C-03 | -- | Claude Code instruction placement enforces nothing on its own; an enforcement carrier must be chosen per rule | Open, **narrowed and restated 2026-08-20**. The carried-forward wording -- "project instructions outrank global governance" -- conflated advisory instructions with enforced settings. Managed settings cannot be overridden by a project. Blocks adapter finalization only. `evidence/RUNTIME-CONVENTIONS-2026-08-20.md` |
-| G-01 | -- | Hub reference audit overlaps project research; unique evidence not mapped | Open. Carried forward. Step 6. |
-| G-02 | -- | Third-party scaffolder provenance and licence not accepted | Open. Matches the `agent-governance-toolkit` open item. |
+| G-01 | -- | Hub reference audit overlaps project research | **Disposition settled by `DECISIONS.md` D-15**, not open: the Hub keeps the live-state audit, the project keeps the authoring research, the project's duplicated narrative becomes a reference. Execution deferred only because it edits another repository. **The v0.4.2 § 4.1 ledger row says the opposite** -- retire the Hub copy -- and Step 1 must not consume it as written. |
+| G-02a | -- | Third-party **rules scaffolder** (`scaffold-rules`): provenance, licence and generated-output not accepted. Its generator-owned block is overwritten on rerun, so it must never own Hub governance | Open. **Distinct from the toolkit fork** -- version 0.6.0 wrongly mapped these together. Predecessor learning L-006 applies. |
+| G-02b | -- | `agent-governance-toolkit`, an unmodified MIT fork of a Microsoft project: adoption not reviewed | Open. Recorded in `STATE.md`. |
 | G-03 | B-5 | Runtime discovery, permissions, hooks and activation behavior may drift | Open. Local execution required. |
 | G-04 | -- | Human glossary has no accepted artifact or placement | Open. Blocks nothing. |
 | G-05 | -- | No accepted repository-delivery workflow artifact | Open. Blocks nothing. |
@@ -259,6 +273,13 @@ the three inputs in D-a, starting from the v0.4.2 § 4.1 ledger and the
 
 Do not refactor, migrate, create adapters, or activate runtime instructions during
 the tree-decision phase.
+
+## 7a. Scope exclusion carried forward
+
+A future dashboard-driven **Workspace Orchestrator** is explicitly **out of scope**.
+It is the fifth layer of the predecessor authority map, with its own ownership
+boundary, and this plan neither designs nor implements it. Carried forward from
+v0.4.2 § 1; the exclusion was lost in version 0.6.0.
 
 ## 8. Stop conditions
 

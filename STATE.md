@@ -88,6 +88,19 @@ with its assigned executor, rather than repeated as an open caveat. An assigned
 pending verification is not a defect and is not re-flagged each session; see
 `AGENTS.md` § Evidence standard.
 
+### Fresh-agent bootstrap and runtime activation
+
+| Field | Value |
+|---|---|
+| Status | PENDING, **unassigned until now** |
+| Requirement | v0.4.2 Step 11, completion criterion 18, and predecessor learning L-001 all require fresh-agent bootstrap and per-runtime activation evidence |
+| Why no script can do it | Activation is a property of a new session, not of the filesystem. `Collect-LocalEvidence.ps1` collects configuration presence, which is explicitly **not** evidence of discovery, loading or enforcement |
+| Assigned executor | Klo, in a fresh session of each runtime |
+| Method | Start a new Claude Code session and a new Codex session in a governed directory. In each, ask the agent to state which instruction files it loaded and from where, without being told the answer. Record the reply verbatim |
+| Verification | The reply names the canonical Hub route. Silence, a guess, or a different file is a negative result and must be recorded as such |
+| Recheck trigger | Any change to instruction placement, adapter projection, or the root bootstrap file |
+| Note | This was previously folded into blocker B-5, which is scoped to evidence **collection** from an unreachable machine. Bootstrap **testing** is a different obligation and would have been rediscovered at Step 11 |
+
 ### GitHub repository rename
 
 | Field | Value |
@@ -153,12 +166,17 @@ unexercised. Live-Hub evidence cannot be accepted until
 10. Resolve the duplicate ownership between `AGENT-SSOT.json` and `rules/VERIFICATION-RESOLUTION.md` / `rules/ENGINEER-OWNERSHIP.md` at consolidation. Open governance conflict, surfaced not blended. `PENDING-GLOBAL-PROMOTIONS.md` P-03.
 11. Correct `AGENTS.md` placement in the canonical Hub: root, not `rules/`. Structural only. `evidence/GOVERNANCE-STRUCTURE-OBSERVATIONS-2026-08-20.md` Observation 1. Do not refactor `.agents-hub` now.
 12. Close conflict-resolution gaps G-1 and G-2 as sections in existing owners at consolidation. G-3 deferred. `PENDING-GLOBAL-PROMOTIONS.md` P-04. No new rule file.
-13. Resolve C-03, carried from the predecessor backoffice: Claude Code project-versus-global loading can let project instructions take priority while semantic governance forbids lower layers weakening global governance. Blocks Claude Code adapter finalization only. Plan Step 9.
+13. Resolve C-03 as restated: Claude Code instruction placement enforces nothing on its own, so an enforcement carrier -- managed setting or hook -- must be chosen per rule. The earlier wording, "project instructions outrank global governance", conflated advisory instructions with enforced settings and is withdrawn. `evidence/RUNTIME-CONVENTIONS-2026-08-20.md`.
 14. ~~Adapt the predecessor `tasks/` audit prompts into coverage checklists for `scripts/Invoke-GatewayDiscovery.ps1`.~~ **Closed** -- item-level comparison done: `evidence/PREDECESSOR-AUDIT-SPEC-COVERAGE-2026-08-20.md`. Four inventory gaps identified and scoped as item 16. Spec 01 Phase 3 and spec 03 Parts B-D are classified **superseded for execution, provenance-only** -- the consolidation directive already supersedes any older instruction authorizing remediation, installation, deletion, restructuring or machine changes during reconciliation. Preserved historically; never handed to a local agent as live instructions.
 15. Carry G-01, G-04 and G-05 from the predecessor register: Hub reference/research overlap mapping (plan Step 6); human glossary placement; repository-delivery workflow artifact. None currently blocking.
 
 16. Close the four discovery-tooling inventory gaps, read-only and additive. **Do not modify the tooling during this reconciliation phase.** Recorded for later implementation: probe `gh`, WSL, Windows Terminal and search utilities; cross-check command resolution with `where.exe` and record every hit so shadowing and multiple installations are detectable; read User and System PATH separately from the effective PATH; detect duplicate PATH entries. Deferred deliberately -- Gateway discovery is under a stop condition until consolidation completes, and the plan's process gate limits current work to reconciliation. `evidence/PREDECESSOR-AUDIT-SPEC-COVERAGE-2026-08-20.md`.
 17. Carry the predecessor spec-02 analysis fields into Step 1 and Step 3 of the consolidation: per-config-source scope, loading mechanism, precedence, and whether a file is actually active; plus intent-based semantic duplication, which `Invoke-GatewayDiscovery.ps1` section 11 cannot supply -- it groups byte-identical content only. Agent analysis, not scriptable.
+
+18. Carry the predecessor's runtime-neutral project-continuity pattern into the plan. Required by `evidence/LEGACY-GOVERNANCE-MATERIAL-CONSOLIDATION-2026-08-17.md` item 5 and absent from every current record.
+19. Resolve the `CATALOG.md` collision: the live Codex global instruction file requires Hub `README.md` and `CATALOG.md`, while the accepted taxonomy makes `CATALOG.md` conditional. Plan delta D-l.
+20. Resolve the unverified Codex precedence question -- whether a repository-root `AGENTS.md` outranks the machine-level one. It determines whether machine governance can be overridden by a repository. Requires the egress-blocked vendor docs or a live test.
+21. Define who performs the independent pre-edit review that v0.4.2 Step 5 lists as a prerequisite, and how it is evidenced. Subagent review is now demonstrated to work; formalise it as the mechanism.
 
 ## Next action
 
@@ -201,6 +219,9 @@ consolidation. Do not run Gateway discovery.
 - Do not reopen the 46-section directive structure (`DECISIONS.md` D-04).
 - Do not run the discovery tooling in `scripts/` until it is revised per open work item 2 **and** Hub consolidation is complete (`DECISIONS.md` D-05, D-06).
 - Do not adopt `agent-governance-toolkit` without provenance, licence, and generated-output review.
+- Do not adopt the third-party **rules scaffolder** without provenance, licence and generated-output review. Its generator-owned block is overwritten on rerun and must never own Hub governance. This is a **different artifact** from the `agent-governance-toolkit` fork; both stop conditions apply independently.
+- Do not migrate before refactoring passes source-preserving verification. Carried from the predecessor; it survived only implicitly inside the step ordering.
+- Do not delete any predecessor or legacy material before reinspecting each proposed target for unique unrelated content and required recovery evidence. Carried from `evidence/LEGACY-GOVERNANCE-MATERIAL-CONSOLIDATION-2026-08-17.md`, where roughly 20 files are marked discard-as-active-governance and **none has been deleted**.
 - Do not commit a `.ps1` under `scripts/` containing any byte above 0x7F. Windows PowerShell 5.1 reads non-BOM sources as ANSI, and U+2014 becomes a string delimiter.
 - Do not apply canonical restructuring, or modify live Hub governance, runtime configuration, code, manifests or lockfiles, without approval. The current task is reconciliation, not implementation (`plans/AGENT-HUB-CONSOLIDATION.md` § 6.7).
 - Do not create a Technical Translation rule file or carry `rules/VERIFICATION-RESOLUTION.md` into the Hub. Both concerns already have owners (`plans/AGENT-HUB-CONSOLIDATION.md` § 6.4).

@@ -11,6 +11,49 @@ authority.**
 `evidence/` and `versions/` inspected. `versions/` (23 files) reviewed at
 inventory level only -- they are pre-edit snapshots of files also reviewed live.
 
+## Revision 2 -- corrections to this review
+
+Revision 1 was audited by an independent subagent against all 47 predecessor
+files. Every finding below was then verified by the parent agent against source.
+The review's coarse structure held; its classifications did not.
+
+| # | Revision 1 said | Correct classification |
+|---|---|---|
+| R1 | `CHANGELOG.md` / `versions/` -- **historical only**, "version numbering is not carried into the current backoffice" | **Wrong, and it blocked the plan.** The *mechanism* was discarded while four carried-forward obligations still required it. Step 4 was unreachable and Step 5 blocked by its own prerequisite. Resolved by `DECISIONS.md` D-28 and plan delta D-i |
+| R2 | `evidence/DECISION-RECOVERY-AUDIT-2026-08-16.md` -- historical, "provenance for those rejections" | **Understated by half.** Only the 11 rejections were carried. Its 18 established decisions were not, including the long-work method, agent-first authoring, the glossary boundary, learning retention and the scaffolder split. Some are Hub-owned rather than backoffice-owned, which is a legitimate reason not to restate them -- but the reasoning was never given, so the effect was silent loss |
+| R3 | `evidence/LEGACY-GOVERNANCE-MATERIAL-CONSOLIDATION-2026-08-17.md` -- historical | **Holds three live obligations.** A pre-deletion reinspection gate over ~20 files marked discard-as-active-governance, **none deleted**; an unrecorded requirement to establish a runtime-neutral continuity pattern; and the dated vendor citation behind C-03. Gate and continuity item now carried |
+| R4 | `research/AGENTS-MD-RESEARCH-AND-LIVE-AUDIT-2026-08-16.md` -- reusable as B-3 evidence, "re-verify the vendor half" | **Narrowed too far.** It is a **live design constraint**: the 32 KiB budget, root-first consumption, one file per directory. Independently re-confirmed from pinned source four days later. A fresh Codex review was queued while this sat unquoted. It also holds the `CATALOG.md` requirement collision and an unresolved missing inbound reference |
+| R5 | `research/GOVERNANCE-FILE-CREATION-GUIDE-2026-08-16.md` -- reusable "for Step 5 authoring" | **A bound dependency, not optional reading.** `HUB-DOCUMENTATION.md`, itself carried forward, explicitly binds it. It is also the sole holder of the per-file size and truncation budget class -- directly governing the root bootstrap under D-27 |
+| R6 | `research/WORKSPACE-GOVERNANCE-CAPABILITY-REUSE-2026-08-16.md` -- historical, "rationale" | **Holds an open decision**, not rationale: per-component dispositions and the undecided scaffolder-versus-local-equivalent question. Its stop condition was also mis-mapped onto the unrelated toolkit fork; split into G-02a and G-02b |
+| R7 | `LEARNINGS.md` -- L-001 and L-002 classified | **L-003 to L-006 were not classified at all.** L-003 bears on Step 5 authoring, L-006 on G-02a. Dropped by omission |
+| R8 | Predecessor `STATE.md` -- status line and live-Hub facts superseded | **The ~20-item settled-decision list was never classified.** Five items have no representation anywhere here, including the agent-authored governance standard, the glossary boundary, learning retention, the skill-before-plugin lifecycle and deferred scheduled audits |
+| R9 | `HUB-ARCHITECTURE.md` -- "reusable, use as-is" | **Contradicted the plan**, which classifies it reusable *with adaptation* and overrides it in five places. Worse, "as-is" reinstates backoffice ownership of Hub architecture -- the exact error D-25 corrected for the SSOT pair. Now: reusable with adaptation, **not an authority** |
+| R10 | `versions/` holds 23 files | **25.** Stated while claiming an inventory-level pass |
+| R11 | The carried sequence is "12-step" | **13 steps**, Step 0 to Step 12. Corrected in the plan |
+| R12 | C-03 stated as "project instructions take priority" | **Withdrawn.** Conflated advisory instructions with enforced settings. Restated in the plan and `STATE.md`; three versions were briefly in circulation |
+
+Two further corrections of my own: the three carried-forward owner files existed
+only in a repository declared a non-authoritative input, reachable solely by local
+path -- now copied to `plans/reference/` with source hashes. And the provenance copy
+of the plan is verbatim in body but not byte-identical, so the predecessor's
+recorded integrity hash no longer ran against it; the source hash is now recorded
+in plan section 2.
+
+### One risk this review cannot close from here
+
+The predecessor repository is **unmodified and on local disk**, and
+`tasks/01` Phase 3 and `tasks/03` Parts B to D contain live imperative instructions
+authorizing PATH edits, software installation, and deletion. Those portions are
+classified superseded-for-execution -- **but the classification exists only in this
+repository.** Anyone opening the predecessor file itself sees live instructions.
+
+The effective fix is a banner in the predecessor's own `tasks/` files or its
+`STATE.md`. Not done here: it modifies a repository that several evidence records
+assert is unmodified, so it trades one provenance property for a safety property.
+Recommended, with the banner text ready, as a deliberate archive decision rather
+than an unannounced edit.
+
+
 ## Headline finding
 
 A complete, twice-verified, execution-ready plan for this exact consolidation

@@ -403,6 +403,45 @@ The immediate task remains reconciliation, not implementation. Approval is
 required before applying any canonical restructuring or touching live Hub
 governance, runtime configuration, code, manifests or lockfiles.
 
+**D-28.** Git is the version-preservation and rollback mechanism for this
+backoffice. The pre-edit commit SHA for an edit set is its snapshot, recorded in
+that step's evidence record; `git diff <sha>..HEAD -- <path>` is the deterministic
+rollback instruction; `DECISIONS.md` plus commit history replace `CHANGELOG.md`
+registration. Discretionary version numbering stays retired. Decided by: Agent,
+under ENGINEER-OWNERSHIP.
+
+Rationale: an independent review of the predecessor classification found that the
+`versions/` and `CHANGELOG.md` mechanism had been classified historical while the
+carried-forward plan still required it in four places -- execution control 5, the
+whole of Step 4, four rows of the rollback table, and completion criterion 13.
+Neither directory nor file exists in this repository, so Step 4's completion gate
+was unreachable and Step 5, which lists Step 4 as a prerequisite, **was blocked by
+its own plan**. Retiring a mechanism by silence while keeping the obligations that
+depend on it is the defect. Git provides immutability, hash identity and
+deterministic reversal natively; what was missing was saying so. Recorded as plan
+delta D-i.
+
+**D-29.** Vendor-imposed constraints are accepted as binding on the consolidation,
+in particular that the canonical root `AGENTS.md` must stay small. Decided by:
+Agent, under ENGINEER-OWNERSHIP, on evidenced vendor behaviour.
+
+Rationale: Codex applies a 32 KiB instruction budget shared across the whole
+root-to-cwd chain, consumed root-first, and **truncates mid-content with no signal
+to the model**. An oversized root bootstrap therefore silently starves every nested
+instruction file. Since D-27 makes the root file the non-negotiable always-loaded
+bootstrap, its size is a correctness property. Governance content goes behind
+router references from a small root file, never inline. Confirmed twice
+independently -- the predecessor's 2026-08-16 research and a 2026-08-20 read of
+pinned implementation source -- which is why it is treated as settled rather than
+provisional.
+
+Two further constraints follow. Symlinks are the verified mechanism for resolving a
+runtime-bound path to canonical neutral content, alongside Claude Code's `@path`
+imports. And `skills/`, `agents/`, `tools/` and `prompts/` in the accepted taxonomy
+are **canonical source only** -- none is discovered natively at a top-level
+location, so each requires an adapter projection. Evidence:
+`evidence/RUNTIME-CONVENTIONS-2026-08-20.md`. Recorded as plan delta D-k.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.
