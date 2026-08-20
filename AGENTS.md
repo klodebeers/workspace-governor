@@ -68,6 +68,12 @@ resolve it silently.
 - Absence from tool output is not evidence of absence in the system.
 - Do not claim a component is installed, active, discovered or enforced merely
   because its source is present.
+- Verification that the current environment cannot perform is recorded once in
+  `STATE.md` § Verification assignments, with its assigned executor and recheck
+  trigger. An environment boundary is not a defect. Once assigned, do not
+  re-flag it each session — raise it again only when the workflow needs that
+  result, the assigned run fails, its evidence is incomplete, or the assignment
+  changes. Recording it never weakens the requirement.
 - Record evidence in `evidence/` using `SUBJECT-yyyy-MM-dd` naming.
 
 ## Ownership split

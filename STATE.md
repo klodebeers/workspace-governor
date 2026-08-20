@@ -56,6 +56,36 @@ Current phase is Hub consolidation. Blockers are grouped by the phase they bind.
 | B-4 | Final canonical `.agents-hub` does not exist. Two source repositories both claim the identity. | Blocks Gateway directive section 29 rule-folding and final environment discovery | Resolved by Hub consolidation |
 | B-5 | Live Windows environment is unreachable from a cloud session. | Gateway directive section 5 items covering local MCP, Claude Code, Codex, secrets and audit mechanisms cannot be collected remotely | Local agent executes discovery |
 
+## Verification assignments
+
+Verification that cannot be performed in the current environment is recorded here
+with its assigned executor, rather than repeated as an open caveat. An assigned
+pending verification is not a defect and is not re-flagged each session; see
+`AGENTS.md` § Evidence standard.
+
+### PowerShell runtime verification
+
+| Field | Value |
+|---|---|
+| Status | PENDING |
+| Assigned environment | Local Windows |
+| Assigned executor | Klo / local Windows agent |
+| Cloud Claude responsibility | Static review and preparation only |
+| Cloud blocker | No |
+| Current phase blocker | Yes, only when the live-Hub inventory result is required to continue consolidation |
+| Recheck trigger | Local execution evidence is committed to `workspace-governor` |
+
+Scope: `scripts/Invoke-HubInventory.ps1`, `scripts/Assert-RememberPruning.ps1`,
+`scripts/Invoke-GatewayDiscovery.ps1`, `scripts/Assert-DiscoveryReadOnly.ps1`,
+`scripts/lib/SafeTraversal.ps1`.
+
+Completed in cloud: delimiter validation on all five files; static invariants A1
+to A7; source-level review across five rounds. No script has been executed.
+
+Still required: the Windows runtime test. It is not waived. Live-Hub evidence
+cannot be accepted until `Assert-RememberPruning.ps1` returns `PASS` and
+`Invoke-HubInventory.ps1` reports `Completeness: COMPLETE` on the local machine.
+
 ## Open work
 
 1. Inventory the live local Hub against the committed GitHub baseline, then revise the preliminary target tree against that evidence.
