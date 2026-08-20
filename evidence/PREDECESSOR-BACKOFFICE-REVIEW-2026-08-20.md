@@ -11,6 +11,48 @@ authority.**
 `evidence/` and `versions/` inspected. `versions/` (23 files) reviewed at
 inventory level only -- they are pre-edit snapshots of files also reviewed live.
 
+## Revision 3 -- information dependency closed
+
+The revision 2 corrections identified content still held only in the predecessor
+repository. That dependency is now closed, verified **by content hash rather than
+by filename**.
+
+| Group | Files | Disposition |
+|---|---|---|
+| Root records -- `AGENT-HUB-IMPLEMENTATION-PLAN.md`, `AGENTS.md`, `README.md`, `STATE.md`, `LEARNINGS.md`, `CHANGELOG.md`, and the three HUB owner files | 9 | Provenance copies under `plans/reference/`, each banner carrying the source SHA-256 |
+| `research/` | 4 | Provenance copies. Two hold live design constraints, not history |
+| `evidence/` | 5 | Provenance copies. Includes the decision register and the legacy-consolidation record with its pre-deletion gate |
+| `CLAUDE.md` | 1 | **Excluded deliberately.** 11 bytes, containing only `@AGENTS.md` -- identical in substance to this repository's own, zero unique content |
+| `tasks/` | 3 | **Archival, by instruction.** Not carried. Still reads as live instructions; residual risk recorded below |
+| `versions/` | 25 | **Archival, by instruction.** Immutable snapshots |
+
+**Verification:** every SHA-256 recorded in a provenance banner was matched against
+a freshly computed hash of the source file. 18 of 18 non-archival files verified
+present. Zero unaccounted for. The first attempt at this check compared
+*filenames* and produced nine false negatives, because copies carry `research-`
+and `evidence-` prefixes -- the check was replaced with a content-hash comparison
+rather than adjusted.
+
+### Substantive content migrated to owners, not merely preserved
+
+| Content | Was | Now owned by |
+|---|---|---|
+| Learnings L-001 to L-006 | L-003 to L-006 unrepresented | **`LEARNINGS.md`**, created at this repository root. Carries the predecessor's retention and promotion rules. Six new entries added from this backoffice's own work |
+| Five settled decisions with no representation | Silently absent | **`DECISIONS.md` D-30**, adopted explicitly with per-item owners: agent-first authoring, the glossary boundary, learning retention, skill-before-plugin, deferred scheduled audits |
+| "Scan `LEARNINGS.md` for entries whose trigger matches the work" | A bootstrap step in the predecessor router, absent here | **`AGENTS.md` bootstrap order, step 4** |
+| Architecture answers *what and where*; Management answers *how to change it*, and neither may redefine the other | Not recorded anywhere | **`plans/AGENT-HUB-CONSOLIDATION.md` delta D-m.** Without it the two provenance owners read as overlapping, which is the duplication this consolidation exists to remove |
+
+The predecessor repository remains unmodified.
+
+### Residual risk, unchanged and deliberate
+
+`tasks/01` Phase 3 and `tasks/03` Parts B to D remain in the predecessor
+repository as live imperative instructions authorising PATH edits, software
+installation and deletion. They are classified superseded-for-execution **here**;
+that classification is not visible in the files themselves. Recommended banner text
+is ready. Applying it modifies a repository several records assert is unmodified,
+so it stays a deliberate archive decision.
+
 ## Revision 2 -- corrections to this review
 
 Revision 1 was audited by an independent subagent against all 47 predecessor

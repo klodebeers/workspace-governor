@@ -22,7 +22,10 @@ Read in this order before deciding or changing anything:
 2. `STATE.md` — current verified state, phase, blockers, open work, next action.
 3. `DECISIONS.md` — settled decisions. Treat each as settled within its recorded
    scope. Do not reopen or silently re-litigate one.
-4. The artefact relevant to the task — `plans/` for active planning directives,
+4. `LEARNINGS.md` — scan for entries whose **trigger** matches the work in hand.
+   Non-authoritative retrieval aids, never authority. Carried from the predecessor
+   router, which made this a bootstrap step; `DECISIONS.md` D-30 item 3.
+5. The artefact relevant to the task — `plans/` for active planning directives,
    `scripts/` for tooling, `evidence/` for prior findings.
 
 ## Plan routing
@@ -104,6 +107,8 @@ One owner per concern. Do not duplicate content between these files.
 | `USER-SSOT.json` | **Agent Hub asset, Greyed-scoped.** Backoffice staging/provenance copy only, pending placement in `.agents-hub`. Loaded only in Greyed context. Read-only absent explicit user instruction. |
 | `rules/VERIFICATION-RESOLUTION.md` | How verification and investigation work is scoped, bounded and stopped |
 | `PENDING-GLOBAL-PROMOTIONS.md` | Rules held locally that are owed to shared governance, and their promotion terms |
+| `LEARNINGS.md` | Durable non-obvious findings that prevent rediscovery. Non-authoritative; carries its own retention and promotion rules. |
+| `plans/reference/` | Provenance copies of predecessor and superseded material, with source hashes. Never executable, never an authority. |
 
 If `STATE.md` and `DECISIONS.md` appear to conflict, `DECISIONS.md` governs what was
 settled and `STATE.md` governs what is currently true. Report the conflict; do not

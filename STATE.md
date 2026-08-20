@@ -40,6 +40,22 @@ Verified by direct inspection during the session dated 2026-08-19.
 | The predecessor backoffice `workspace-governor-agents-hub-one` @ `24798d0` holds a twice-verified, execution-ready 12-step consolidation plan (v0.4.2) that was never started, plus a 2026-08-16 read-only inventory of the live `.agents-hub` | Direct inspection of all 9 named artifacts, `tasks/`, `research/`, `evidence/`; `evidence/PREDECESSOR-BACKOFFICE-REVIEW-2026-08-20.md` |
 | Active planning directives are at `plans/`. The Gateway directive moved there from the repository root with content byte-identical | `sha256sum` comparison of `HEAD:mcp-gateway` against `plans/MCP-GATEWAY.md` |
 
+### Predecessor information dependency -- closed
+
+The backoffice no longer depends on unique load-bearing information held only in
+`workspace-governor-agents-hub-one`. 16 files carried as provenance copies under
+`plans/reference/`, with source SHA-256 for each. Substantive content migrated to
+owners: `LEARNINGS.md` (created; L-001 to L-006 carried) and `DECISIONS.md` D-30
+(five settled decisions that had no representation here).
+
+Deliberately **not** carried, per instruction: `tasks/` (3 files) and `versions/`
+(25 snapshots) remain archival in the predecessor repository. `tasks/` also still
+reads as live instructions authorising installs, PATH edits and deletion --
+classified superseded-for-execution here, with the residual risk recorded in
+`evidence/PREDECESSOR-BACKOFFICE-REVIEW-2026-08-20.md`.
+
+The predecessor repository remains unmodified.
+
 ### Authority relationship
 
 **One Hub, two representations.** The `.agents-hub` repository is canonical source;
@@ -177,6 +193,10 @@ unexercised. Live-Hub evidence cannot be accepted until
 19. Resolve the `CATALOG.md` collision: the live Codex global instruction file requires Hub `README.md` and `CATALOG.md`, while the accepted taxonomy makes `CATALOG.md` conditional. Plan delta D-l.
 20. Resolve the unverified Codex precedence question -- whether a repository-root `AGENTS.md` outranks the machine-level one. It determines whether machine governance can be overridden by a repository. Requires the egress-blocked vendor docs or a live test.
 21. Define who performs the independent pre-edit review that v0.4.2 Step 5 lists as a prerequisite, and how it is evidenced. Subagent review is now demonstrated to work; formalise it as the mechanism.
+
+22. Package a validated governance workflow as a plugin only after it is stable and needs installable distribution. Settled but deferred per `DECISIONS.md` D-30 item 4. Skill first; packaging must not create a second authoritative copy.
+23. Scheduled audits remain separate deferred runtime automation. Settled but deferred per D-30 item 5.
+24. Decide the glossary's placement when a glossary artifact actually exists. It may explain canonical terms but never redefine them, and must not be placed in `rules/`. D-30 item 2; plan G-04.
 
 ## Next action
 

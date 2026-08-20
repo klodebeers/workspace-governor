@@ -9,6 +9,8 @@
 > `plans/AGENT-HUB-CONSOLIDATION.md`, which carries this forward and records what
 > changed. Paths, dates and status lines below are as written on 2026-08-17 and
 > are not current. Do not execute from this file.
+>
+> Source SHA-256: `fbf32864381c5e29cffdf401bf1d561902d62616d4f8387b048a6558884642ea`
 
 # Canonical Agent Hub Implementation Plan
 

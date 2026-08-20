@@ -442,6 +442,28 @@ are **canonical source only** -- none is discovered natively at a top-level
 location, so each requires an adapter projection. Evidence:
 `evidence/RUNTIME-CONVENTIONS-2026-08-20.md`. Recorded as plan delta D-k.
 
+**D-30.** Five settled decisions from the predecessor backoffice are adopted
+explicitly. They were settled there and had **no representation anywhere in this
+backoffice**, so they were load-bearing information existing only in a repository
+declared a non-authoritative input. Decided by: User, in the predecessor project,
+2026-08-16/17. Carried forward by: Agent.
+
+| # | Decision | Owner here |
+|---|---|---|
+| 1 | Governance documents are written primarily for execution by agents and maintained by agents acting within authority. Human-oriented synonym replacement must not weaken technical precision. | `LEARNINGS.md` L-003 routes it; substance owned by `plans/reference/HUB-DOCUMENTATION-predecessor.md` and `AGENT-SSOT.json` § `technical_translation_and_audience` |
+| 2 | A human glossary is non-authoritative. It may explain canonical terms but never redefine them, and **must not be placed in `rules/`**. Its final placement is an architecture classification. | `plans/AGENT-HUB-CONSOLIDATION.md` G-04, which previously carried only "no accepted artifact or placement" and lost the substantive rule |
+| 3 | Durable non-obvious learnings are recorded concisely, and normative outcomes are promoted to their sole owner. | **`LEARNINGS.md`**, created for this purpose. No owner for this concern existed here |
+| 4 | Develop and validate a reusable governance workflow as a **skill first**; package it as a plugin only when it is stable and needs installable distribution. Packaging references canonical skill source and must not create a second authoritative copy. | `STATE.md` open work; deferred, not active |
+| 5 | Scheduled audits remain separate, deferred runtime automation. Source, package, installed, enabled, discovered, active and verified are distinct states and are never inferred from one another. | `STATE.md` open work; deferred, not active. The state vocabulary is also carried in `LEARNINGS.md` L-001 |
+
+Item 3 is why `LEARNINGS.md` now exists at this repository root. It is
+non-authoritative by construction: it carries the predecessor's retention and
+promotion rules, and an entry whose finding becomes normative is replaced by a
+pointer to the owner that governs it.
+
+Items 4 and 5 are recorded as **settled but deferred**. They constrain future work
+without authorising any now.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.
