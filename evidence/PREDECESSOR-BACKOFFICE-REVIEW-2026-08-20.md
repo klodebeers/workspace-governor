@@ -11,6 +11,30 @@ authority.**
 `evidence/` and `versions/` inspected. `versions/` (23 files) reviewed at
 inventory level only -- they are pre-edit snapshots of files also reviewed live.
 
+## Revision 4 -- the predecessor repository has been modified
+
+Recorded as a later revision rather than by editing revision 3. Revision 3's
+statement that the predecessor repository was unmodified was **true when written**
+and is left intact.
+
+On 2026-08-20 a `SUPERSEDED, DO NOT EXECUTE` banner was prepended to all three
+`tasks/` files, closing the residual risk that revision 3 recorded as open.
+
+| | |
+|---|---|
+| Baseline SHA, before the change | `24798d032e39081a6885f3648430786019129ef4` |
+| SHA containing the banners | `8d4513caa1809b96117e69e4e602bfff0d8d5c5c` |
+| Change shape | Additive only, 3 lines per file, original content byte-identical after the banner |
+
+The residual risk in revision 3 is therefore **closed**, not merely recorded. Git
+preserves the pre-banner versions, so the provenance copies under
+`plans/reference/` and every recorded source SHA remain valid against the baseline
+commit. Authority for this change: `DECISIONS.md` D-31.
+
+Also corrected in this revision: revision 3's file count. The correct figure is
+**18** provenance copies -- 4 directly under `plans/reference/` and 14 under
+`plans/reference/predecessor/`.
+
 ## Revision 3 -- information dependency closed
 
 The revision 2 corrections identified content still held only in the predecessor

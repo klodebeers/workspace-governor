@@ -43,18 +43,30 @@ Verified by direct inspection during the session dated 2026-08-19.
 ### Predecessor information dependency -- closed
 
 The backoffice no longer depends on unique load-bearing information held only in
-`workspace-governor-agents-hub-one`. 16 files carried as provenance copies under
-`plans/reference/`, with source SHA-256 for each. Substantive content migrated to
+`workspace-governor-agents-hub-one`. **18** files carried as provenance copies --
+4 directly under `plans/reference/` and 14 under `plans/reference/predecessor/` --
+with source SHA-256 for each. Substantive content migrated to
 owners: `LEARNINGS.md` (created; L-001 to L-006 carried) and `DECISIONS.md` D-30
 (five settled decisions that had no representation here).
 
 Deliberately **not** carried, per instruction: `tasks/` (3 files) and `versions/`
-(25 snapshots) remain archival in the predecessor repository. `tasks/` also still
-reads as live instructions authorising installs, PATH edits and deletion --
-classified superseded-for-execution here, with the residual risk recorded in
-`evidence/PREDECESSOR-BACKOFFICE-REVIEW-2026-08-20.md`.
+(25 snapshots) remain archival in the predecessor repository.
 
-The predecessor repository remains unmodified.
+**The predecessor repository is no longer unmodified.** A `SUPERSEDED, DO NOT
+EXECUTE` banner was prepended to all three `tasks/` files on 2026-08-20 as a
+deliberate archive-safety change, because the superseded classification existed
+only here and did not protect anyone opening those files directly. Additive only,
+3 lines per file, original content byte-identical after the banner; git preserves
+the pre-banner versions, so only the current tip changed.
+
+| | |
+|---|---|
+| Predecessor baseline SHA, before the banner | `24798d032e39081a6885f3648430786019129ef4` |
+| Predecessor SHA containing the banners | `8d4513caa1809b96117e69e4e602bfff0d8d5c5c` |
+
+Recorded as `DECISIONS.md` D-31. Dated evidence written before this change still
+says the repository is unmodified; those statements were true when recorded and are
+left intact.
 
 ### Authority relationship
 

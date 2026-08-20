@@ -448,13 +448,28 @@ backoffice**, so they were load-bearing information existing only in a repositor
 declared a non-authoritative input. Decided by: User, in the predecessor project,
 2026-08-16/17. Carried forward by: Agent.
 
-| # | Decision | Owner here |
+**Authoritative carrier: this entry, `DECISIONS.md` D-30**, for all five, until they
+are promoted to their canonical Hub owners. The files listed in the third column
+are non-authoritative -- retrieval aids, provenance copies, or planning records --
+and are named only to say where the material also appears. None of them is an
+owner.
+
+| # | Decision | Also appears in (non-authoritative) |
 |---|---|---|
-| 1 | Governance documents are written primarily for execution by agents and maintained by agents acting within authority. Human-oriented synonym replacement must not weaken technical precision. | `LEARNINGS.md` L-003 routes it; substance owned by `plans/reference/HUB-DOCUMENTATION-predecessor.md` and `AGENT-SSOT.json` § `technical_translation_and_audience` |
-| 2 | A human glossary is non-authoritative. It may explain canonical terms but never redefine them, and **must not be placed in `rules/`**. Its final placement is an architecture classification. | `plans/AGENT-HUB-CONSOLIDATION.md` G-04, which previously carried only "no accepted artifact or placement" and lost the substantive rule |
-| 3 | Durable non-obvious learnings are recorded concisely, and normative outcomes are promoted to their sole owner. | **`LEARNINGS.md`**, created for this purpose. No owner for this concern existed here |
-| 4 | Develop and validate a reusable governance workflow as a **skill first**; package it as a plugin only when it is stable and needs installable distribution. Packaging references canonical skill source and must not create a second authoritative copy. | `STATE.md` open work; deferred, not active |
-| 5 | Scheduled audits remain separate, deferred runtime automation. Source, package, installed, enabled, discovered, active and verified are distinct states and are never inferred from one another. | `STATE.md` open work; deferred, not active. The state vocabulary is also carried in `LEARNINGS.md` L-001 |
+| 1 | Governance documents are written primarily for execution by agents and maintained by agents acting within authority. Human-oriented synonym replacement must not weaken technical precision. | `LEARNINGS.md` L-003 as a retrieval aid; `plans/reference/HUB-DOCUMENTATION-predecessor.md` as provenance |
+| 2 | A human glossary is non-authoritative. It may explain canonical terms but never redefine them, and **must not be placed in `rules/`**. Its final placement is an architecture classification. | `plans/AGENT-HUB-CONSOLIDATION.md` G-04 as a planning record. Previously that plan carried only "no accepted artifact or placement" and had lost the substantive rule |
+| 3 | Durable non-obvious learnings are recorded concisely, and normative outcomes are promoted to their sole owner. | `LEARNINGS.md`, which states these rules and applies them to itself. That file is non-authoritative by construction and is not the owner of this decision |
+| 4 | Develop and validate a reusable governance workflow as a **skill first**; package it as a plugin only when it is stable and needs installable distribution. Packaging references canonical skill source and must not create a second authoritative copy. | `STATE.md` open work item 22, as current-state tracking. Settled but deferred |
+| 5 | Scheduled audits remain separate, deferred runtime automation. Source, package, installed, enabled, discovered, active and verified are distinct states and are never inferred from one another. | `STATE.md` open work item 23. Settled but deferred |
+
+**Correction, same day.** An earlier revision of this entry named
+`plans/reference/`, `AGENT-SSOT.json` and `plans/AGENT-HUB-CONSOLIDATION.md` in an
+"Owner here" column. All three are wrong as owners: `plans/reference/` is explicitly
+never an authority, `AGENT-SSOT.json` is an Agent Hub asset whose local copy is
+backoffice staging and not a live authority here (D-25), and the consolidation plan
+is a planning record that creates no governance. `LEARNINGS.md` is likewise
+non-authoritative. Naming any of them as owner would have reinstated the same
+category error D-25 corrected.
 
 Item 3 is why `LEARNINGS.md` now exists at this repository root. It is
 non-authoritative by construction: it carries the predecessor's retention and
@@ -463,6 +478,33 @@ pointer to the owner that governs it.
 
 Items 4 and 5 are recorded as **settled but deferred**. They constrain future work
 without authorising any now.
+
+**D-31.** A `SUPERSEDED, DO NOT EXECUTE` banner is prepended to the three
+predecessor `tasks/` files as a deliberate archive-safety modification. Decided by:
+User.
+
+| | |
+|---|---|
+| Repository | `klodebeers/workspace-governor-agents-hub-one` |
+| Baseline SHA, before the change | `24798d032e39081a6885f3648430786019129ef4` |
+| SHA containing the banners | `8d4513caa1809b96117e69e4e602bfff0d8d5c5c` |
+| Files | `tasks/01-WINDOWS-ENVIRONMENT-PATH-AUDIT.md`, `tasks/02-SHARED-CONFIGURATION-AUDIT.md`, `tasks/03-CODING-AGENT-BASELINE-INTEGRATION.md` |
+| Change shape | Additive only. 3 lines prepended per file. Original content **byte-identical** after the banner, verified by comparison against pre-change copies |
+
+Rationale: those files read as live imperative instructions authorising PATH
+edits, software installation and deletion. Their superseded classification existed
+only in this backoffice, which does not protect anyone who opens a predecessor file
+directly. Git preserves every pre-banner version, so provenance is not destroyed --
+only the current tip of the predecessor repository changed. That is the correct
+trade: a provenance property that git already guarantees, exchanged for a safety
+property that nothing else provided.
+
+Consequence for the record: statements in this backoffice asserting the predecessor
+repository is unmodified are now false going forward. `STATE.md`, which owns what is
+currently true, is corrected. Dated evidence written before the change is left
+intact, because those statements were true when recorded; the change is recorded as
+a later revision note in
+`evidence/PREDECESSOR-BACKOFFICE-REVIEW-2026-08-20.md` instead.
 
 ## Recorded as not decided
 
