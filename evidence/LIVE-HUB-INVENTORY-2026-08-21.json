@@ -1,0 +1,175 @@
+﻿{
+    "meta":  {
+                 "generatedUtc":  "2026-08-21T06:29:01.9830877+08:00",
+                 "script":  "Invoke-HubInventory.ps1",
+                 "machine":  "BYTEHUB",
+                 "hubPathResolved":  "C:\\Users\\Chloe\\.agents-hub",
+                 "hubExists":  true,
+                 "traversal":  "pre-descent pruning via lib/SafeTraversal.ps1; no -Recurse; all reparse points (file and directory) excluded before the directory/file split",
+                 "completeness":  "COMPLETE",
+                 "incompleteReasons":  {
+
+                                       },
+                 "exhaustivenessScope":  "Complete within the physical Hub tree. Excludes safety-pruned directories, noise-pruned directories, and any reparse-point target. No claim is made about content behind those boundaries.",
+                 "baselineFile":  "AGENTS-HUB-ONE-BASELINE-2026-08-19.json",
+                 "baselineRef":  "47c01870385e8386b6ee41806882b2cd84a7a7d9",
+                 "readOnly":  true,
+                 "networkCalls":  false,
+                 "contentEmitted":  false
+             },
+    "counts":  {
+                   "liveFiles":  9,
+                   "gitHubFiles":  16,
+                   "onlyInLive":  0,
+                   "placeholderInGitHubRealInLive":  0,
+                   "contentDiffers":  0,
+                   "onlyInGitHub":  7,
+                   "identical":  9,
+                   "prunedForSafety":  1,
+                   "prunedForNoise":  0,
+                   "untraversedReparsePoints":  0,
+                   "traversalFailures":  0,
+                   "depthLimited":  0
+               },
+    "exclusionsAndFailures":  {
+                                  "prunedForSafety":  [
+                                                          "C:\\Users\\Chloe\\.agents-hub\\design-systems\\.remember"
+                                                      ],
+                                  "prunedForNoise":  [
+
+                                                     ],
+                                  "untraversedReparsePoints":  [
+
+                                                               ],
+                                  "traversalFailures":  [
+
+                                                        ],
+                                  "depthLimited":  [
+
+                                                   ],
+                                  "truncated":  false
+                              },
+    "onlyInLive":  [
+
+                   ],
+    "placeholderInGitHubRealInLive":  [
+
+                                      ],
+    "contentDiffers":  [
+
+                       ],
+    "onlyInGitHub":  [
+                         "design-systems\\placeholder.md",
+                         "governance-templates\\component\\placeholder.md",
+                         "governance-templates\\delegation\\placeholder.md",
+                         "governance-templates\\project\\placeholder.md",
+                         "governance-templates\\workspace\\placeholder.md",
+                         "runtime-adapters\\claude-code\\placeholder.md",
+                         "runtime-adapters\\codex\\placeholder.md"
+                     ],
+    "identical":  [
+                      "CATALOG.md",
+                      "README.md",
+                      "references\\AGENTS-MD-LIVE-AUDIT-2026-08-16.md",
+                      "rules\\AGENTS.md",
+                      "rules\\AUTONOMY-AND-PROTECTED-BOUNDARIES.md",
+                      "rules\\CONTEXT-AND-ORCHESTRATION.md",
+                      "rules\\ENGINEER-OWNERSHIP.md",
+                      "rules\\VERIFICATION-AND-EVIDENCE.md",
+                      "STATE.md"
+                  ],
+    "liveInventory":  {
+                          "rules\\VERIFICATION-AND-EVIDENCE.md":  {
+                                                                      "size":  1651,
+                                                                      "sha256":  "AF6F01352FD937CD707F8DF17BD6C8AE625DB2A8B1B4376224852F2DDB7E4DBB",
+                                                                      "placeholder":  false,
+                                                                      "modifiedUtc":  "2026-08-15T03:02:01.3304552Z"
+                                                                  },
+                          "rules\\AUTONOMY-AND-PROTECTED-BOUNDARIES.md":  {
+                                                                              "size":  2768,
+                                                                              "sha256":  "A35453C3746A89E516EFD2C519F9FC190CE7DC9A481231153115A5472F6C5C5E",
+                                                                              "placeholder":  false,
+                                                                              "modifiedUtc":  "2026-08-16T05:35:04.5625322Z"
+                                                                          },
+                          "rules\\CONTEXT-AND-ORCHESTRATION.md":  {
+                                                                      "size":  2783,
+                                                                      "sha256":  "378CD818B5B72BA2261C292998613A1E20D8C813480DFC744F6EFBFF7AB7D14C",
+                                                                      "placeholder":  false,
+                                                                      "modifiedUtc":  "2026-08-16T05:35:03.4174165Z"
+                                                                  },
+                          "CATALOG.md":  {
+                                             "size":  3559,
+                                             "sha256":  "262DFB8A804B8EF9CEAF68D8F9DC9EE046D3D33C58783ECDD96C5C4A1C8DC417",
+                                             "placeholder":  false,
+                                             "modifiedUtc":  "2026-08-16T13:59:22.7023641Z"
+                                         },
+                          "rules\\ENGINEER-OWNERSHIP.md":  {
+                                                               "size":  9487,
+                                                               "sha256":  "151481AEA88B4C0B3387B3C8DF9DD4343EEE7AFE20A23A6DA04277F3759CC2BF",
+                                                               "placeholder":  false,
+                                                               "modifiedUtc":  "2026-08-16T06:07:47.5764813Z"
+                                                           },
+                          "references\\AGENTS-MD-LIVE-AUDIT-2026-08-16.md":  {
+                                                                                 "size":  6364,
+                                                                                 "sha256":  "616A16366212D6E54DC9923E58199A4C9B1FD11B2358E221C8BD004D06AAE05F",
+                                                                                 "placeholder":  false,
+                                                                                 "modifiedUtc":  "2026-08-16T06:47:45.6839195Z"
+                                                                             },
+                          "STATE.md":  {
+                                           "size":  5407,
+                                           "sha256":  "F8D86A0DF9377AC7C7611E8F0FE721CA599A51A1387F3B01CF1EFF29DE295ED0",
+                                           "placeholder":  false,
+                                           "modifiedUtc":  "2026-08-16T13:35:27.7983102Z"
+                                       },
+                          "README.md":  {
+                                            "size":  1710,
+                                            "sha256":  "89D10D9DCAD3368942DC33A1D781C0E3C8CC38E1518CCE4B4C2155157FAD742F",
+                                            "placeholder":  false,
+                                            "modifiedUtc":  "2026-08-16T13:33:18.7741643Z"
+                                        },
+                          "rules\\AGENTS.md":  {
+                                                   "size":  6188,
+                                                   "sha256":  "15B10B5028B65CF0BA7FDD95743A7023514C93B542EA742CBF9126D70B8D06A0",
+                                                   "placeholder":  false,
+                                                   "modifiedUtc":  "2026-08-16T13:32:51.5057374Z"
+                                               }
+                      },
+    "remember":  {
+                     "exists":  true,
+                     "contentsInspected":  false,
+                     "method":  "Test-Path existence check only; no enumeration"
+                 },
+    "pruningProof":  {
+                         "pass":  true,
+                         "prunedForSafety":  [
+                                                 "C:\\Users\\Chloe\\.agents-hub\\design-systems\\.remember"
+                                             ],
+                         "visitedDirectoryCount":  12,
+                         "visitedDirectories":  [
+                                                    "C:\\Users\\Chloe\\.agents-hub",
+                                                    "C:\\Users\\Chloe\\.agents-hub\\runtime-adapters",
+                                                    "C:\\Users\\Chloe\\.agents-hub\\runtime-adapters\\codex",
+                                                    "C:\\Users\\Chloe\\.agents-hub\\runtime-adapters\\claude-code",
+                                                    "C:\\Users\\Chloe\\.agents-hub\\rules",
+                                                    "C:\\Users\\Chloe\\.agents-hub\\references",
+                                                    "C:\\Users\\Chloe\\.agents-hub\\governance-templates",
+                                                    "C:\\Users\\Chloe\\.agents-hub\\governance-templates\\workspace",
+                                                    "C:\\Users\\Chloe\\.agents-hub\\governance-templates\\project",
+                                                    "C:\\Users\\Chloe\\.agents-hub\\governance-templates\\delegation",
+                                                    "C:\\Users\\Chloe\\.agents-hub\\governance-templates\\component",
+                                                    "C:\\Users\\Chloe\\.agents-hub\\design-systems"
+                                                ],
+                         "violations":  [
+
+                                        ],
+                         "proofMethod":  "no visited directory is at or beneath a safety-pruned directory"
+                     },
+    "unverified":  [
+                       "design-systems\\.remember: existence only. Nothing inside was read, hashed, enumerated, or counted (stop condition B-2).",
+                       "No file contents were emitted; only path, size, SHA256 and modified time.",
+                       "Baseline reflects GitHub .agents-hub -- captured while named agents-hub-one -- at the recorded ref, not any later commit.",
+                       "A file identical by SHA256 is byte-identical; semantic equivalence was not assessed.",
+                       "Reparse points of either kind, file or directory, were excluded before the directory/file split; they were never returned and never hashed, and nothing behind them is inventoried.",
+                       "The inventory is exhaustive only within the physical Hub tree, excluding pruned directories and reparse-point targets."
+                   ]
+}

@@ -1,0 +1,1479 @@
+﻿{
+    "meta":  {
+                 "script":  "Collect-LocalEvidence.ps1",
+                 "schemaVersion":  "1.0",
+                 "generatedUtc":  "2026-08-20T20:20:14Z",
+                 "readOnly":  true,
+                 "networkCalls":  false,
+                 "secretsPolicy":  "names and locations only; values redacted",
+                 "machine":  "BYTEHUB",
+                 "user":  "Chloe",
+                 "hubPath":  "C:\\Users\\Chloe\\.agents-hub",
+                 "workspaceRoot":  "C:\\KloWorkspaces"
+             },
+    "01_runtime":  {
+                       "psVersion":  "5.1.26100.9267",
+                       "psEdition":  "Desktop",
+                       "isWindowsPowerShell51":  true,
+                       "clrVersion":  "4.0.30319.42000",
+                       "osVersion":  "10.0.26200.0",
+                       "is64BitOS":  true,
+                       "executionPolicy":  "RemoteSigned",
+                       "note":  "Confirms whether the repository scripts were parsed by 5.1 or 7."
+                   },
+    "02_liveHub":  {
+                       "hubPath":  "C:\\Users\\Chloe\\.agents-hub",
+                       "exists":  true,
+                       "fileCount":  9,
+                       "completeness":  "COMPLETE",
+                       "incompleteReasons":  [
+
+                                             ],
+                       "files":  [
+                                     {
+                                         "relativePath":  "CATALOG.md",
+                                         "sizeBytes":  3559,
+                                         "modifiedUtc":  "2026-08-16T13:59:22.7023641Z",
+                                         "sha256":  "262DFB8A804B8EF9CEAF68D8F9DC9EE046D3D33C58783ECDD96C5C4A1C8DC417"
+                                     },
+                                     {
+                                         "relativePath":  "README.md",
+                                         "sizeBytes":  1710,
+                                         "modifiedUtc":  "2026-08-16T13:33:18.7741643Z",
+                                         "sha256":  "89D10D9DCAD3368942DC33A1D781C0E3C8CC38E1518CCE4B4C2155157FAD742F"
+                                     },
+                                     {
+                                         "relativePath":  "STATE.md",
+                                         "sizeBytes":  5407,
+                                         "modifiedUtc":  "2026-08-16T13:35:27.7983102Z",
+                                         "sha256":  "F8D86A0DF9377AC7C7611E8F0FE721CA599A51A1387F3B01CF1EFF29DE295ED0"
+                                     },
+                                     {
+                                         "relativePath":  "rules\\AGENTS.md",
+                                         "sizeBytes":  6188,
+                                         "modifiedUtc":  "2026-08-16T13:32:51.5057374Z",
+                                         "sha256":  "15B10B5028B65CF0BA7FDD95743A7023514C93B542EA742CBF9126D70B8D06A0"
+                                     },
+                                     {
+                                         "relativePath":  "rules\\AUTONOMY-AND-PROTECTED-BOUNDARIES.md",
+                                         "sizeBytes":  2768,
+                                         "modifiedUtc":  "2026-08-16T05:35:04.5625322Z",
+                                         "sha256":  "A35453C3746A89E516EFD2C519F9FC190CE7DC9A481231153115A5472F6C5C5E"
+                                     },
+                                     {
+                                         "relativePath":  "rules\\CONTEXT-AND-ORCHESTRATION.md",
+                                         "sizeBytes":  2783,
+                                         "modifiedUtc":  "2026-08-16T05:35:03.4174165Z",
+                                         "sha256":  "378CD818B5B72BA2261C292998613A1E20D8C813480DFC744F6EFBFF7AB7D14C"
+                                     },
+                                     {
+                                         "relativePath":  "rules\\ENGINEER-OWNERSHIP.md",
+                                         "sizeBytes":  9487,
+                                         "modifiedUtc":  "2026-08-16T06:07:47.5764813Z",
+                                         "sha256":  "151481AEA88B4C0B3387B3C8DF9DD4343EEE7AFE20A23A6DA04277F3759CC2BF"
+                                     },
+                                     {
+                                         "relativePath":  "rules\\VERIFICATION-AND-EVIDENCE.md",
+                                         "sizeBytes":  1651,
+                                         "modifiedUtc":  "2026-08-15T03:02:01.3304552Z",
+                                         "sha256":  "AF6F01352FD937CD707F8DF17BD6C8AE625DB2A8B1B4376224852F2DDB7E4DBB"
+                                     },
+                                     {
+                                         "relativePath":  "references\\AGENTS-MD-LIVE-AUDIT-2026-08-16.md",
+                                         "sizeBytes":  6364,
+                                         "modifiedUtc":  "2026-08-16T06:47:45.6839195Z",
+                                         "sha256":  "616A16366212D6E54DC9923E58199A4C9B1FD11B2358E221C8BD004D06AAE05F"
+                                     }
+                                 ],
+                       "topLevel":  [
+                                        "dir design-systems",
+                                        "dir governance-templates",
+                                        "dir references",
+                                        "dir rules",
+                                        "dir runtime-adapters",
+                                        "file CATALOG.md",
+                                        "file README.md",
+                                        "file STATE.md"
+                                    ],
+                       "rememberExists":  true,
+                       "rememberContentsInspected":  false,
+                       "safetyPruned":  [
+                                            "C:\\Users\\Chloe\\.agents-hub\\design-systems\\.remember"
+                                        ],
+                       "reparseExcluded":  [
+
+                                           ],
+                       "noisePruned":  [
+
+                                       ],
+                       "traversalFailures":  [
+
+                                             ],
+                       "depthLimited":  [
+
+                                        ],
+                       "visitedDirectoryCount":  12,
+                       "note":  "Existence of .remember recorded while listing its parent. Nothing inside was listed, read, counted or hashed."
+                   },
+    "03_tools":  {
+                     "tools":  [
+                                   {
+                                       "name":  "claude",
+                                       "present":  false,
+                                       "primary":  null,
+                                       "allResolutions":  [
+
+                                                          ],
+                                       "resolutionCount":  0,
+                                       "multipleInstalls":  false,
+                                       "version":  null
+                                   },
+                                   {
+                                       "name":  "codex",
+                                       "present":  false,
+                                       "primary":  null,
+                                       "allResolutions":  [
+
+                                                          ],
+                                       "resolutionCount":  0,
+                                       "multipleInstalls":  false,
+                                       "version":  null
+                                   },
+                                   {
+                                       "name":  "gh",
+                                       "present":  true,
+                                       "primary":  "C:\\Program Files\\GitHub CLI\\gh.exe",
+                                       "allResolutions":  [
+                                                              "C:\\Program Files\\GitHub CLI\\gh.exe"
+                                                          ],
+                                       "resolutionCount":  1,
+                                       "multipleInstalls":  false,
+                                       "version":  "gh version 2.97.0 (2026-07-31)"
+                                   },
+                                   {
+                                       "name":  "git",
+                                       "present":  true,
+                                       "primary":  "C:\\Program Files\\Git\\cmd\\git.exe",
+                                       "allResolutions":  [
+                                                              "C:\\Program Files\\Git\\cmd\\git.exe"
+                                                          ],
+                                       "resolutionCount":  1,
+                                       "multipleInstalls":  false,
+                                       "version":  "git version 2.55.0.windows.3"
+                                   },
+                                   {
+                                       "name":  "node",
+                                       "present":  true,
+                                       "primary":  "C:\\Users\\Chloe\\AppData\\Local\\hermes\\node\\node.exe",
+                                       "allResolutions":  [
+                                                              "C:\\Users\\Chloe\\AppData\\Local\\hermes\\node\\node.exe"
+                                                          ],
+                                       "resolutionCount":  1,
+                                       "multipleInstalls":  false,
+                                       "version":  "v22.23.1"
+                                   },
+                                   {
+                                       "name":  "npm",
+                                       "present":  true,
+                                       "primary":  "C:\\Users\\Chloe\\AppData\\Local\\hermes\\node\\npm.ps1",
+                                       "allResolutions":  [
+                                                              "C:\\Users\\Chloe\\AppData\\Local\\hermes\\node\\npm",
+                                                              "C:\\Users\\Chloe\\AppData\\Local\\hermes\\node\\npm.cmd"
+                                                          ],
+                                       "resolutionCount":  2,
+                                       "multipleInstalls":  true,
+                                       "version":  "10.9.8"
+                                   },
+                                   {
+                                       "name":  "npx",
+                                       "present":  true,
+                                       "primary":  "C:\\Users\\Chloe\\AppData\\Local\\hermes\\node\\npx.ps1",
+                                       "allResolutions":  [
+                                                              "C:\\Users\\Chloe\\AppData\\Local\\hermes\\node\\npx",
+                                                              "C:\\Users\\Chloe\\AppData\\Local\\hermes\\node\\npx.cmd"
+                                                          ],
+                                       "resolutionCount":  2,
+                                       "multipleInstalls":  true,
+                                       "version":  "10.9.8"
+                                   },
+                                   {
+                                       "name":  "pnpm",
+                                       "present":  false,
+                                       "primary":  null,
+                                       "allResolutions":  [
+
+                                                          ],
+                                       "resolutionCount":  0,
+                                       "multipleInstalls":  false,
+                                       "version":  null
+                                   },
+                                   {
+                                       "name":  "yarn",
+                                       "present":  false,
+                                       "primary":  null,
+                                       "allResolutions":  [
+
+                                                          ],
+                                       "resolutionCount":  0,
+                                       "multipleInstalls":  false,
+                                       "version":  null
+                                   },
+                                   {
+                                       "name":  "bun",
+                                       "present":  false,
+                                       "primary":  null,
+                                       "allResolutions":  [
+
+                                                          ],
+                                       "resolutionCount":  0,
+                                       "multipleInstalls":  false,
+                                       "version":  null
+                                   },
+                                   {
+                                       "name":  "deno",
+                                       "present":  false,
+                                       "primary":  null,
+                                       "allResolutions":  [
+
+                                                          ],
+                                       "resolutionCount":  0,
+                                       "multipleInstalls":  false,
+                                       "version":  null
+                                   },
+                                   {
+                                       "name":  "python",
+                                       "present":  true,
+                                       "primary":  "C:\\Users\\Chloe\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe",
+                                       "allResolutions":  [
+                                                              "C:\\Users\\Chloe\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts\\python.exe",
+                                                              "C:\\Users\\Chloe\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe"
+                                                          ],
+                                       "resolutionCount":  2,
+                                       "multipleInstalls":  true,
+                                       "version":  "Python 3.11.15"
+                                   },
+                                   {
+                                       "name":  "py",
+                                       "present":  false,
+                                       "primary":  null,
+                                       "allResolutions":  [
+
+                                                          ],
+                                       "resolutionCount":  0,
+                                       "multipleInstalls":  false,
+                                       "version":  null
+                                   },
+                                   {
+                                       "name":  "pip",
+                                       "present":  false,
+                                       "primary":  null,
+                                       "allResolutions":  [
+
+                                                          ],
+                                       "resolutionCount":  0,
+                                       "multipleInstalls":  false,
+                                       "version":  null
+                                   },
+                                   {
+                                       "name":  "uv",
+                                       "present":  true,
+                                       "primary":  "C:\\Users\\Chloe\\AppData\\Local\\hermes\\bin\\uv.exe",
+                                       "allResolutions":  [
+                                                              "C:\\Users\\Chloe\\AppData\\Local\\hermes\\bin\\uv.exe"
+                                                          ],
+                                       "resolutionCount":  1,
+                                       "multipleInstalls":  false,
+                                       "version":  "uv 0.11.32 (3010295ae 2026-07-23 x86_64-pc-windows-msvc)"
+                                   },
+                                   {
+                                       "name":  "docker",
+                                       "present":  true,
+                                       "primary":  "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe",
+                                       "allResolutions":  [
+                                                              "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker",
+                                                              "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe"
+                                                          ],
+                                       "resolutionCount":  2,
+                                       "multipleInstalls":  true,
+                                       "version":  "Docker version 29.6.2, build dfc4efb"
+                                   },
+                                   {
+                                       "name":  "wsl",
+                                       "present":  true,
+                                       "primary":  "C:\\Windows\\system32\\wsl.exe",
+                                       "allResolutions":  [
+                                                              "C:\\Windows\\System32\\wsl.exe",
+                                                              "C:\\Users\\Chloe\\AppData\\Local\\Microsoft\\WindowsApps\\wsl.exe"
+                                                          ],
+                                       "resolutionCount":  2,
+                                       "multipleInstalls":  true,
+                                       "version":  "W\u0000S\u0000L\u0000 \u0000v\u0000e\u0000r\u0000s\u0000i\u0000o\u0000n\u0000:\u0000 \u00002\u0000.\u00007\u0000.\u00001\u00000\u0000.\u00000\u0000"
+                                   },
+                                   {
+                                       "name":  "rg",
+                                       "present":  true,
+                                       "primary":  "C:\\Users\\Chloe\\AppData\\Local\\Microsoft\\WinGet\\Links\\rg.exe",
+                                       "allResolutions":  [
+                                                              "C:\\Users\\Chloe\\AppData\\Local\\Microsoft\\WinGet\\Links\\rg.exe"
+                                                          ],
+                                       "resolutionCount":  1,
+                                       "multipleInstalls":  false,
+                                       "version":  "ripgrep 15.2.0 (rev e89fff89ac)"
+                                   },
+                                   {
+                                       "name":  "fd",
+                                       "present":  false,
+                                       "primary":  null,
+                                       "allResolutions":  [
+
+                                                          ],
+                                       "resolutionCount":  0,
+                                       "multipleInstalls":  false,
+                                       "version":  null
+                                   },
+                                   {
+                                       "name":  "fzf",
+                                       "present":  false,
+                                       "primary":  null,
+                                       "allResolutions":  [
+
+                                                          ],
+                                       "resolutionCount":  0,
+                                       "multipleInstalls":  false,
+                                       "version":  null
+                                   },
+                                   {
+                                       "name":  "jq",
+                                       "present":  false,
+                                       "primary":  null,
+                                       "allResolutions":  [
+
+                                                          ],
+                                       "resolutionCount":  0,
+                                       "multipleInstalls":  false,
+                                       "version":  null
+                                   },
+                                   {
+                                       "name":  "pwsh",
+                                       "present":  true,
+                                       "primary":  "C:\\Users\\Chloe\\AppData\\Local\\Microsoft\\WindowsApps\\pwsh.exe",
+                                       "allResolutions":  [
+                                                              "C:\\Users\\Chloe\\AppData\\Local\\Microsoft\\WindowsApps\\pwsh.exe"
+                                                          ],
+                                       "resolutionCount":  1,
+                                       "multipleInstalls":  false,
+                                       "version":  "PowerShell 7.6.5"
+                                   },
+                                   {
+                                       "name":  "powershell",
+                                       "present":  true,
+                                       "primary":  "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+                                       "allResolutions":  [
+                                                              "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+                                                          ],
+                                       "resolutionCount":  1,
+                                       "multipleInstalls":  false,
+                                       "version":  null
+                                   },
+                                   {
+                                       "name":  "wt",
+                                       "present":  true,
+                                       "primary":  "C:\\Users\\Chloe\\AppData\\Local\\Microsoft\\WindowsApps\\wt.exe",
+                                       "allResolutions":  [
+                                                              "C:\\Users\\Chloe\\AppData\\Local\\Microsoft\\WindowsApps\\wt.exe"
+                                                          ],
+                                       "resolutionCount":  1,
+                                       "multipleInstalls":  false,
+                                       "version":  null
+                                   }
+                               ],
+                     "presentCount":  13,
+                     "multipleInstallTools":  [
+                                                  "npm",
+                                                  "npx",
+                                                  "python",
+                                                  "docker",
+                                                  "wsl"
+                                              ],
+                     "absentTools":  [
+                                         "claude",
+                                         "codex",
+                                         "pnpm",
+                                         "yarn",
+                                         "bun",
+                                         "deno",
+                                         "py",
+                                         "pip",
+                                         "fd",
+                                         "fzf",
+                                         "jq"
+                                     ],
+                     "note":  "Two discovery methods per tool: Get-Command and where.exe. All resolutions recorded so shadowing and multiple installs are visible."
+                 },
+    "04_path":  {
+                    "userEntries":  [
+                                        {
+                                            "scope":  "User",
+                                            "entry":  "C:\\Users\\Chloe\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts",
+                                            "exists":  true,
+                                            "duplicate":  false
+                                        },
+                                        {
+                                            "scope":  "User",
+                                            "entry":  "C:\\Users\\Chloe\\AppData\\Local\\hermes\\bin",
+                                            "exists":  true,
+                                            "duplicate":  false
+                                        },
+                                        {
+                                            "scope":  "User",
+                                            "entry":  "C:\\Users\\Chloe\\AppData\\Local\\Microsoft\\WindowsApps",
+                                            "exists":  true,
+                                            "duplicate":  false
+                                        },
+                                        {
+                                            "scope":  "User",
+                                            "entry":  "C:\\Users\\Chloe\\AppData\\Local\\Programs\\Microsoft VS Code\\bin",
+                                            "exists":  true,
+                                            "duplicate":  false
+                                        },
+                                        {
+                                            "scope":  "User",
+                                            "entry":  "C:\\Users\\Chloe\\AppData\\Local\\hermes\\node",
+                                            "exists":  true,
+                                            "duplicate":  false
+                                        },
+                                        {
+                                            "scope":  "User",
+                                            "entry":  "C:\\Users\\Chloe\\AppData\\Local\\Microsoft\\WinGet\\Links",
+                                            "exists":  true,
+                                            "duplicate":  false
+                                        },
+                                        {
+                                            "scope":  "User",
+                                            "entry":  "C:\\Users\\Chloe\\AppData\\Local\\GitHubDesktop\\bin",
+                                            "exists":  true,
+                                            "duplicate":  false
+                                        }
+                                    ],
+                    "machineEntries":  [
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v13.3\\bin\\x64",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v13.3\\bin",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Windows\\system32",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Windows",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Windows\\System32\\Wbem",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Windows\\System32\\OpenSSH\\",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\WINDOWS\\system32",
+                                               "exists":  true,
+                                               "duplicate":  true
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\WINDOWS",
+                                               "exists":  true,
+                                               "duplicate":  true
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\WINDOWS\\System32\\Wbem",
+                                               "exists":  true,
+                                               "duplicate":  true
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\",
+                                               "exists":  true,
+                                               "duplicate":  true
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\WINDOWS\\System32\\OpenSSH\\",
+                                               "exists":  true,
+                                               "duplicate":  true
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Program Files\\WireGuard\\",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Program Files\\Tailscale\\",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Program Files\\PowerToys\\DSCModules\\",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Program Files\\Mullvad VPN\\resources",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Program Files\\Git\\cmd",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Program Files\\dotnet\\",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Program Files\\Docker\\Docker\\resources\\bin",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Program Files\\GitHub CLI\\",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           },
+                                           {
+                                               "scope":  "Machine",
+                                               "entry":  "C:\\Program Files\\NVIDIA Corporation\\Nsight Compute 2026.2.1\\",
+                                               "exists":  true,
+                                               "duplicate":  false
+                                           }
+                                       ],
+                    "effectiveEntries":  [
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v13.3\\bin\\x64",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v13.3\\bin",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Windows\\system32",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Windows",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Windows\\System32\\Wbem",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Windows\\System32\\OpenSSH\\",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\WINDOWS\\system32",
+                                                 "exists":  true,
+                                                 "duplicate":  true
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\WINDOWS",
+                                                 "exists":  true,
+                                                 "duplicate":  true
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\WINDOWS\\System32\\Wbem",
+                                                 "exists":  true,
+                                                 "duplicate":  true
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\",
+                                                 "exists":  true,
+                                                 "duplicate":  true
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\WINDOWS\\System32\\OpenSSH\\",
+                                                 "exists":  true,
+                                                 "duplicate":  true
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Program Files\\WireGuard\\",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Program Files\\Tailscale\\",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Program Files\\PowerToys\\DSCModules\\",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Program Files\\Mullvad VPN\\resources",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Program Files\\Git\\cmd",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Program Files\\dotnet\\",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Program Files\\NVIDIA Corporation\\NVIDIA App\\NvDLISR",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Program Files\\Docker\\Docker\\resources\\bin",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Program Files\\GitHub CLI\\",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Program Files\\NVIDIA Corporation\\Nsight Compute 2026.2.1\\",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Users\\Chloe\\AppData\\Local\\hermes\\hermes-agent\\venv\\Scripts",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Users\\Chloe\\AppData\\Local\\hermes\\bin",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Users\\Chloe\\AppData\\Local\\Microsoft\\WindowsApps",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Users\\Chloe\\AppData\\Local\\Programs\\Microsoft VS Code\\bin",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Users\\Chloe\\AppData\\Local\\hermes\\node",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Users\\Chloe\\AppData\\Local\\Microsoft\\WinGet\\Links",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\Users\\Chloe\\AppData\\Local\\GitHubDesktop\\bin",
+                                                 "exists":  true,
+                                                 "duplicate":  false
+                                             }
+                                         ],
+                    "userCount":  7,
+                    "machineCount":  23,
+                    "effectiveCount":  30,
+                    "brokenEntries":  [
+
+                                      ],
+                    "duplicateEntries":  [
+                                             {
+                                                 "scope":  "Machine",
+                                                 "entry":  "C:\\WINDOWS\\system32",
+                                                 "exists":  true,
+                                                 "duplicate":  true
+                                             },
+                                             {
+                                                 "scope":  "Machine",
+                                                 "entry":  "C:\\WINDOWS",
+                                                 "exists":  true,
+                                                 "duplicate":  true
+                                             },
+                                             {
+                                                 "scope":  "Machine",
+                                                 "entry":  "C:\\WINDOWS\\System32\\Wbem",
+                                                 "exists":  true,
+                                                 "duplicate":  true
+                                             },
+                                             {
+                                                 "scope":  "Machine",
+                                                 "entry":  "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\",
+                                                 "exists":  true,
+                                                 "duplicate":  true
+                                             },
+                                             {
+                                                 "scope":  "Machine",
+                                                 "entry":  "C:\\WINDOWS\\System32\\OpenSSH\\",
+                                                 "exists":  true,
+                                                 "duplicate":  true
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\WINDOWS\\system32",
+                                                 "exists":  true,
+                                                 "duplicate":  true
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\WINDOWS",
+                                                 "exists":  true,
+                                                 "duplicate":  true
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\WINDOWS\\System32\\Wbem",
+                                                 "exists":  true,
+                                                 "duplicate":  true
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\",
+                                                 "exists":  true,
+                                                 "duplicate":  true
+                                             },
+                                             {
+                                                 "scope":  "Effective",
+                                                 "entry":  "C:\\WINDOWS\\System32\\OpenSSH\\",
+                                                 "exists":  true,
+                                                 "duplicate":  true
+                                             }
+                                         ],
+                    "inBothUserAndMachine":  [
+
+                                             ],
+                    "note":  "Effective PATH is the merged process view. User and Machine are read separately so a scope conflict is visible and a fix can name the scope."
+                },
+    "05_runtimeConfig":  {
+                             "candidateCount":  15,
+                             "environmentBasesMissing":  [
+
+                                                         ],
+                             "candidates":  [
+                                                {
+                                                    "path":  "C:\\Users\\Chloe\\.claude",
+                                                    "exists":  true,
+                                                    "isDirectory":  true,
+                                                    "sizeBytes":  null,
+                                                    "modifiedUtc":  "2026-08-19T08:20:22.9364598Z"
+                                                },
+                                                {
+                                                    "path":  "C:\\Users\\Chloe\\.claude\\settings.json",
+                                                    "exists":  true,
+                                                    "isDirectory":  false,
+                                                    "sizeBytes":  3711,
+                                                    "modifiedUtc":  "2026-08-15T04:33:24.0749626Z"
+                                                },
+                                                {
+                                                    "path":  "C:\\Users\\Chloe\\.claude\\settings.local.json",
+                                                    "exists":  false,
+                                                    "isDirectory":  false,
+                                                    "sizeBytes":  null,
+                                                    "modifiedUtc":  null
+                                                },
+                                                {
+                                                    "path":  "C:\\Users\\Chloe\\.claude.json",
+                                                    "exists":  true,
+                                                    "isDirectory":  false,
+                                                    "sizeBytes":  53027,
+                                                    "modifiedUtc":  "2026-08-20T19:28:24.5861716Z"
+                                                },
+                                                {
+                                                    "path":  "C:\\Users\\Chloe\\CLAUDE.md",
+                                                    "exists":  false,
+                                                    "isDirectory":  false,
+                                                    "sizeBytes":  null,
+                                                    "modifiedUtc":  null
+                                                },
+                                                {
+                                                    "path":  "C:\\Users\\Chloe\\.claude\\CLAUDE.md",
+                                                    "exists":  true,
+                                                    "isDirectory":  false,
+                                                    "sizeBytes":  1433,
+                                                    "modifiedUtc":  "2026-08-11T10:27:07.8647297Z"
+                                                },
+                                                {
+                                                    "path":  "C:\\Users\\Chloe\\.claude\\skills",
+                                                    "exists":  false,
+                                                    "isDirectory":  false,
+                                                    "sizeBytes":  null,
+                                                    "modifiedUtc":  null
+                                                },
+                                                {
+                                                    "path":  "C:\\Users\\Chloe\\.codex",
+                                                    "exists":  true,
+                                                    "isDirectory":  true,
+                                                    "sizeBytes":  null,
+                                                    "modifiedUtc":  "2026-08-20T20:20:12.8398836Z"
+                                                },
+                                                {
+                                                    "path":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                    "exists":  true,
+                                                    "isDirectory":  false,
+                                                    "sizeBytes":  14141,
+                                                    "modifiedUtc":  "2026-08-20T18:14:40.6231171Z"
+                                                },
+                                                {
+                                                    "path":  "C:\\Users\\Chloe\\.codex\\AGENTS.md",
+                                                    "exists":  true,
+                                                    "isDirectory":  false,
+                                                    "sizeBytes":  20204,
+                                                    "modifiedUtc":  "2026-08-11T10:28:06.4501295Z"
+                                                },
+                                                {
+                                                    "path":  "C:\\Users\\Chloe\\.config\\codex\\config.toml",
+                                                    "exists":  false,
+                                                    "isDirectory":  false,
+                                                    "sizeBytes":  null,
+                                                    "modifiedUtc":  null
+                                                },
+                                                {
+                                                    "path":  "C:\\Users\\Chloe\\AGENTS.md",
+                                                    "exists":  false,
+                                                    "isDirectory":  false,
+                                                    "sizeBytes":  null,
+                                                    "modifiedUtc":  null
+                                                },
+                                                {
+                                                    "path":  "C:\\Users\\Chloe\\AppData\\Roaming\\Claude\\claude_desktop_config.json",
+                                                    "exists":  true,
+                                                    "isDirectory":  false,
+                                                    "sizeBytes":  4121,
+                                                    "modifiedUtc":  "2026-08-20T19:28:22.1319598Z"
+                                                },
+                                                {
+                                                    "path":  "C:\\Program Files\\ClaudeCode\\CLAUDE.md",
+                                                    "exists":  false,
+                                                    "isDirectory":  false,
+                                                    "sizeBytes":  null,
+                                                    "modifiedUtc":  null
+                                                },
+                                                {
+                                                    "path":  "C:\\Program Files\\ClaudeCode\\managed-settings.json",
+                                                    "exists":  false,
+                                                    "isDirectory":  false,
+                                                    "sizeBytes":  null,
+                                                    "modifiedUtc":  null
+                                                }
+                                            ],
+                             "existingCount":  8,
+                             "mcpServerNames":  [
+                                                    {
+                                                        "source":  "C:\\Users\\Chloe\\.claude.json",
+                                                        "serverName":  "sequential-thinking"
+                                                    }
+                                                ],
+                             "note":  "Presence, size and modified time only. No file contents emitted. MCP server names only, never commands, arguments, environment or tokens. Presence is NOT evidence that a runtime loads the file."
+                         },
+    "06_codexStalePaths":  {
+                               "filesScanned":  [
+                                                    "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                    "C:\\Users\\Chloe\\.codex\\AGENTS.md"
+                                                ],
+                               "hits":  [
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  30,
+                                                "match":  "C:\\Users\\Chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  53,
+                                                "match":  "C:\\Users\\Chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  58,
+                                                "match":  "C:\\Users\\Chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  63,
+                                                "match":  "C:\\Users\\Chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  68,
+                                                "match":  "C:\\Users\\Chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  73,
+                                                "match":  "C:\\Users\\Chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  74,
+                                                "match":  "C:\\Users\\Chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  75,
+                                                "match":  "C:\\Users\\Chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  76,
+                                                "match":  "C:\\Users\\Chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  85,
+                                                "match":  "C:\\Users\\Chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  274,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  277,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  280,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  283,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  286,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  289,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  292,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  295,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  298,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  301,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  304,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  307,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  310,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  313,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  316,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  319,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  322,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  325,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  328,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  331,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  334,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  337,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  340,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  343,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  346,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  349,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  352,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  355,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  358,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  361,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  364,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  367,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  370,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  373,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  376,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  379,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  382,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  385,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  388,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  391,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  394,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  397,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  400,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  403,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  406,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  409,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  412,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  415,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  418,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  421,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  424,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  427,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  430,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  433,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  436,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  439,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  442,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  445,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  448,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  454,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  457,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\config.toml",
+                                                "line":  460,
+                                                "match":  "c:\\users\\chloe"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\AGENTS.md",
+                                                "line":  70,
+                                                "match":  "C:\\Users\\ByteBoss"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\AGENTS.md",
+                                                "line":  82,
+                                                "match":  "C:\\Users\\ByteBoss"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\AGENTS.md",
+                                                "line":  86,
+                                                "match":  "C:\\Users\\ByteBoss"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\AGENTS.md",
+                                                "line":  87,
+                                                "match":  "C:\\Users\\ByteBoss"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\AGENTS.md",
+                                                "line":  91,
+                                                "match":  "C:\\Users\\ByteBoss"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\AGENTS.md",
+                                                "line":  94,
+                                                "match":  "C:\\Workspace"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\AGENTS.md",
+                                                "line":  99,
+                                                "match":  "C:\\Users\\ByteBoss"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\AGENTS.md",
+                                                "line":  124,
+                                                "match":  "C:\\Users\\ByteBoss"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\AGENTS.md",
+                                                "line":  154,
+                                                "match":  "C:\\Users\\ByteBoss"
+                                            },
+                                            {
+                                                "file":  "C:\\Users\\Chloe\\.codex\\AGENTS.md",
+                                                "line":  160,
+                                                "match":  "C:\\Users\\ByteBoss"
+                                            }
+                                        ],
+                               "hitCount":  82,
+                               "note":  "Matched path fragments only, with line numbers. No surrounding content. Nothing modified."
+                           },
+    "07_repositories":  {
+                            "workspaceRootExists":  true,
+                            "repositories":  [
+                                                 {
+                                                     "name":  ".agents-hub",
+                                                     "path":  "C:\\KloWorkspaces\\.agents-hub",
+                                                     "exists":  false,
+                                                     "isGitRepo":  false,
+                                                     "head":  null,
+                                                     "branch":  null
+                                                 },
+                                                 {
+                                                     "name":  "agents-hub",
+                                                     "path":  "C:\\KloWorkspaces\\agents-hub",
+                                                     "exists":  false,
+                                                     "isGitRepo":  false,
+                                                     "head":  null,
+                                                     "branch":  null
+                                                 },
+                                                 {
+                                                     "name":  "agents-hub-one",
+                                                     "path":  "C:\\KloWorkspaces\\agents-hub-one",
+                                                     "exists":  false,
+                                                     "isGitRepo":  false,
+                                                     "head":  null,
+                                                     "branch":  null
+                                                 },
+                                                 {
+                                                     "name":  "agents-hub-two",
+                                                     "path":  "C:\\KloWorkspaces\\agents-hub-two",
+                                                     "exists":  false,
+                                                     "isGitRepo":  false,
+                                                     "head":  null,
+                                                     "branch":  null
+                                                 },
+                                                 {
+                                                     "name":  "workspace-governor",
+                                                     "path":  "C:\\KloWorkspaces\\workspace-governor",
+                                                     "exists":  true,
+                                                     "isGitRepo":  true,
+                                                     "head":  "b4109f5",
+                                                     "branch":  "main"
+                                                 },
+                                                 {
+                                                     "name":  "workspace-governor-agents-hub-one",
+                                                     "path":  "C:\\KloWorkspaces\\workspace-governor-agents-hub-one",
+                                                     "exists":  false,
+                                                     "isGitRepo":  false,
+                                                     "head":  null,
+                                                     "branch":  null
+                                                 },
+                                                 {
+                                                     "name":  "mcp-gateway",
+                                                     "path":  "C:\\KloWorkspaces\\mcp-gateway",
+                                                     "exists":  false,
+                                                     "isGitRepo":  false,
+                                                     "head":  null,
+                                                     "branch":  null
+                                                 },
+                                                 {
+                                                     "name":  "atrium_workspace",
+                                                     "path":  "C:\\KloWorkspaces\\atrium_workspace",
+                                                     "exists":  false,
+                                                     "isGitRepo":  false,
+                                                     "head":  null,
+                                                     "branch":  null
+                                                 },
+                                                 {
+                                                     "name":  "agent-governance-toolkit",
+                                                     "path":  "C:\\KloWorkspaces\\agent-governance-toolkit",
+                                                     "exists":  false,
+                                                     "isGitRepo":  false,
+                                                     "head":  null,
+                                                     "branch":  null
+                                                 }
+                                             ],
+                            "presentCount":  1
+                        },
+    "unverified":  [
+                       "Presence of a configuration file is not evidence that a runtime discovered, loaded, or enforced it. Activation requires a fresh-session test.",
+                       "design-systems\\.remember: existence only. Nothing inside was listed, read, counted or hashed.",
+                       "Reparse points were excluded before the directory/file split. Nothing behind them is inventoried.",
+                       "File contents were not emitted. Only paths, sizes, modified times and SHA256 hashes.",
+                       "Inventory is exhaustive only within the physical tree, excluding pruned directories and reparse-point targets."
+                   ]
+}
