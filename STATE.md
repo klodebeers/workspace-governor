@@ -104,13 +104,11 @@ Run the local Hub inventory on the Windows machine and commit the evidence files
 it emits. This is the only remaining input needed to make the target tree
 acceptable.
 
-**Do not run any script copied earlier.** The corrected versions are commit
-`3a9d964` on branch `claude/add-github-repos-projects-6r1jgy`, pending merge to
-`main`. Pull that commit before running. The versions at `068dfa4` and before
-carried case-insensitive variable collisions;
+**Pull current `main` first. Do not run any script copied earlier.** The versions
+at `068dfa4` and before carried case-insensitive variable collisions:
 `Assert-RememberPruning.ps1` would have failed before writing its verdict, and
 `Invoke-HubInventory.ps1` would have dropped its unverified list whenever the
-inventory came back INCOMPLETE. Both are fixed. See
+inventory came back INCOMPLETE. Both are fixed on `main`. See
 `evidence/SCRIPT-STRUCTURE-DEFECTS-2026-08-20.md`.
 
 From the repository root, in order:
