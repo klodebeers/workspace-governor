@@ -129,18 +129,29 @@ pending verification is not a defect and is not re-flagged each session; see
 | Recheck trigger | Any change to instruction placement, adapter projection, or the root bootstrap file |
 | Note | This was previously folded into blocker B-5, which is scoped to evidence **collection** from an unreachable machine. Bootstrap **testing** is a different obligation and would have been rediscovered at Step 11 |
 
-### GitHub repository rename
+### GitHub repository rename -- COMPLETE
 
 | Field | Value |
 |---|---|
-| Status | PENDING |
+| Status | **DONE.** Verified 2026-08-20 |
 | Action | Rename `klodebeers/agents-hub-one` to `.agents-hub` |
-| Assigned executor | Klo |
-| Reason not done in cloud | No rename capability exists in the GitHub tooling available to this session. `create_repository` and `fork_repository` exist; no update or rename operation does. Creating a new repository and copying content is **not** a rename: it loses the redirect and history association and leaves two repositories competing for authority. Not attempted. |
-| Execution method | GitHub web UI: repository -> **Settings** -> **General** -> **Repository name** -> enter `.agents-hub` -> **Rename**. |
-| Verification step | `https://github.com/klodebeers/.agents-hub` loads and the page header shows `.agents-hub`; `https://github.com/klodebeers/agents-hub-one` redirects to it. Then locally: `git -C <clone> remote -v` still resolves via the redirect, and `git -C <clone> fetch` succeeds. |
-| Effect while pending | Repository references in this repository already point to `.agents-hub`, so they are correct on completion and stale until then. Cloning `.agents-hub` fails until the rename is done; `agents-hub-one` still works. |
-| Recheck trigger | Rename confirmed, or a decision to keep the current name |
+| Executed by | Klo |
+| Verification | Authenticated repository listing returns `klodebeers/.agents-hub`; `agents-hub-one` no longer appears as an accessible repository. Content unchanged since the baseline: last push 2026-08-19, consistent with `47c0187` |
+| Residual | The session clone at `/workspace/agents-hub-one` still carries the old remote URL. It resolves through GitHub's redirect, so it works; re-point it when convenient. A local clone directory is never renamed by a repository rename |
+| Recheck trigger | None. Closed |
+
+**Recording error, corrected.** This assignment was reported to the user as still
+PENDING **after it had been completed**, because this record was read instead of
+the live source. `AGENTS.md` states that `STATE.md` is continuity evidence and not
+proof that anything remains unchanged, and requires live sources to be reinspected
+before acting. That was not done.
+
+Two checks then misled the correction attempt before an authoritative one was used:
+`git ls-remote` on the new name failed on **credentials**, not on absence, and
+shell `&&` logic reported that failure as existence; and `git ls-remote` on the
+**old** name succeeded, which proves nothing either way because GitHub preserves
+redirects after a rename. The authenticated repository listing is the reliable
+method. Recorded as `LEARNINGS.md` L-014.
 
 ### PowerShell runtime verification
 
