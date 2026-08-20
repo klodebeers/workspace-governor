@@ -44,6 +44,31 @@ Corollary: do not rely on conversation history as a source. If a claim is not in
 this repository or verifiable against a live source, treat it as unverified and say
 so rather than asserting it.
 
+## Reporting cadence
+
+Work in substantial, coherent batches. Do not report after every read, search,
+comparison, edit, commit, or verification step.
+
+Continue autonomously through all non-destructive work that is already
+authorised. Do not stop merely because several files changed, a commit was made,
+or an intermediate check completed.
+
+Preferred shape: **read → analyse → edit → verify → persist → report once.**
+
+Report only when one of these occurs:
+
+1. A complete deliverable or meaningful phase of work is finished.
+2. A genuine blocker prevents further progress.
+3. A destructive action or reserved user decision requires approval.
+4. New evidence materially changes an accepted plan or architecture.
+5. A required verification fails and changes what can safely proceed.
+
+A completion report contains: what was completed; important findings or
+corrections; verification result; any unresolved blocker; the exact next action.
+
+Persist durable findings and state changes as the persistence requirement
+demands, but do not narrate each persistence action.
+
 ## File ownership
 
 One owner per concern. Do not duplicate content between these files.
