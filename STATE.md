@@ -90,27 +90,39 @@ cannot be accepted until `Assert-RememberPruning.ps1` returns `PASS` and
 ## Open work
 
 1. Inventory the live local Hub against the committed GitHub baseline, then revise the preliminary target tree against that evidence.
-2. ~~Revise the Gateway discovery tooling so it does not presuppose `.agents-hub` exists.~~ **Closed** — semantics verified across the full report. Still unexecuted; awaits the local Windows runtime test recorded under Verification assignments.
+2. ~~Revise the Gateway discovery tooling so it does not presuppose `.agents-hub` exists.~~ **Closed** — semantics verified across the full report, and the `00_hubState` ordering defect fixed. Still unexecuted; awaits the local Windows runtime test recorded under Verification assignments.
 3. Execute the accepted classification once the target tree is accepted. Assessment and classification are complete; `change`, `reference-update` and `verify` remain. See `evidence/HUB-RECONCILIATION-ASSESSMENT-2026-08-19.md`.
 4. Persist the user SSOT. `USERSSOT.json` was supplied in session as an authoritative user-side responsibilities file and exists in no repository. Its placement is undecided.
 5. Open B-3 as a separate scoped change once authorized.
 6. Determine placement of the three agent rulings recorded in `DECISIONS.md` under D-07 through D-09.
 7. Trim the duplicated live-state narrative in `workspace-governor-agents-hub-one/research/` per D-15. Edits another repository; sequenced separately.
+8. ~~Correct the case-insensitive variable collisions found in four scripts, two of them live defects in the assigned local commands.~~ **Closed** — fixed, and a static gate added to prevent the class. See `evidence/SCRIPT-STRUCTURE-DEFECTS-2026-08-20.md`.
 
 ## Next action
 
-Run `scripts/Invoke-HubInventory.ps1` on the Windows machine and commit the two
-evidence files it emits. This is the only remaining input needed to make the target
-tree acceptable.
+Run the local Hub inventory on the Windows machine and commit the evidence files
+it emits. This is the only remaining input needed to make the target tree
+acceptable.
 
-One command, from the repository root:
+**Use the current `main`, not any script copied earlier.** The versions committed
+at `068dfa4` and before carried case-insensitive variable collisions;
+`Assert-RememberPruning.ps1` would have failed before writing its verdict, and
+`Invoke-HubInventory.ps1` would have dropped its unverified list whenever the
+inventory came back INCOMPLETE. Both are fixed. See
+`evidence/SCRIPT-STRUCTURE-DEFECTS-2026-08-20.md`.
+
+From the repository root, in order:
 
 ```powershell
+.\scripts\Assert-RememberPruning.ps1
 .\scripts\Invoke-HubInventory.ps1
 ```
 
-It is read-only, makes no network calls, emits no file contents, resolves the Hub
-path from the environment and records the resolved path, and does not read or
+The first must report `Proof verdict: PASS`; the second, `Completeness: COMPLETE`.
+Neither result is acceptable if the other did not hold.
+
+Both are read-only, make no network calls, emit no file contents, resolve the Hub
+path from the environment and record the resolved path, and do not read or
 enumerate inside `design-systems\.remember`.
 
 Do not accept the target tree before that evidence exists. Do not execute
@@ -124,5 +136,9 @@ consolidation. Do not run Gateway discovery.
 - Do not reopen the 46-section directive structure (`DECISIONS.md` D-04).
 - Do not run the discovery tooling in `scripts/` until it is revised per open work item 2 **and** Hub consolidation is complete (`DECISIONS.md` D-05, D-06).
 - Do not adopt `agent-governance-toolkit` without provenance, licence, and generated-output review.
+- Do not hand any script under `scripts/` to the local operator until
+  `python3 scripts/Assert-ScriptStructure.py --selftest` and the same tool run
+  over `scripts/*.ps1 scripts/lib/*.ps1` both pass. This gate is static only; it
+  does not satisfy the PowerShell runtime verification recorded above.
 
 Reinspect live sources before acting. This record is continuity evidence, not proof that anything remains unchanged.

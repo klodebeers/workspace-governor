@@ -110,7 +110,7 @@ if ($hubExists) {
         exit 1
     }
     Write-Host ("  completeness : {0}" -f $trav.completeness) -ForegroundColor $(if ($trav.completeness -eq 'COMPLETE') { 'Green' } else { 'Red' })
-    foreach ($r in $trav.incompleteReasons) { Write-Host "    - $r" -ForegroundColor Red }
+    foreach ($reason in $trav.incompleteReasons) { Write-Host "    - $reason" -ForegroundColor Red }
     if (@($trav.untraversedReparsePoints).Count -gt 0) {
         Write-Host ("  reparse points excluded : {0}" -f @($trav.untraversedReparsePoints).Count) -ForegroundColor Yellow
         foreach ($rp in $trav.untraversedReparsePoints) { Write-Host "    - [$($rp.kind)] $($rp.path)" -ForegroundColor Yellow }
@@ -242,7 +242,7 @@ $L.Add('')
 if ($travComplete -ne 'COMPLETE') {
     $L.Add('**This inventory is INCOMPLETE. Do not treat it as a full picture of the Hub.**')
     $L.Add('')
-    if ($hubExists) { foreach ($r in $trav.incompleteReasons) { $L.Add("- $r") } }
+    if ($hubExists) { foreach ($reason in $trav.incompleteReasons) { $L.Add("- $reason") } }
     else { $L.Add('- live Hub not found at the resolved path') }
 } else {
     $L.Add('Every directory in the accessible Hub tree was enumerated. No item cap, no')

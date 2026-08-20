@@ -182,11 +182,47 @@ or network state — Part A establishes the script contains no cmdlet that
 touches them. Reading a file updates last-*access* time; the comparison uses
 last-*write* time and size, which reads do not alter.
 
+## Static structure gate — `Assert-ScriptStructure.py`
+
+Because this repository is maintained from an environment with no PowerShell,
+nothing here can be executed before it is handed to the local Windows operator.
+Delimiter balance was the only static gate, and it catches neither ordering nor
+name-collision defects. Two such defects reached committed code.
+
+`Assert-ScriptStructure.py` closes that gap. Run it before every handoff:
+
+```bash
+python3 scripts/Assert-ScriptStructure.py --selftest
+python3 scripts/Assert-ScriptStructure.py scripts/*.ps1 scripts/lib/*.ps1
+```
+
+| # | Check |
+|---|---|
+| S1 | Delimiter balance, over source with literals and comments blanked in a single pass |
+| S2 | No indexed assignment `$X[...] =` before `$X` is bound in the same or an enclosing scope |
+| S3 | No indexed assignment without a real container constructor before it in scope |
+| S4 | No loop variable colliding case-insensitively with a container in the same or an enclosing scope |
+
+S3 exists because existence is not enough. PowerShell variable names are
+case-insensitive, so a file-scope `foreach ($r in ...)` binds the same variable
+as a result object `$R`: the name exists while holding a value of the wrong
+type, and the indexed write still fails. S4 flags that collision directly.
+
+The tool is scope-aware — PowerShell opens a variable scope per function, not
+per block — because a function-local `$r` otherwise masks a file-scope `$R`
+defect. `--selftest` asserts the tool still fails on each defect it exists to
+catch, including two cases that must **not** be flagged. A checker that only
+ever passes proves nothing.
+
+This is a static gate only. It does not verify behaviour, and it does not
+replace or weaken the required local Windows runtime verification recorded in
+`STATE.md` § Verification assignments.
+
 ## Not verified at authoring time
 
 These scripts were written in a Linux container with no PowerShell available,
-so they have **not been executed**. Validation performed was static: delimiter
-balance (zero unclosed, no stray closers) and a manual pass for pipeline and
-cmdlet syntax. Expect the possibility of a runtime error on first run. If one
-occurs, send the error text — the scripts are read-only, so a failure cannot
-damage anything.
+so they have **not been executed**. Static validation performed: the four
+`Assert-ScriptStructure.py` checks above, plus a manual pass for pipeline and
+cmdlet syntax. Runtime behaviour remains unverified — expect the possibility of
+a runtime error on first run. If one occurs, send the error text; the scripts
+are read-only, so a failure cannot damage anything.

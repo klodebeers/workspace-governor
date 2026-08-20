@@ -85,9 +85,9 @@ $hits = @()
 for ($i=0; $i -lt $src.Count; $i++) {
     $line = $src[$i]
     if ($line -match '^\s*#') { continue }          # skip comment lines
-    foreach ($p in $MutatingPatterns) {
-        if ($line -match [regex]::Escape($p)) {
-            $hits += [ordered]@{ line=($i+1); cmdlet=$p; text=$line.Trim() }
+    foreach ($pat in $MutatingPatterns) {
+        if ($line -match [regex]::Escape($pat)) {
+            $hits += [ordered]@{ line=($i+1); cmdlet=$pat; text=$line.Trim() }
         }
     }
 }

@@ -198,7 +198,7 @@ if ($hubExists) {
     $b1 = $proof.pass
     Write-Host ("  directories visited (passed to Get-ChildItem) : {0}" -f $proof.visitedDirectoryCount)
     Write-Host ("  safety-pruned directories                     : {0}" -f $proof.prunedForSafetyCount)
-    foreach ($p in $trav.prunedForSafety) { Write-Host ("    pruned: {0}" -f $p) -ForegroundColor Yellow }
+    foreach ($pruned in $trav.prunedForSafety) { Write-Host ("    pruned: {0}" -f $pruned) -ForegroundColor Yellow }
     Write-Host ("  .remember present and pruned                  : {0}" -f $rememberSeen)
     Write-Host ("  reparse points not traversed                  : {0}" -f $proof.reparsePointCount)
     foreach ($rp in $trav.untraversedReparsePoints) { Write-Host ("    reparse: {0}" -f $rp.path) -ForegroundColor Yellow }
@@ -312,7 +312,7 @@ if ($hubExists) {
     $P.Add('')
     if (@($trav.prunedForSafety).Count -gt 0) {
         $P.Add('### Safety-pruned, never entered'); $P.Add('')
-        foreach ($p in $trav.prunedForSafety) { $P.Add("- ``$p``") }
+        foreach ($pruned in $trav.prunedForSafety) { $P.Add("- ``$pruned``") }
         $P.Add('')
     }
     if (@($trav.untraversedReparsePoints).Count -gt 0) {

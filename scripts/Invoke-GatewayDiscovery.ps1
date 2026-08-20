@@ -276,10 +276,13 @@ $scanRoots = @()
 if ($hubPresent) { $scanRoots += $HubPath } else { $scanRoots += $resolvedSources }
 $scanRoots += $WorkspaceRoot
 $scanRootsResolved = @()
-foreach ($r in $scanRoots) {
-    if ([string]::IsNullOrWhiteSpace($r)) { continue }
-    if (-not (Test-Path -LiteralPath $r)) { continue }
-    try { $scanRootsResolved += (Resolve-Path -LiteralPath $r).Path } catch { $scanRootsResolved += $r }
+# Loop variable is named $scanRoot, not $r. PowerShell variable names are
+# case-insensitive, so a file-scope $r and the result object $R are the same
+# variable; a leaked $r would silently overwrite $R.
+foreach ($scanRoot in $scanRoots) {
+    if ([string]::IsNullOrWhiteSpace($scanRoot)) { continue }
+    if (-not (Test-Path -LiteralPath $scanRoot)) { continue }
+    try { $scanRootsResolved += (Resolve-Path -LiteralPath $scanRoot).Path } catch { $scanRootsResolved += $scanRoot }
 }
 $scanRoots = @($scanRootsResolved | Select-Object -Unique)
 
@@ -325,19 +328,6 @@ if (-not $hubPresent) {
 }
 Write-Host ''
 
-$R['00_hubState'] = [ordered]@{
-    hubPath = $HubPath
-    hubPresent = $hubPresent
-    hubHasRulesDirectory = $hubHasRules
-    hubState = $hubState
-    preConsolidationSources = @($resolvedSources)
-    scanRoots = @($scanRoots)
-    scanRootOverlaps = @($rootOverlaps)
-    deduplicationNote = 'Scan roots overlap where a source repository lives inside the workspace root. Findings are deduplicated by canonical full path before any count is reported.'
-    interpretation = if ($hubPresent) { 'Canonical Hub present at the supplied path.' } else { $hubAbsentReason }
-    note = 'Discovery does not presuppose the canonical Hub exists. Sections whose meaning depends on it carry an applicable flag.'
-}
-
 $R = [ordered]@{
     meta = [ordered]@{
         generatedUtc  = $stampISO
@@ -353,6 +343,24 @@ $R = [ordered]@{
         workspaceRoot = $WorkspaceRoot
         machine       = $env:COMPUTERNAME
     }
+}
+
+# Hub state is recorded as the first section, AFTER $R exists. Computing it
+# earlier is required because meta reads $hubState. Assigning into $R before
+# this point failed at runtime and was then discarded when $R was rebuilt: the
+# name was not empty but held a leaked file-scope loop value of the wrong type,
+# so the indexed assignment could not be applied.
+$R['00_hubState'] = [ordered]@{
+    hubPath = $HubPath
+    hubPresent = $hubPresent
+    hubHasRulesDirectory = $hubHasRules
+    hubState = $hubState
+    preConsolidationSources = @($resolvedSources)
+    scanRoots = @($scanRoots)
+    scanRootOverlaps = @($rootOverlaps)
+    deduplicationNote = 'Scan roots overlap where a source repository lives inside the workspace root. Findings are deduplicated by canonical full path before any count is reported.'
+    interpretation = if ($hubPresent) { 'Canonical Hub present at the supplied path.' } else { $hubAbsentReason }
+    note = 'Discovery does not presuppose the canonical Hub exists. Sections whose meaning depends on it carry an applicable flag.'
 }
 Write-Host '=== MCP Gateway Discovery — read-only evidence collection ===' -ForegroundColor Cyan
 
@@ -374,10 +382,10 @@ $R['01_agentsHub'] = [ordered]@{
     rulesDir = Get-TreeInventory -Root (Join-Path $HubPath 'rules') -MaxDepth 1
     rememberExists = (Test-Path -LiteralPath (Join-Path $HubPath 'design-systems\.remember'))
     rememberContentsInspected = $false
-    rememberContentsInspected = $false
     rememberNote = 'Existence only. Nothing inside was enumerated, counted, read, or hashed, per STATE.md stop condition B-2.'
     }
-    preConsolidationSourcesInspected = (-not $hubPresent)
+    preConsolidationInspectionAttempted = (-not $hubPresent)
+    preConsolidationSourcesFound = if ($hubPresent) { 0 } else { @($resolvedSources).Count }
     preConsolidationSources = if ($hubPresent) { @() } else {
         $si = @()
         foreach ($sp in $resolvedSources) {
@@ -540,7 +548,8 @@ $R['07_sharedAssetsAndRegistries'] = [ordered]@{
     canonicalHubTemplatesDir = if ($hubPresent) { Get-TreeInventory -Root (Join-Path $HubPath 'templates') -MaxDepth 2 } else { $null }
     canonicalHubSkillsDir    = if ($hubPresent) { Get-TreeInventory -Root (Join-Path $HubPath 'skills') -MaxDepth 2 } else { $null }
     canonicalHubAgentsDir    = if ($hubPresent) { Get-TreeInventory -Root (Join-Path $HubPath 'agents') -MaxDepth 2 } else { $null }
-    preConsolidationSourcesInspected = (-not $hubPresent)
+    preConsolidationInspectionAttempted = (-not $hubPresent)
+    preConsolidationSourcesFound = if ($hubPresent) { 0 } else { @($resolvedSources).Count }
     preConsolidationSearchedRoots = if ($hubPresent) { @() } else { @($resolvedSources) }
     preConsolidationRegistryCandidates = $regSrc
     preConsolidationRegistryCount = @($regSrc).Count
@@ -670,7 +679,8 @@ $R['11_duplicatedGovernance'] = [ordered]@{
     canonicalHubApplicable = $hubPresent
     notApplicableReason = if ($hubPresent) { $null } else { 'Canonical Hub governance paths are not applicable while the Hub is absent. Duplication across runtimes and the pre-consolidation sources is still assessed.' }
     canonicalHubGovernanceFiles = $govHub
-    preConsolidationSourcesInspected = (-not $hubPresent)
+    preConsolidationInspectionAttempted = (-not $hubPresent)
+    preConsolidationSourcesFound = if ($hubPresent) { 0 } else { @($resolvedSources).Count }
     preConsolidationSourceGovernanceFiles = $govSrc
     runtimeGovernanceFiles = $gov
     identicalContentGroups = $dupGroups

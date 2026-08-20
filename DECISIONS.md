@@ -127,6 +127,37 @@ the tooling exists to detect, and would introduce a username into the only clean
 repository. Environment resolution plus a recorded resolved path yields the same
 evidence without the defect.
 
+**D-17.** A static structure gate is required before any script under `scripts/`
+is handed to the local operator, and it must be proven to fail on the defects it
+exists to catch. Decided by: Agent, under ENGINEER-OWNERSHIP.
+
+Rationale: this repository is maintained from an environment with no PowerShell,
+so nothing here can be executed before handoff. Delimiter balance was the only
+static gate and it detects neither ordering nor naming defects. Two live defects
+reached committed code and would have broken the two commands already assigned
+for local execution. Three successive gate designs passed the defective source —
+delimiter-only, then an existence check, then a case-folded scope-blind check —
+because a leaked loop binding makes a name exist while holding the wrong type,
+and a function-local name of the same spelling masks a file-scope defect. The
+gate that detects the class requires a container constructor before the first
+indexed write and is scope-aware. A gate that only ever passes is not evidence,
+so the tool carries a self-test asserting it still fails on each defect class,
+including cases that must not be flagged. Recorded in
+`evidence/SCRIPT-STRUCTURE-DEFECTS-2026-08-20.md`. This gate is static only and
+does not weaken or substitute for the PowerShell runtime verification assigned
+in `STATE.md`.
+
+**D-18.** Loop variables in this repository's PowerShell must not collide
+case-insensitively with a container variable in the same or an enclosing scope.
+Decided by: Agent, under ENGINEER-OWNERSHIP.
+
+Rationale: PowerShell variable names are case-insensitive, so `foreach ($r in
+...)` and a result object `$R` are one variable and the loop silently destroys
+the container. This produced a certain failure in `Assert-RememberPruning.ps1`
+and silent evidence loss in `Invoke-HubInventory.ps1`. Single-letter loop
+variables are the whole cause; descriptive names cost nothing and remove the
+class. Enforced as check S4 of the gate in D-17.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.
