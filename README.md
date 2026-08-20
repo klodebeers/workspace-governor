@@ -25,7 +25,7 @@ Three architecture components. Only the first exists here.
 |---|---|---|
 | `workspace-governor` | Management and orchestration. This repository. | Active |
 | `.agents-hub` | Canonical desired state — shared governance, policies, skills, agent definitions, schemas, registries | **Does not yet exist.** To be produced by reconciling two source repositories |
-| `mcp-gateway` | Enforcement and access layer for Gateway-routed capabilities | Directive settled; not implemented |
+| `mcp-gateway` (repository) | Enforcement and access layer for Gateway-routed capabilities | Directive settled at `plans/MCP-GATEWAY.md`; not implemented |
 
 ## Authority relationship
 
@@ -53,7 +53,7 @@ self-description.
 | `klodebeers/agents-hub` | **Current canonical Agent Hub and live governance authority.** Renamed from `agents-hub-one` on 2026-08-20. Canonical now; under active consolidation; structurally incomplete where known gaps remain. | 16 files at `47c0187`. Governance tree: `rules/` five-file contract, `CATALOG.md`, `STATE.md`, `README.md`. Seven 0-byte placeholder files |
 | `klodebeers/workspace-governor` | This repository. **Agent Hub backoffice:** research, reconciliation, change preparation, evidence, backups, archives, recovery and provenance, and the implementation work that updates or corrects the canonical Hub. | `mcp-gateway` directive; control files; SSOT pair; discovery and inventory tooling; evidence |
 | `klodebeers/agents-hub-two` | **Source material pending reconciliation.** Not a competing authority. | 27 files. Agent operating package: 15 agent definitions, `config/agent-registry.json`, schemas, prompts, templates. Single commit `0a222df` "Initial Commit" |
-| `klodebeers/workspace-governor-agents-hub-one` | Management and planning repository for the **earlier Hub One work**. Not a Hub, and a different repository from `agents-hub` -- the name is a legacy artifact of the former `agents-hub-one` name and does not confer authority. | 47 files. `HUB-ARCHITECTURE.md`, `HUB-MANAGEMENT.md`, `HUB-DOCUMENTATION.md`, `AGENTS.md`, `STATE.md`, plan, research, evidence, versions |
+| `klodebeers/workspace-governor-agents-hub-one` | **Predecessor backoffice for the same Hub.** Predecessor management history, not a competing authority. Reviewed and classified 2026-08-20; still-valid work carried forward into `plans/`. Not a Hub. A different repository from `agents-hub`. | 47 files. `HUB-ARCHITECTURE.md`, `HUB-MANAGEMENT.md`, `HUB-DOCUMENTATION.md`, `AGENTS.md`, `STATE.md`, plan, research, evidence, versions |
 | `klodebeers/atrium_workspace` | Human visibility and approval surface. Consumes the control plane; never a governance source. | Tauri and React dashboard application |
 | `klodebeers/agent-governance-toolkit` | Unmodified public fork of `microsoft/agent-governance-toolkit` (MIT). Reference only, not adopted. | 3,640 files, v3.5.0 |
 
@@ -74,7 +74,9 @@ and the legacy `agents-hub-one` leaf.
 | `AGENTS.md` | Operating instructions. **Read first.** Defines bootstrap order and file ownership. |
 | `STATE.md` | Canonical current-state record |
 | `DECISIONS.md` | Settled decisions, append-only |
-| `mcp-gateway` | Agent-Agnostic MCP Gateway build directive, 46 sections |
+| `plans/MCP-GATEWAY.md` | Agent-Agnostic MCP Gateway build directive, 46 sections. Moved from the repository root 2026-08-20; content unchanged |
+| `plans/AGENT-HUB-CONSOLIDATION.md` | Active Hub consolidation plan, carrying forward the predecessor plan v0.4.2 |
+| `plans/reference/` | Provenance copies of superseded plans. Never executable |
 | `scripts/` | Discovery and verification tooling |
 | `evidence/` | Dated evidence outputs |
 

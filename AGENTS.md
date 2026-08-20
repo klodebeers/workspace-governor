@@ -22,8 +22,20 @@ Read in this order before deciding or changing anything:
 2. `STATE.md` — current verified state, phase, blockers, open work, next action.
 3. `DECISIONS.md` — settled decisions. Treat each as settled within its recorded
    scope. Do not reopen or silently re-litigate one.
-4. The artefact relevant to the task — `mcp-gateway` for control-plane build work,
+4. The artefact relevant to the task — `plans/` for active planning directives,
    `scripts/` for tooling, `evidence/` for prior findings.
+
+## Plan routing
+
+For Agent Hub consolidation work, read `plans/AGENT-HUB-CONSOLIDATION.md`.
+
+For MCP Gateway work, read `plans/MCP-GATEWAY.md`.
+
+These are **backoffice planning records only.** They sequence work; they are not
+live governance and must not become competing authority. The canonical Hub's root
+`AGENTS.md` remains the bootstrap, router and precedence authority, and Hub
+governance is never duplicated into a plan. `plans/reference/` holds provenance
+copies of superseded plans — never executable.
 
 Then inspect the live target before proposing or making a change. `STATE.md` is
 continuity evidence, not proof that anything remains unchanged.
@@ -86,7 +98,8 @@ One owner per concern. Do not duplicate content between these files.
 | `STATE.md` | Current verified state, phase, blockers, open work, next action |
 | `DECISIONS.md` | Settled decisions and their rationale. Append-only. |
 | `AGENTS.md` | Bootstrap order, persistence requirement, file ownership |
-| `mcp-gateway` | Gateway build and configuration requirements |
+| `plans/MCP-GATEWAY.md` | Gateway build and configuration requirements. Backoffice planning record, not governance. |
+| `plans/AGENT-HUB-CONSOLIDATION.md` | Sequence of Hub consolidation work. Backoffice planning record, not governance. |
 | `AGENT-SSOT.json` | **Agent Hub asset.** Backoffice staging/provenance copy only, pending placement in `agents-hub`. Not a live authority here. |
 | `USER-SSOT.json` | **Agent Hub asset, Greyed-scoped.** Backoffice staging/provenance copy only, pending placement in `agents-hub`. Loaded only in Greyed context. Read-only absent explicit user instruction. |
 | `rules/VERIFICATION-RESOLUTION.md` | How verification and investigation work is scoped, bounded and stopped |

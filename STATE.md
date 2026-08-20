@@ -13,8 +13,8 @@ Verified by direct inspection during the session dated 2026-08-19.
 
 | Fact | Evidence |
 |---|---|
-| `workspace-governor` `main` is at `d57deb9` and contained only the `mcp-gateway` file before this bootstrap | `git ls-tree -r --name-only origin/main` |
-| The `mcp-gateway` directive is settled: 46 sections, 1,940 lines, contiguous numbering 1–46, 41 Done-When checkboxes | 22-check verification pass against `origin/main` |
+| `workspace-governor` `main` is at `d57deb9` and contained only the Gateway directive file before this bootstrap | `git ls-tree -r --name-only origin/main` |
+| The Gateway directive is settled: 46 sections, 1,940 lines, contiguous numbering 1–46, 41 Done-When checkboxes. Now at `plans/MCP-GATEWAY.md`; moved 2026-08-20, content unchanged | 22-check verification pass against `origin/main`; post-move byte comparison |
 | Directive revision history | `30229ae` v1 45 sections → `b8e38d2` v2 15 sections → `85ac462` v3 46 sections → `d57deb9` three defect fixes |
 | `agents-hub` (renamed from `agents-hub-one` 2026-08-20) is a governance tree with a five-file `rules/` contract, zero runtime-specific names across all five files, and seven 0-byte placeholder files | Clone inspection; `grep -ric` for runtime names returned 0 on all five |
 | `agents-hub-two` is an agent operating package: 15 agent definitions, a registry, a JSON schema, 4 prompts, 4 templates. Contains no governance layer — zero occurrences of "governance", "precedence", "runtime-neutral", "catalog", "provenance" | Clone inspection and keyword scan |
@@ -36,6 +36,9 @@ Verified by direct inspection during the session dated 2026-08-19.
 | 16 of hub-two's 22 agent `rules` entries touch a concern a hub-one rule already owns; they split into general-form statements to fold and domain-specific constraints to preserve | Section 2 of the assessment |
 | Discovery tooling is present on `main` (`scripts/`), never executed | `git ls-tree -r --name-only origin/main`; no PowerShell in the authoring environment |
 | Root `CLAUDE.md` is tracked on `main`, is 11 bytes, and contains only the line `@AGENTS.md` | `wc -c`; `grep -cv '^@AGENTS.md$'` returned 0 |
+
+| The predecessor backoffice `workspace-governor-agents-hub-one` @ `24798d0` holds a twice-verified, execution-ready 12-step consolidation plan (v0.4.2) that was never started, plus a 2026-08-16 read-only inventory of the live `.agents-hub` | Direct inspection of all 9 named artifacts, `tasks/`, `research/`, `evidence/`; `evidence/PREDECESSOR-BACKOFFICE-REVIEW-2026-08-20.md` |
+| Active planning directives are at `plans/`. The Gateway directive moved there from the repository root with content byte-identical | `sha256sum` comparison of `HEAD:mcp-gateway` against `plans/MCP-GATEWAY.md` |
 
 ### Authority relationship
 
@@ -63,7 +66,7 @@ Current phase is Hub consolidation. Blockers are grouped by the phase they bind.
 |---|---|---|---|
 | B-1 | Hub One target tree and ownership map not accepted. `workspace-governor-agents-hub-one/STATE.md` stop condition: do not refactor before acceptance. | Assessment and a proposed target tree are permitted. Refactoring either source repository is not. | Resolved by accepting the deliverable of this phase |
 | B-2 | `design-systems/.remember` has unresolved provenance and sensitivity. | Must not be read, hashed, moved, or classified | Requires separate review |
-| B-6 | The content of the live local `.agents-hub` directory is unknown. The canonical `agents-hub` repository is a placeholder skeleton at `47c0187`: 7 of its 16 files are 0-byte. Note the distinction -- the canonical *repository* is settled; the local runtime *directory* content is not. | The proposed target tree cannot be accepted as canonical, because the consolidation inputs are not fully known. | Local agent runs `scripts/Invoke-HubInventory.ps1` and commits the evidence |
+| B-6 | The content of the live local `.agents-hub` directory is not **currently** verified. **Narrowed 2026-08-20:** a read-only inventory of it exists in the predecessor backoffice -- `workspace-governor-agents-hub-one/evidence/BASELINE-AUDIT-2026-08-16.md` -- covering root structure, the five-file `rules/` contract, empty `runtime-adapters/`, `references/`, empty `governance-templates/`, and `.remember` presence. It is 4 days stale and instructs re-inspection, so a current inventory is still required, but the content was not unknown. The canonical `agents-hub` repository is a placeholder skeleton at `47c0187`: 7 of its 16 files are 0-byte. Note the distinction -- the canonical *repository* is settled; the local runtime *directory* content is not. | The proposed target tree cannot be accepted as canonical, because the consolidation inputs are not fully known. | Local agent runs `scripts/Invoke-HubInventory.ps1` and commits the evidence |
 
 ### Required before Gateway runtime integration and completion — not binding this phase
 
@@ -133,9 +136,9 @@ unexercised. Live-Hub evidence cannot be accepted until
 
 ## Open work
 
-1. Inventory the live local Hub against the committed GitHub baseline, then revise the preliminary target tree against that evidence.
+1. Inventory the live local Hub, then complete Step 1 of `plans/AGENT-HUB-CONSOLIDATION.md`: accept the target tree and classify every item across the three inputs -- live `.agents-hub`, canonical `agents-hub`, `agents-hub-two`. Start from the carried-forward v0.4.2 ledger and the 2026-08-16 baseline, not from zero.
 2. ~~Revise the Gateway discovery tooling so it does not presuppose `.agents-hub` exists.~~ **Closed** — semantics verified across the full report, and the `00_hubState` ordering defect fixed. Still unexecuted; awaits the local Windows runtime test recorded under Verification assignments.
-3. Execute the accepted classification once the target tree is accepted. Assessment and classification are complete; `change`, `reference-update` and `verify` remain. See `evidence/HUB-RECONCILIATION-ASSESSMENT-2026-08-19.md`.
+3. Execute plan Steps 2 onward once the target tree is accepted. Assessment and classification are complete; `change`, `reference-update` and `verify` remain. See `evidence/HUB-RECONCILIATION-ASSESSMENT-2026-08-19.md`.
 4. Place the SSOT pair in `agents-hub` as Hub assets, then reduce the `workspace-governor` copies to backups/provenance. Both files are staged here and validated; placement is the remaining step. `AGENT-SSOT.json` v1.1, `USER-SSOT.json` v1.3 (Greyed-scoped, scope-loaded). Blocked on the rename landing. See `evidence/HUB-ASSET-PLACEMENT-CORRECTION-2026-08-20.md`.
 5. Open B-3 as a separate scoped change once authorized.
 6. Determine placement of the three agent rulings recorded in `DECISIONS.md` under D-07 through D-09.
@@ -145,6 +148,9 @@ unexercised. Live-Hub evidence cannot be accepted until
 10. Resolve the duplicate ownership between `AGENT-SSOT.json` and `rules/VERIFICATION-RESOLUTION.md` / `rules/ENGINEER-OWNERSHIP.md` at consolidation. Open governance conflict, surfaced not blended. `PENDING-GLOBAL-PROMOTIONS.md` P-03.
 11. Correct `AGENTS.md` placement in the canonical Hub: root, not `rules/`. Structural only. `evidence/GOVERNANCE-STRUCTURE-OBSERVATIONS-2026-08-20.md` Observation 1. Do not refactor `agents-hub` now.
 12. Close conflict-resolution gaps G-1 and G-2 as sections in existing owners at consolidation. G-3 deferred. `PENDING-GLOBAL-PROMOTIONS.md` P-04. No new rule file.
+13. Resolve C-03, carried from the predecessor backoffice: Claude Code project-versus-global loading can let project instructions take priority while semantic governance forbids lower layers weakening global governance. Blocks Claude Code adapter finalization only. Plan Step 9.
+14. Adapt the predecessor `tasks/` audit prompts into coverage checklists for `scripts/Invoke-GatewayDiscovery.ps1`. They name checks the script does not make -- notably dependency auditing and command-availability breadth. `evidence/PREDECESSOR-BACKOFFICE-REVIEW-2026-08-20.md`.
+15. Carry G-01, G-04 and G-05 from the predecessor register: Hub reference/research overlap mapping (plan Step 6); human glossary placement; repository-delivery workflow artifact. None currently blocking.
 
 ## Next action
 

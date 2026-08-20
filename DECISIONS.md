@@ -321,6 +321,49 @@ Exact change list for once `agents-hub` is established, including the Hub root
 routing entries without which placement alone leaves the assets unreachable:
 `evidence/HUB-ASSET-PLACEMENT-CORRECTION-2026-08-20.md`.
 
+**D-26.** `workspace-governor-agents-hub-one` is the predecessor backoffice for the
+same Hub and is an **input** to the current backoffice, not a competing authority.
+Active planning directives live in `workspace-governor/plans/`. Decided by: User.
+
+`plans/` holds backoffice planning records only. They sequence work, are not live
+governance, and must not become competing authority. The canonical Hub's root
+`AGENTS.md` remains the bootstrap, router and precedence authority, and Hub
+governance is never duplicated into a plan. `AGENTS.md` routes to
+`plans/AGENT-HUB-CONSOLIDATION.md` for Hub consolidation work and
+`plans/MCP-GATEWAY.md` for Gateway work.
+
+The Gateway directive moved from the repository root to `plans/MCP-GATEWAY.md`.
+Content is byte-identical, verified by SHA-256 against the pre-move commit. D-04
+stands: the 46 sections are settled and are not reopened by relocation.
+
+`plans/AGENT-HUB-CONSOLIDATION.md` v0.5.0 **carries forward** predecessor plan
+`AGENT-HUB-IMPLEMENTATION-PLAN.md` v0.4.2 rather than replacing it. Its 12-step
+sequence, authority map, execution controls, rollback strategy and completion
+criteria are reused unchanged; eight deltas are recorded for what changed since
+2026-08-17. A verbatim provenance copy is retained at
+`plans/reference/AGENT-HUB-IMPLEMENTATION-PLAN-v0.4.2-predecessor.md`, marked
+non-executable, so the carried-forward sequence does not depend on another
+repository remaining available.
+
+Full classification of the 47 predecessor files -- reusable, reusable with
+adaptation, superseded, historical/provenance, unresolved -- is in
+`evidence/PREDECESSOR-BACKOFFICE-REVIEW-2026-08-20.md`.
+
+Three corrections to this repository's record follow from the review, and are
+recorded because they were errors rather than mere gaps:
+
+- **B-6 was overstated.** It stated the live `.agents-hub` content was unknown. A
+  read-only inventory existed from 2026-08-16. Narrowed to "not currently
+  verified": the evidence is stale and instructs re-inspection, so a current
+  inventory is still required, but the content was not unknown.
+- **Planning work was duplicated.** `evidence/HUB-RECONCILIATION-ASSESSMENT-2026-08-19.md`
+  independently re-derived a target tree, ownership map and classification that
+  v0.4.2 § 4 already held, down to identical classification verbs. It is retained
+  because it covers `agents-hub-two`, which the predecessor plan predates, but it
+  should have extended the existing ledger rather than paralleled it.
+- **C-03 was missed.** A Claude Code runtime precedence conflict was in the
+  predecessor register and absent from this one. Now open work item 13.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.
