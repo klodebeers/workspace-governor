@@ -27,19 +27,45 @@ Three architecture components. Only the first exists here.
 | `.agents-hub` | Canonical desired state — shared governance, policies, skills, agent definitions, schemas, registries | **Does not yet exist.** To be produced by reconciling two source repositories |
 | `mcp-gateway` | Enforcement and access layer for Gateway-routed capabilities | Directive settled; not implemented |
 
+## Authority relationship
+
+```
+agents-hub        = current canonical Agent Hub and live governance authority
+workspace-governor = Agent Hub backoffice; manages, researches, reconciles,
+                     backs up, archives, and improves the Hub
+agents-hub-two     = source material pending reconciliation
+```
+
+`agents-hub` is **canonical now**. It is **not final**: it is under active
+consolidation and is structurally incomplete where known gaps remain -- see
+`STATE.md` for the current gap list and `evidence/` for the findings behind it.
+Canonical status means governed agents and runtimes take their governance from
+it, not that its structure is settled.
+
+`agents-hub-two` is source material pending reconciliation. It is **not a
+competing authority** and must not be treated as one, notwithstanding its own
+self-description.
+
 ## Repository relationships
 
 | Repository | Relationship | Verified content |
 |---|---|---|
-| `klodebeers/workspace-governor` | This repository | `mcp-gateway` directive; control files; discovery tooling |
-| `klodebeers/agents-hub-one` | **Source A** for the final canonical `.agents-hub` | 16 files. Governance tree: `rules/` five-file contract, `CATALOG.md`, `STATE.md`, `README.md`. Seven 0-byte placeholder files. Single commit `47c0187` "Placeholders" |
-| `klodebeers/agents-hub-two` | **Source B** for the final canonical `.agents-hub` | 27 files. Agent operating package: 15 agent definitions, `config/agent-registry.json`, schemas, prompts, templates. Single commit `0a222df` "Initial Commit" |
-| `klodebeers/workspace-governor-agents-hub-one` | Management and planning repository for the **existing Hub One work**. Not a Hub. Not `agents-hub-one`. | 47 files. `HUB-ARCHITECTURE.md`, `HUB-MANAGEMENT.md`, `HUB-DOCUMENTATION.md`, `AGENTS.md`, `STATE.md`, plan, research, evidence, versions |
+| `klodebeers/agents-hub` | **Current canonical Agent Hub and live governance authority.** Renamed from `agents-hub-one` on 2026-08-20. Canonical now; under active consolidation; structurally incomplete where known gaps remain. | 16 files at `47c0187`. Governance tree: `rules/` five-file contract, `CATALOG.md`, `STATE.md`, `README.md`. Seven 0-byte placeholder files |
+| `klodebeers/workspace-governor` | This repository. **Agent Hub backoffice:** research, reconciliation, change preparation, evidence, backups, archives, recovery and provenance, and the implementation work that updates or corrects the canonical Hub. | `mcp-gateway` directive; control files; SSOT pair; discovery and inventory tooling; evidence |
+| `klodebeers/agents-hub-two` | **Source material pending reconciliation.** Not a competing authority. | 27 files. Agent operating package: 15 agent definitions, `config/agent-registry.json`, schemas, prompts, templates. Single commit `0a222df` "Initial Commit" |
+| `klodebeers/workspace-governor-agents-hub-one` | Management and planning repository for the **earlier Hub One work**. Not a Hub, and a different repository from `agents-hub` -- the name is a legacy artifact of the former `agents-hub-one` name and does not confer authority. | 47 files. `HUB-ARCHITECTURE.md`, `HUB-MANAGEMENT.md`, `HUB-DOCUMENTATION.md`, `AGENTS.md`, `STATE.md`, plan, research, evidence, versions |
 | `klodebeers/atrium_workspace` | Human visibility and approval surface. Consumes the control plane; never a governance source. | Tauri and React dashboard application |
 | `klodebeers/agent-governance-toolkit` | Unmodified public fork of `microsoft/agent-governance-toolkit` (MIT). Reference only, not adopted. | 3,640 files, v3.5.0 |
 
-Both source repositories currently declare themselves to be `.agents-hub`.
-Resolving that is the reconciliation task.
+`agents-hub-two` still declares itself to be `.agents-hub` in its own content.
+That self-description is superseded: authority is settled per the table above.
+Correcting the stale claim is part of the reconciliation task, not an open
+question about which repository is canonical.
+
+A GitHub repository rename leaves redirects in place, so existing clone URLs and
+remotes for `agents-hub-one` continue to resolve. A local clone directory is
+**not** renamed by it; the discovery tooling therefore probes both `agents-hub`
+and the legacy `agents-hub-one` leaf.
 
 ## Contents
 

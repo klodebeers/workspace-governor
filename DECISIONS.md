@@ -248,6 +248,79 @@ governance instead. Agent duties are never inferred from it; `AGENT-SSOT.json`
 `must_not_transfer_to_user` rather than contradicting it. No governance conflict
 between the pair was found.
 
+**D-24.** `agents-hub` -- the repository formerly named `agents-hub-one` -- is
+the current canonical Agent Hub and live governance authority for all governed
+agents and runtimes. `workspace-governor` is the Agent Hub backoffice.
+`agents-hub-two` is source material pending reconciliation and is not a competing
+authority. Decided by: User.
+
+Status is **canonical now, under active consolidation, structurally incomplete
+where known gaps exist**. It must not be described as final. Canonical status
+settles which repository governs; it does not assert that the structure is
+settled. Known gaps remain recorded in `STATE.md` and `evidence/`.
+
+This supersedes the identity question in D-01 (neither source repository is
+canonical; both are inputs) and closes blocker B-4's authority dimension. It does
+not disturb D-02 or D-05: consolidation is still required, and `agents-hub-two`
+content still has to be reconciled into the canonical Hub. What changed is that
+consolidation now proceeds *into a named canonical repository* rather than toward
+an unnamed future one.
+
+Decisions D-01 through D-23 and the records in `evidence/` retain the name
+`agents-hub-one` where they describe inspections performed under that name.
+`DECISIONS.md` is append-only and evidence records what was observed; rewriting
+either would falsify the record. The baseline manifest keeps its filename
+`AGENTS-HUB-ONE-BASELINE-2026-08-19.json` for the same reason, and because
+`Invoke-HubInventory.ps1` discovers it by that pattern.
+
+The GitHub rename was **not** performed by the agent: no rename capability exists
+in the GitHub tooling available to this session, and creating a new repository
+plus copying content is not a rename -- it loses the redirect and history
+association and leaves two repositories competing for authority. Recorded as a
+pending assignment in `STATE.md` with execution method and verification step.
+Repository references in this repository were updated to `agents-hub` ahead of the
+rename, so they become correct the moment it completes.
+
+Not done in this step, per instruction: `AGENTS.md` placement inside `rules/` and
+the rule-structure reorganisation. Recorded for the next Hub-maintenance step in
+`evidence/GOVERNANCE-STRUCTURE-OBSERVATIONS-2026-08-20.md` and
+`PENDING-GLOBAL-PROMOTIONS.md`.
+
+**D-25.** `AGENT-SSOT.json` and `USER-SSOT.json` are **Agent Hub assets**, not
+`workspace-governor` governance. Copies held in `workspace-governor` are
+backoffice staging, backup, archive or provenance only and must never act as
+competing live authorities. The Hub's root `AGENTS.md` remains the bootstrap,
+router and authority mechanism, routing agents to the applicable SSOT or rule by
+scope. Decided by: User.
+
+This **corrects D-21 and D-23.**
+
+D-21 placed `AGENT-SSOT.json` at bootstrap item 0 of `workspace-governor/AGENTS.md`
+and described it as binding and as outranking this repository's governance. That
+installed a live governing authority inside the Hub backoffice, which by
+definition is not the live source of agent governance. The authority claims have
+been removed; the file is unmoved and relabelled as a staging copy.
+
+D-23 concluded `USER-SSOT.json` was not a candidate for the Hub because it is
+Greyed-scoped, and belonged to workspace or company governance instead. **That
+conclusion is withdrawn.** It confused scope with placement. Greyed scope is a
+loading condition -- the file is loaded and applied only when Greyed context is
+relevant -- not a reason to hold it outside the Hub. It is a Hub asset and goes to
+`agents-hub`, scope-gated at the routing layer.
+
+Consequence recorded, not acted on: every entry in
+`PENDING-GLOBAL-PROMOTIONS.md` was pending on the premise that no canonical Hub
+existed to own the rule. D-24 discharges that premise. The interim arrangement of
+holding cross-agent rules in the backoffice and binding them there no longer has
+a justification, which applies directly to `rules/VERIFICATION-RESOLUTION.md`
+(P-01). Not moved in this step: it exceeds the current directive, and that file
+and its promotion record were created on explicit user instruction, so retiring
+the local binding is the user's call.
+
+Exact change list for once `agents-hub` is established, including the Hub root
+routing entries without which placement alone leaves the assets unreachable:
+`evidence/HUB-ASSET-PLACEMENT-CORRECTION-2026-08-20.md`.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

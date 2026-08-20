@@ -11,12 +11,13 @@ runtime.
 
 Read in this order before deciding or changing anything:
 
-0. `AGENT-SSOT.json` then `USER-SSOT.json` — the authoritative SSOT pair, in that
-   order, per `AGENT-SSOT.json` § `load_order`. The first owns agent behavior:
-   ownership boundaries, audience translation, verification scoping, escalation.
-   The second owns the user's Greyed responsibilities, decision authority, and
-   limits. Read both before deciding anything. Agent duties come only from the
-   agent file; never infer them from the user file.
+0. **Not a bootstrap authority.** `AGENT-SSOT.json` and `USER-SSOT.json` are
+   **Agent Hub assets**. The copies in this repository are backoffice staging and
+   provenance copies only, held pending placement in `agents-hub`. They are not
+   live governing authorities here and do not outrank anything. The Hub's root
+   `AGENTS.md` is the bootstrap, router and authority mechanism, and routes agents
+   to the applicable SSOT or rule by scope. See
+   `evidence/HUB-ASSET-PLACEMENT-CORRECTION-2026-08-20.md`.
 1. `README.md` — purpose, scope, managed components, repository relationships.
 2. `STATE.md` — current verified state, phase, blockers, open work, next action.
 3. `DECISIONS.md` — settled decisions. Treat each as settled within its recorded
@@ -86,8 +87,8 @@ One owner per concern. Do not duplicate content between these files.
 | `DECISIONS.md` | Settled decisions and their rationale. Append-only. |
 | `AGENTS.md` | Bootstrap order, persistence requirement, file ownership |
 | `mcp-gateway` | Gateway build and configuration requirements |
-| `AGENT-SSOT.json` | Agent behavior: ownership boundaries, audience translation, communication format, verification scoping, escalation. User-supplied and authoritative. |
-| `USER-SSOT.json` | The user's Greyed responsibilities, capabilities, limits, decision authority, domain ownership, conflict handling, and communication preferences. Authoritative; read-only absent explicit user instruction. |
+| `AGENT-SSOT.json` | **Agent Hub asset.** Backoffice staging/provenance copy only, pending placement in `agents-hub`. Not a live authority here. |
+| `USER-SSOT.json` | **Agent Hub asset, Greyed-scoped.** Backoffice staging/provenance copy only, pending placement in `agents-hub`. Loaded only in Greyed context. Read-only absent explicit user instruction. |
 | `rules/VERIFICATION-RESOLUTION.md` | How verification and investigation work is scoped, bounded and stopped |
 | `PENDING-GLOBAL-PROMOTIONS.md` | Rules held locally that are owed to shared governance, and their promotion terms |
 
@@ -113,7 +114,7 @@ resolve it silently.
 
 ## Ownership split
 
-Per `rules/ENGINEER-OWNERSHIP.md` — currently in `agents-hub-one`, destined for
+Per `rules/ENGINEER-OWNERSHIP.md` — currently in `agents-hub`, destined for
 `.agents-hub/rules/` after consolidation: the user owns intended outcome,
 business rules, acceptance criteria, risk tolerance and reserved human decisions.
 The agent owns ordinary engineering decisions and must make and prove them rather
@@ -122,8 +123,8 @@ than routing them back to the user.
 Escalate only an unresolved matter that exceeds granted authority, crosses a
 protected boundary, or genuinely requires business judgement.
 
-`AGENT-SSOT.json` § `escalation_and_ownership` is the current authority on this
-split, including what must never be transferred to the user: ordinary
+`AGENT-SSOT.json` § `escalation_and_ownership` states this split, including what
+must never be transferred to the user: ordinary
 implementation choices, tooling selection, environment setup the agent can
 perform itself, and technical investigation the agent can carry out with
 available evidence. Difficulty, uncertainty, or the need for further
@@ -140,12 +141,19 @@ It is not a `workspace-governor` policy. It is a cross-agent rule held here
 temporarily because the canonical `.agents-hub` does not yet exist to own it. Its
 promotion obligation is recorded in `PENDING-GLOBAL-PROMOTIONS.md`.
 
-`AGENT-SSOT.json` is **binding** and outranks this repository's governance. It
-owns the ownership split, audience translation, communication format, and
-verification scoping. Route to it; do not restate it here.
+**Placement correction, 2026-08-20.** Both SSOT files are Agent Hub assets, not
+`workspace-governor` governance. An earlier revision of this file made
+`AGENT-SSOT.json` bootstrap item 0 and described it as outranking this
+repository's governance. That was wrong: it installed a live governing authority
+inside the Hub backoffice. The copies here are staging and provenance only. Once
+`agents-hub` holds them, the Hub root `AGENTS.md` routes to them by scope, and any
+copy retained here is a backup or archive that must never act as a competing
+authority.
 
-`USER-SSOT.json` is **binding** for what the user owns and decides. Three clauses
-bear on every task here, and are stated only there:
+`USER-SSOT.json` is Greyed-scoped: it is loaded and applied only when Greyed
+context is relevant. Company scope is a loading condition, not a reason to hold it
+in the backoffice. Three of its clauses shape ordinary work here whenever Greyed
+context applies, and are stated only there:
 
 - `agent_rules.technical_boundary` — the user is not the technical implementation
   authority or technical validator.
@@ -156,7 +164,8 @@ bear on every task here, and are stated only there:
   step are given.
 
 `agent_rules.company_scope` limits that file to Greyed. Do not carry
-responsibilities, terminology, or assumptions from any other company into it.
+responsibilities, terminology, or assumptions from any other company into it, and
+do not apply it outside Greyed context.
 
 **Open governance conflict.** `AGENT-SSOT.json` § `verification_and_audit`
 substantially duplicates `rules/VERIFICATION-RESOLUTION.md`, and its

@@ -18,10 +18,10 @@ Current enforcement:
 workspace-governor/AGENTS.md references the rule
 
 Target:
-final canonical .agents-hub shared engineering/verification governance
+canonical agents-hub shared engineering/verification governance
 
 Promotion trigger:
-canonical .agents-hub structure and rule ownership are finalized
+agents-hub rule ownership is finalized (the repository is canonical now; ownership is not yet settled)
 ```
 
 **Why it is pending rather than placed:** the canonical `.agents-hub` does not yet
@@ -76,10 +76,10 @@ workspace-governor/AGENTS.md bootstrap order item 0, ownership table, and
 Standing rules
 
 Target:
-final canonical .agents-hub root, alongside the root AGENTS.md contract
+canonical agents-hub root, alongside the root AGENTS.md contract
 
 Promotion trigger:
-canonical .agents-hub structure and rule ownership are finalized
+agents-hub rule ownership is finalized (the repository is canonical now; ownership is not yet settled)
 ```
 
 It is placed at the repository **root**, not in `rules/`, because it is a root
@@ -87,13 +87,16 @@ behavior contract rather than a routed topic owner -- the same structural point
 recorded as Observation 1 in
 `evidence/GOVERNANCE-STRUCTURE-OBSERVATIONS-2026-08-20.md`.
 
-`USER-SSOT.json` v1.3 is persisted alongside it at the repository root, so the
-declared `load_order` is satisfiable. It is a **separate promotion item**: it
-carries Greyed-specific business scope, so it belongs to workspace or company
-governance, not to the runtime-neutral shared Hub. Do not promote it into
-`.agents-hub` alongside the agent file. Its own `agent_rules.company_scope`
-forbids widening it, and the Hub root contract requires shared governance to stay
-runtime- and business-neutral.
+`USER-SSOT.json` v1.3 is staged alongside it, so the declared `load_order` is
+satisfiable.
+
+**Corrected 2026-08-20.** An earlier revision of this record concluded that
+`USER-SSOT.json` should stay in workspace or company governance rather than go to
+the Hub, because it is Greyed-scoped. That reasoning was wrong: it confused
+**scope** with **placement**. Both SSOT files are Agent Hub assets. Greyed scope
+is a *loading condition* -- the file is loaded and applied only when Greyed
+context is relevant -- not a reason to hold it in the backoffice. Both go to
+`agents-hub`; the Hub root `AGENTS.md` routes to each by scope.
 
 ### Terms
 
@@ -131,7 +134,8 @@ user's artifact rather than an ordinary engineering correction.
 
 **Status:** Recorded as governance gaps. No new rule file created, as directed.
 
-Assessment against all five `agents-hub-one` rule owners found the great majority
+Assessment against all five `agents-hub` rule owners -- inspected while the
+repository was named `agents-hub-one` -- found the great majority
 of conflict classes already owned. Three gaps remain:
 
 | Gap | Class | Currency | Recommended home |
