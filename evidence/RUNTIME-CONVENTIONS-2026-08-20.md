@@ -36,9 +36,26 @@ carrier -- managed settings or a hook -- expressed through `runtime-adapters/`.
 This is predecessor learning L-001 restated with a mechanism: source placement
 establishes neither discovery nor enforcement.
 
-C-03 is therefore **narrowed, not closed**: the adapter-finalization blocker stands,
-but its reason changes from "project can outrank global" to "instruction placement
-alone enforces nothing; an enforcement carrier must be chosen per rule".
+**Precedence resolved 2026-08-21.** Applicable `CLAUDE.md` files are **additive**:
+all of them stay in context rather than one replacing another, loaded broader scope
+to more specific -- managed organization policy, then user-level, then
+repository/project, then nested directories, then project-local. Because project
+instructions load after user instructions, **project-level guidance normally takes
+effective precedence over machine-level guidance on conflict**, and more-specific
+directory instructions outrank broader ones.
+
+The safe reading is therefore "more specific wins on conflict", **not** "the
+repository file replaces the machine file". Managed organization policy is different
+in kind: it is intended for organization-wide security and compliance requirements
+and carries higher authority than user or repository instructions.
+
+C-03 is therefore **closed on precedence and open on enforcement.** The precedence
+question is answered. The distinction that mattered survives untouched and is the
+part still open: **`CLAUDE.md` guidance is not itself an enforcement mechanism.**
+Precedence decides which guidance wins when two files disagree; it does not make
+any of it binding. Anything that must hold regardless still needs an enforcement
+carrier -- a managed setting or a hook -- chosen per rule. The adapter-finalization
+blocker stands on that ground alone.
 
 ### Runtime-native paths that cannot be centralised
 
@@ -182,15 +199,45 @@ omitted**; skill name 64 characters, qualified name 129.
 Silent omission and silent truncation appear three times in this section. Every
 one of them is a case where governance stops applying and nothing says so.
 
+### Precedence -- resolved
+
+A repository-level `AGENTS.md` **normally outranks** the machine-level
+`~/.codex/AGENTS.md` when their instructions conflict. The mechanism is the
+concatenation order: the global file loads first, then repository and nested files
+from the repository root toward the working directory, so repository instructions
+appear later and take precedence over broader machine-level guidance. Files closer
+to the working directory outrank the repository root.
+
+Effective order, broadest to most specific:
+
+```
+system / developer / user instructions
+  -> machine or global instructions
+    -> repository-root instructions
+      -> nested-directory instructions
+```
+
+Within any single level, `AGENTS.override.md` **replaces** `AGENTS.md` at that same
+location. `~/.codex/AGENTS.override.md` replaces the machine-level file; a
+repository's own override replaces its repository-level file. An override does
+**not** let a machine-level file outrank repository instructions merely by being
+named `.override.md` -- global still loads before project. System, developer and
+direct user instructions remain above both.
+
+This confirms the depth-based reading the earlier review inferred from source and
+withdraws the third-party claim that a home override beats everything.
+
+**Consequence for the Hub.** Machine-level governance is not a ceiling. A governed
+repository can legitimately outrank the Hub's machine-level projection, so anything
+that must hold everywhere cannot rely on placement at the machine level alone -- it
+needs an enforcement carrier, which is the same conclusion C-03 reaches for Claude
+Code.
+
 ### Not verified
 
 - Canonical prose docs: `developers.openai.com` is egress-blocked here. Recheck owed
   from an unrestricted environment.
-- **Global versus repository precedence.** The home file is concatenated first, but
-  the only stated override rule is depth-based, which would place the repository
-  root *above* the home file. No vendor statement resolves it. Third-party claims
-  that a home override beats everything are not vendor sources. **Unresolved, and it
-  matters**: it determines whether machine-level governance can be overridden by a
-  repository.
+- ~~Global versus repository precedence.~~ **RESOLVED 2026-08-21** from vendor
+  documentation. See below.
 - Whether the global `AGENTS.md` counts against the 32 KiB budget. Code path
   suggests not; not documented.

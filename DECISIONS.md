@@ -636,6 +636,66 @@ modified during this reconciliation phase. The fix is to write with a
 no-BOM UTF-8 encoder rather than `-Encoding UTF8`, and it belongs with the other
 recorded tooling work.
 
+**D-37.** Step 1 restructuring **applied** to the canonical Hub under approval.
+`klodebeers/.agents-hub` `47c0187` -> `80dff05`, verified in sync with the remote.
+Decided by: User (approval); Agent (execution). Detail in the Hub commit message.
+
+Applied: `rules/AGENTS.md` moved to the repository root as `AGENTS.md`, with
+references updated in **both** directions -- the routing table's four owner
+filenames were bare and would have resolved to non-existent root files after the
+move, and `rules/ENGINEER-OWNERSHIP.md` referenced it as a sibling. `README.md` and
+`CATALOG.md` repointed. `STATE.md` retired. Six placeholder files retired.
+
+`references/AGENTS-MD-LIVE-AUDIT-2026-08-16.md` was deliberately **not** updated: it
+is dated evidence and its statements were true when recorded.
+
+**Six placeholders retired, not the seven classified.** The approved list said
+retire all seven and also preserve `design-systems/` untouched. Those contradict,
+because `design-systems/placeholder.md` is one of the seven. Resolved in favour of
+the explicit preservation instruction and the Conflict guard, which forbids changing
+a Conflict-classified area. `design-systems/` verified untouched by staged-diff and
+by blob hash identity.
+
+Because git does not track empty directories, retiring the placeholders also removed
+`runtime-adapters/` from the repository. That is consistent with creating a
+directory only with its first real artifact; it returns at Step 9 with an accepted
+adapter.
+
+**Not created, deliberately outside the approved scope:** `agents/`,
+`orchestration/`, `registry/`, `templates/`, `context/`. Each requires an Adapt
+transformation on `agents-hub-two` content -- stripping duplicated governance
+blocks, deduplicating four routing copies, splitting identity from routing,
+extracting quadruplicated domain knowledge. That is Step 2 change work, gated
+separately, and creating them now would have expanded scope.
+
+**D-38.** Instruction-file precedence is resolved for both runtimes, from vendor
+documentation. Decided by: User, supplying the sourced answer.
+
+**Codex.** A repository-level `AGENTS.md` normally outranks
+`~/.codex/AGENTS.md` on conflict, because the global file is concatenated first and
+repository then nested files follow, so the more specific text appears later.
+Effective order: system/developer/user, then machine, then repository root, then
+nested. Within one level, `AGENTS.override.md` replaces `AGENTS.md` at that same
+location; an override does not let a machine-level file outrank repository
+instructions. This confirms the depth-based reading inferred from implementation
+source and withdraws the third-party claim that a home override beats everything.
+
+**Claude Code.** Applicable `CLAUDE.md` files are **additive** -- all stay in
+context, loaded broader to more specific: managed policy, user, repository, nested,
+project-local. Project instructions load after user instructions, so project
+guidance normally takes effective precedence on conflict, and more-specific
+directories outrank broader ones. The correct reading is "more specific wins on
+conflict", not "the repository file replaces the machine file". Managed organization
+policy is higher authority by design, for requirements users should not override.
+
+**The distinction that matters is preserved and still open.** `CLAUDE.md` guidance
+is **not an enforcement mechanism.** Precedence decides which guidance wins when two
+files disagree; it does not make any of it binding. C-03 is therefore closed on
+precedence and open on enforcement: anything that must hold regardless needs an
+enforcement carrier -- a managed setting or a hook -- chosen per rule. Machine-level
+placement is not a ceiling in either runtime, which strengthens rather than weakens
+that conclusion.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

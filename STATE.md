@@ -87,6 +87,32 @@ incomplete where known gaps remain -- gaps are listed under Blockers and Open
 work below. `README.md` owns the full relationship table. `DECISIONS.md` D-24
 records the decision.
 
+### Canonical Hub -- current verified state
+
+`klodebeers/.agents-hub` at **`80dff05`**, Step 1 restructuring applied and verified
+in sync with the remote. Nine tracked files:
+
+```text
+AGENTS.md                                     root bootstrap, router, precedence
+CATALOG.md                                    inventory
+README.md                                     navigation
+rules/ENGINEER-OWNERSHIP.md                   ownership, intake, decision resolution
+rules/AUTONOMY-AND-PROTECTED-BOUNDARIES.md    autonomy, approval, boundaries
+rules/CONTEXT-AND-ORCHESTRATION.md            context, delegation, continuity
+rules/VERIFICATION-AND-EVIDENCE.md            done, testing, audit, evidence
+references/AGENTS-MD-LIVE-AUDIT-2026-08-16.md retained dated audit
+design-systems/placeholder.md                 EXCLUDED, Conflict, untouched
+```
+
+Retired: Hub `STATE.md`, and six placeholder files. `governance-templates/` and
+`runtime-adapters/` no longer exist in the repository; the latter returns at Step 9
+with its first accepted adapter. Detail in `DECISIONS.md` D-37.
+
+**The live local Hub has not been re-materialized.** The repository is ahead of
+`C:\Users\Chloe\.agents-hub`, which still carries the pre-restructuring layout
+including `rules/AGENTS.md` and `STATE.md`. Per D-33 the two are one logical Hub and
+must not drift, so materializing the change locally is the immediate next action.
+
 ### Step 1 gate -- satisfied
 
 Both required results are in, from the operator's machine, committed at `12f93e6`:
@@ -214,7 +240,7 @@ unexercised. Live-Hub evidence cannot be accepted until
 8. ~~Correct the case-insensitive variable collisions found in four scripts, two of them live defects in the assigned local commands.~~ **Closed** — fixed, and a static gate added to prevent the class. See `evidence/SCRIPT-STRUCTURE-DEFECTS-2026-08-20.md`.
 9. Promote the Verification Resolution Rule into the canonical `.agents-hub` once its structure and rule ownership are finalized. Held locally as an interim binding; terms and on-promotion steps in `PENDING-GLOBAL-PROMOTIONS.md` P-01. Blocked by the same absence of a canonical Hub as B-4.
 10. Resolve the duplicate ownership between `AGENT-SSOT.json` and `rules/VERIFICATION-RESOLUTION.md` / `rules/ENGINEER-OWNERSHIP.md` at consolidation. Open governance conflict, surfaced not blended. `PENDING-GLOBAL-PROMOTIONS.md` P-03.
-11. Correct `AGENTS.md` placement in the canonical Hub: root, not `rules/`. Structural only. `evidence/GOVERNANCE-STRUCTURE-OBSERVATIONS-2026-08-20.md` Observation 1. Do not refactor `.agents-hub` now.
+11. ~~Correct `AGENTS.md` placement in the canonical Hub: root, not `rules/`.~~ **Closed 2026-08-21**, applied at `80dff05` with references updated in both directions.
 12. Close conflict-resolution gaps G-1 and G-2 as sections in existing owners at consolidation. G-3 deferred. `PENDING-GLOBAL-PROMOTIONS.md` P-04. No new rule file.
 13. Resolve C-03 as restated: Claude Code instruction placement enforces nothing on its own, so an enforcement carrier -- managed setting or hook -- must be chosen per rule. The earlier wording, "project instructions outrank global governance", conflated advisory instructions with enforced settings and is withdrawn. `evidence/RUNTIME-CONVENTIONS-2026-08-20.md`.
 14. ~~Adapt the predecessor `tasks/` audit prompts into coverage checklists for `scripts/Invoke-GatewayDiscovery.ps1`.~~ **Closed** -- item-level comparison done: `evidence/PREDECESSOR-AUDIT-SPEC-COVERAGE-2026-08-20.md`. Four inventory gaps identified and scoped as item 16. Spec 01 Phase 3 and spec 03 Parts B-D are classified **superseded for execution, provenance-only** -- the consolidation directive already supersedes any older instruction authorizing remediation, installation, deletion, restructuring or machine changes during reconciliation. Preserved historically; never handed to a local agent as live instructions.
@@ -225,7 +251,7 @@ unexercised. Live-Hub evidence cannot be accepted until
 
 18. Carry the predecessor's runtime-neutral project-continuity pattern into the plan. Required by `evidence/LEGACY-GOVERNANCE-MATERIAL-CONSOLIDATION-2026-08-17.md` item 5 and absent from every current record.
 19. Resolve the `CATALOG.md` collision: the live Codex global instruction file requires Hub `README.md` and `CATALOG.md`, while the accepted taxonomy makes `CATALOG.md` conditional. Plan delta D-l.
-20. Resolve the unverified Codex precedence question -- whether a repository-root `AGENTS.md` outranks the machine-level one. It determines whether machine governance can be overridden by a repository. Requires the egress-blocked vendor docs or a live test.
+20. ~~Resolve the unverified Codex precedence question.~~ **Closed 2026-08-21** by `DECISIONS.md` D-38: repository-level normally outranks machine-level, by concatenation order; within a level `AGENTS.override.md` replaces `AGENTS.md`.
 21. Define who performs the independent pre-edit review that v0.4.2 Step 5 lists as a prerequisite, and how it is evidenced. Subagent review is now demonstrated to work; formalise it as the mechanism.
 
 22. Package a validated governance workflow as a plugin only after it is stable and needs installable distribution. Settled but deferred per `DECISIONS.md` D-30 item 4. Skill first; packaging must not create a second authoritative copy.
@@ -234,26 +260,38 @@ unexercised. Live-Hub evidence cannot be accepted until
 
 ## Next action
 
-**Approval decision, then Step 2.** Step 1 is complete and nothing has been
-applied. The accepted target tree and the item-by-item classification of all 46
-inputs are in `evidence/HUB-TARGET-TREE-AND-CLASSIFICATION-2026-08-21.md`.
+**Materialize `80dff05` into the live local Hub.** The canonical repository and
+`C:\Users\Chloe\.agents-hub` are one logical Hub under D-33 and must not drift
+independently. The repository now carries the Step 1 layout; the local path does
+not.
 
-What approval covers, in the order it would be executed:
+```powershell
+cd C:\Users\Chloe\.agents-hub
+git pull
+```
 
-1. Move `rules/AGENTS.md` to the Hub root as `AGENTS.md`, updating inbound
-   references. Structural only; no content change.
-2. Retire from the Hub: `STATE.md`, the empty `governance-templates/` tree, and the
-   7 zero-byte `placeholder.md` files.
-3. Create `agents/`, `orchestration/`, `registry/`, `templates/` and `context/`, each
-   with its first accepted artifact from `agents-hub-two`.
-4. Leave `design-systems/` untouched and visibly excluded. B-2 is unresolved and the
-   `Conflict` guard forbids silent reclassification.
+If that path is not a git working copy, say so rather than copying files by hand --
+how it is materialized determines whether future drift is detectable, and that is a
+decision worth making once.
 
-Not in scope for that approval: adapter population, which is Step 9 and depends on
-the fresh-session bootstrap result.
+Expected afterwards: `AGENTS.md` at the root, no `STATE.md`, no
+`governance-templates/`, no `runtime-adapters/`, `design-systems/` unchanged.
 
-Still open and unaffected: the fresh-agent bootstrap and runtime activation
-assignment, and the unresolved Codex global-versus-repository precedence question.
+Then, in either order:
+
+- **Fresh-agent bootstrap test.** Still open, still assigned, and now more
+  informative: the bootstrap file has moved, so the test measures whether the new
+  root location is actually discovered. Method in Verification assignments -- ask a
+  new session which instruction files it loaded and from where, without supplying
+  the answer.
+- **Step 2 change work.** Creating `agents/`, `orchestration/`, `registry/`,
+  `templates/` and `context/`, each with its first accepted artifact. Deliberately
+  excluded from the Step 1 approval because each requires an Adapt transformation of
+  `agents-hub-two` content. Requires approval before it touches the Hub.
+
+Closed this round: B-6, the PowerShell runtime verification, the GitHub rename, and
+the Codex and Claude Code precedence questions. C-03 is closed on precedence and
+open on enforcement.
 
 ## Stop conditions
 
