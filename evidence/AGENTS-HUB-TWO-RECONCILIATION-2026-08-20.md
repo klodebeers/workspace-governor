@@ -205,7 +205,7 @@ resolving dependencies needs a mapping table.
 `docs/README.md` calls the package "the canonical workspace" and states its root
 "is the `.agents-hub` folder itself". `package-layout.json` sets
 `"name": "agents-hub"` and notes that internal references are relative to
-`.agents-hub`. Superseded by D-24 and D-26: `agents-hub-two` is source material
+`.agents-hub`. Superseded by D-24 and D-33 (renumbered from the second D-26): `agents-hub-two` is source material
 pending reconciliation, not an authority. Correcting the claim is reconciliation
 work, not an open question.
 

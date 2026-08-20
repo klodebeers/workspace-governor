@@ -73,7 +73,7 @@ left intact.
 **One Hub, two representations.** The `.agents-hub` repository is canonical source;
 `C:\Users\Chloe\.agents-hub` is its local materialized location for agent
 consumption. Same logical Hub, not two authorities; they must not drift
-independently (`DECISIONS.md` D-26). A local-only edit is drift, not a decision.
+independently (`DECISIONS.md` D-33, renumbered from the second D-26). A local-only edit is drift, not a decision.
 
 ```
 .agents-hub         = current canonical Agent Hub and live governance authority

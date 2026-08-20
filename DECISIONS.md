@@ -530,6 +530,51 @@ git history; nothing was concealed. Recorded as a learning: a correct finding do
 not license a non-compliant mechanism, and an append-only record is corrected by
 appending a superseding entry, never by rewriting the original.
 
+**D-33.** **Renumbering.** Two entries in this file were both numbered **D-26**,
+making any citation of that identifier ambiguous. The **second** of the two -- the
+canonical Hub identity decision, appearing after D-25 and before D-27 -- **is
+renumbered to D-33 and is restated in full below.** Decided by: User.
+
+`D-26` now refers unambiguously to the **first** of the two: that
+`workspace-governor-agents-hub-one` is the predecessor backoffice for the same Hub
+and is an **input** to the current backoffice, not a competing authority.
+
+The original entry is **not edited**; this file is append-only. It retains its
+`**D-26.**` heading in place, and this entry is the citable authority for its
+content. A reader encountering the second `**D-26.**` heading should treat it as
+the historical text of D-33.
+
+### D-33, restated in full
+
+The canonical Agent Hub repository is `.agents-hub`. The repository and
+`C:\Users\Chloe\.agents-hub` are **the same logical Hub** in two representations --
+canonical source, and local materialized location for agent consumption. They are
+not separate governance authorities and must not drift independently. Decided by:
+User.
+
+This corrects the repository name recorded in D-24, which said `agents-hub`. The
+authority relationship in D-24 is otherwise unchanged. 52 references across
+`README.md`, `STATE.md`, `AGENTS.md`, `PENDING-GLOBAL-PROMOTIONS.md`,
+`plans/AGENT-HUB-CONSOLIDATION.md` and the two PowerShell scripts were updated;
+`agents-hub-two` and `workspace-governor-agents-hub-one` were left intact.
+
+Operational consequence: a change lands in the repository and is materialized
+locally. A local-only edit is drift, not a decision. Discovery tooling reports the
+local path state without implying the canonical repository is absent.
+
+### Citations repointed
+
+Both existing citations of `D-26` outside this file referred to the renumbered
+entry, not to the predecessor-as-input decision. Leaving them would have defeated
+the renumbering, so they were repointed to D-33:
+
+| Location | Cited for |
+|---|---|
+| `STATE.md` | the same-logical-Hub / no-independent-drift rule |
+| `evidence/AGENTS-HUB-TWO-RECONCILIATION-2026-08-20.md` | superseding `agents-hub-two`'s self-declaration as `.agents-hub` |
+
+No other file cited `D-26`. Verified by search across `*.md`, `*.json` and `*.ps1`.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.
