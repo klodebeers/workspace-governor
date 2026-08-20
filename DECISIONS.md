@@ -742,6 +742,34 @@ as well. A live inventory lists what exists, not what was removed or what may ex
 later; retirement belongs in the backoffice record. `design-systems/` untouched,
 verified by zero staged and unstaged changes.
 
+**D-41.** The local Hub at `C:\Users\Chloe\.agents-hub` is materialized by
+**git**, not by copying files. The user confirmed 2026-08-21 that the path is a git
+working copy, and authorised materializing `c6c966b` there. Decided by: user, on the
+mechanism question the agent raised.
+
+Rationale: D-33 makes the repository and that path one logical Hub which must not
+drift. Drift is only detectable if both sides carry a comparable ref. A hand-copied
+tree has no ref, so divergence would be invisible until something broke, and every
+future Hub change would need the copy repeated by hand. `git pull` makes the local
+state provable in one command.
+
+Consequence: whenever the canonical Hub gains a commit, materializing it locally is
+an open item until `git rev-parse HEAD` matches on both sides. Recorded as a standing
+verification assignment with a recheck trigger rather than rediscovered each time.
+Execution needs the local Windows machine and cannot be performed from a cloud
+session -- blocker B-5.
+
+**D-42.** The fourth item under § Recorded as not decided -- target tree and
+ownership map for the consolidated Hub, "cannot be accepted until the live Hub is
+inventoried" -- is **settled** and no longer open. Decided by: user, at the Step 1
+approval. Superseded by D-35 (Step 1 outcomes accepted, all 46 inputs classified,
+live Hub inventory returned COMPLETE) and D-37 (the restructuring applied at
+`80dff05`). Its precondition was met by the Step-1 gate.
+
+Recorded as an appended correction because `DECISIONS.md` is append-only; the stale
+bullet is left in place rather than edited. Same class as D-32, which corrected D-30
+the same way.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

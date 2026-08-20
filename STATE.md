@@ -114,6 +114,13 @@ with its first accepted adapter. Detail in `DECISIONS.md` D-37.
 including `rules/AGENTS.md` and `STATE.md`. Per D-33 the two are one logical Hub and
 must not drift, so materializing the change locally is the immediate next action.
 
+`C:\Users\Chloe\.agents-hub` is confirmed a **git working copy**, stated by the
+user 2026-08-21, and materialization by `git pull` is authorised on that basis.
+Hand-copying files is excluded: it would leave the local path without a comparable
+ref and make future drift undetectable. `DECISIONS.md` D-41. Execution requires the
+local machine and is therefore recorded under Verification assignments, not
+performed here -- blocker B-5.
+
 ### Step 1 gate -- satisfied
 
 Both required results are in, from the operator's machine, committed at `12f93e6`:
@@ -153,6 +160,19 @@ Verification that cannot be performed in the current environment is recorded her
 with its assigned executor, rather than repeated as an open caveat. An assigned
 pending verification is not a defect and is not re-flagged each session; see
 `AGENTS.md` § Evidence standard.
+
+### Local Hub materialization -- PENDING
+
+| Field | Value |
+|---|---|
+| Status | **PENDING.** Authorised 2026-08-21; awaiting local execution |
+| Requirement | D-33: the repository and `C:\Users\Chloe\.agents-hub` are one logical Hub and must not drift. The repository carries the Step 1 layout at `c6c966b`; the local path does not |
+| Why no remote action can do it | The path is on the operator's Windows machine, unreachable from a cloud session (blocker B-5). No cloud-side change can move it |
+| Assigned executor | Klo, on the local Windows machine |
+| Method | `cd C:\Users\Chloe\.agents-hub` then `git pull`. Mechanism settled as git, not hand-copying, per D-41 |
+| Verification | `git rev-parse HEAD` returns `c6c966b3dfcc03a2f76c7f79330ae7797283df23`, and `git status` reports a clean tree. Tree afterwards: `AGENTS.md` at the root; no `STATE.md`; no `governance-templates/`; no `runtime-adapters/`; `design-systems/` unchanged |
+| Known wrinkle | The local clone's `origin` may still carry the pre-rename URL `.../agents-hub-one`. It resolves through GitHub's redirect, so `git pull` works; `git remote set-url origin https://github.com/klodebeers/.agents-hub` re-points it when convenient. A repository rename never renames a clone or rewrites its remote |
+| Recheck trigger | Any later commit to the canonical Hub. Every Hub change reopens this until the two are equal |
 
 ### Fresh-agent bootstrap and runtime activation
 
@@ -261,22 +281,30 @@ unexercised. Live-Hub evidence cannot be accepted until
 
 ## Next action
 
-**Materialize `80dff05` into the live local Hub.** The canonical repository and
-`C:\Users\Chloe\.agents-hub` are one logical Hub under D-33 and must not drift
-independently. The repository now carries the Step 1 layout; the local path does
-not.
+**Materialize `c6c966b` into the live local Hub.** Authorised; awaiting execution
+on the local Windows machine, which no cloud session can reach. The canonical
+repository and `C:\Users\Chloe\.agents-hub` are one logical Hub under D-33 and must
+not drift independently. The repository now carries the Step 1 layout; the local
+path does not.
 
 ```powershell
 cd C:\Users\Chloe\.agents-hub
 git pull
+git rev-parse HEAD
+git status --short
 ```
 
-If that path is not a git working copy, say so rather than copying files by hand --
-how it is materialized determines whether future drift is detectable, and that is a
-decision worth making once.
+The path is confirmed a git working copy, so `git pull` is the mechanism and
+hand-copying is excluded (D-41).
 
-Expected afterwards: `AGENTS.md` at the root, no `STATE.md`, no
+Verification: `git rev-parse HEAD` returns
+`c6c966b3dfcc03a2f76c7f79330ae7797283df23` and `git status --short` prints nothing.
+Expected tree afterwards: `AGENTS.md` at the root, no `STATE.md`, no
 `governance-templates/`, no `runtime-adapters/`, `design-systems/` unchanged.
+
+If `origin` still points at `agents-hub-one`, the pull still works through GitHub's
+redirect; `git remote set-url origin https://github.com/klodebeers/.agents-hub`
+tidies it. Full detail under Verification assignments § Local Hub materialization.
 
 Then, in either order:
 
