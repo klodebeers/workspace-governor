@@ -97,6 +97,7 @@ cannot be accepted until `Assert-RememberPruning.ps1` returns `PASS` and
 6. Determine placement of the three agent rulings recorded in `DECISIONS.md` under D-07 through D-09.
 7. Trim the duplicated live-state narrative in `workspace-governor-agents-hub-one/research/` per D-15. Edits another repository; sequenced separately.
 8. ~~Correct the case-insensitive variable collisions found in four scripts, two of them live defects in the assigned local commands.~~ **Closed** — fixed, and a static gate added to prevent the class. See `evidence/SCRIPT-STRUCTURE-DEFECTS-2026-08-20.md`.
+9. Promote the Verification Resolution Rule into the canonical `.agents-hub` once its structure and rule ownership are finalized. Held locally as an interim binding; terms and on-promotion steps in `PENDING-GLOBAL-PROMOTIONS.md` P-01. Blocked by the same absence of a canonical Hub as B-4.
 
 ## Next action
 
@@ -136,6 +137,7 @@ consolidation. Do not run Gateway discovery.
 - Do not reopen the 46-section directive structure (`DECISIONS.md` D-04).
 - Do not run the discovery tooling in `scripts/` until it is revised per open work item 2 **and** Hub consolidation is complete (`DECISIONS.md` D-05, D-06).
 - Do not adopt `agent-governance-toolkit` without provenance, licence, and generated-output review.
+- Do not choose a verification method before reading `rules/VERIFICATION-RESOLUTION.md`. It is binding, and it bounds the method, the stopping condition, and when new tooling is justified.
 - Do not hand any script under `scripts/` to the local operator until
   `python3 scripts/Assert-ScriptStructure.py --selftest` and the same tool run
   over `scripts/*.ps1 scripts/lib/*.ps1` both pass. This gate is static only; it

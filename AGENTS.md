@@ -80,6 +80,8 @@ One owner per concern. Do not duplicate content between these files.
 | `DECISIONS.md` | Settled decisions and their rationale. Append-only. |
 | `AGENTS.md` | Bootstrap order, persistence requirement, file ownership |
 | `mcp-gateway` | Gateway build and configuration requirements |
+| `rules/VERIFICATION-RESOLUTION.md` | How verification and investigation work is scoped, bounded and stopped |
+| `PENDING-GLOBAL-PROMOTIONS.md` | Rules held locally that are owed to shared governance, and their promotion terms |
 
 If `STATE.md` and `DECISIONS.md` appear to conflict, `DECISIONS.md` governs what was
 settled and `STATE.md` governs what is currently true. Report the conflict; do not
@@ -111,6 +113,17 @@ than routing them back to the user.
 
 Escalate only an unresolved matter that exceeds granted authority, crosses a
 protected boundary, or genuinely requires business judgement.
+
+## Standing rules
+
+`rules/VERIFICATION-RESOLUTION.md` is **binding** for all verification and
+investigation work in this repository. Read it before choosing a verification
+method, not after. It governs how the decision is bounded, where the evidence is
+gathered, how much evidence is enough, and when to stop.
+
+It is not a `workspace-governor` policy. It is a cross-agent rule held here
+temporarily because the canonical `.agents-hub` does not yet exist to own it. Its
+promotion obligation is recorded in `PENDING-GLOBAL-PROMOTIONS.md`.
 
 ## Stop conditions
 

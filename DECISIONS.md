@@ -158,6 +158,24 @@ and silent evidence loss in `Invoke-HubInventory.ps1`. Single-letter loop
 variables are the whole cause; descriptive names cost nothing and remove the
 class. Enforced as check S4 of the gate in D-17.
 
+**D-19.** Verification and investigation work is governed by a standing rule:
+choose the simplest reliable method proportionate to the risk and sufficient for
+the next decision, gather evidence where it lives, and stop once the decision is
+supported. Full rule in `rules/VERIFICATION-RESOLUTION.md`, which is its sole
+owner. Bound as binding by `AGENTS.md`. Decided by: User.
+
+Rationale: bounding the live-Hub divergence question escalated into custom
+inventory tooling, traversal hardening, proof scripts, a static gate, and audits
+of the verification machinery itself, before the decision, the authoritative
+evidence source, the confidence the risk required, and the stopping condition had
+been settled. Individual fixes were valid; the method was chosen before the
+question was bounded, and the effort was disproportionate to the decision during
+deadline-sensitive work. The rule is prospective and does not retire the tooling
+already built and verified on `main` — that is now an available capability, and
+using it is not licence to repeat the pattern. The rule is cross-agent, not local
+to this repository; it is held here only until the canonical `.agents-hub` can
+own it, per `PENDING-GLOBAL-PROMOTIONS.md`.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.
