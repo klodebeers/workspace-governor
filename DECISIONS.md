@@ -448,28 +448,13 @@ backoffice**, so they were load-bearing information existing only in a repositor
 declared a non-authoritative input. Decided by: User, in the predecessor project,
 2026-08-16/17. Carried forward by: Agent.
 
-**Authoritative carrier: this entry, `DECISIONS.md` D-30**, for all five, until they
-are promoted to their canonical Hub owners. The files listed in the third column
-are non-authoritative -- retrieval aids, provenance copies, or planning records --
-and are named only to say where the material also appears. None of them is an
-owner.
-
-| # | Decision | Also appears in (non-authoritative) |
+| # | Decision | Owner here |
 |---|---|---|
-| 1 | Governance documents are written primarily for execution by agents and maintained by agents acting within authority. Human-oriented synonym replacement must not weaken technical precision. | `LEARNINGS.md` L-003 as a retrieval aid; `plans/reference/HUB-DOCUMENTATION-predecessor.md` as provenance |
-| 2 | A human glossary is non-authoritative. It may explain canonical terms but never redefine them, and **must not be placed in `rules/`**. Its final placement is an architecture classification. | `plans/AGENT-HUB-CONSOLIDATION.md` G-04 as a planning record. Previously that plan carried only "no accepted artifact or placement" and had lost the substantive rule |
-| 3 | Durable non-obvious learnings are recorded concisely, and normative outcomes are promoted to their sole owner. | `LEARNINGS.md`, which states these rules and applies them to itself. That file is non-authoritative by construction and is not the owner of this decision |
-| 4 | Develop and validate a reusable governance workflow as a **skill first**; package it as a plugin only when it is stable and needs installable distribution. Packaging references canonical skill source and must not create a second authoritative copy. | `STATE.md` open work item 22, as current-state tracking. Settled but deferred |
-| 5 | Scheduled audits remain separate, deferred runtime automation. Source, package, installed, enabled, discovered, active and verified are distinct states and are never inferred from one another. | `STATE.md` open work item 23. Settled but deferred |
-
-**Correction, same day.** An earlier revision of this entry named
-`plans/reference/`, `AGENT-SSOT.json` and `plans/AGENT-HUB-CONSOLIDATION.md` in an
-"Owner here" column. All three are wrong as owners: `plans/reference/` is explicitly
-never an authority, `AGENT-SSOT.json` is an Agent Hub asset whose local copy is
-backoffice staging and not a live authority here (D-25), and the consolidation plan
-is a planning record that creates no governance. `LEARNINGS.md` is likewise
-non-authoritative. Naming any of them as owner would have reinstated the same
-category error D-25 corrected.
+| 1 | Governance documents are written primarily for execution by agents and maintained by agents acting within authority. Human-oriented synonym replacement must not weaken technical precision. | `LEARNINGS.md` L-003 routes it; substance owned by `plans/reference/HUB-DOCUMENTATION-predecessor.md` and `AGENT-SSOT.json` § `technical_translation_and_audience` |
+| 2 | A human glossary is non-authoritative. It may explain canonical terms but never redefine them, and **must not be placed in `rules/`**. Its final placement is an architecture classification. | `plans/AGENT-HUB-CONSOLIDATION.md` G-04, which previously carried only "no accepted artifact or placement" and lost the substantive rule |
+| 3 | Durable non-obvious learnings are recorded concisely, and normative outcomes are promoted to their sole owner. | **`LEARNINGS.md`**, created for this purpose. No owner for this concern existed here |
+| 4 | Develop and validate a reusable governance workflow as a **skill first**; package it as a plugin only when it is stable and needs installable distribution. Packaging references canonical skill source and must not create a second authoritative copy. | `STATE.md` open work; deferred, not active |
+| 5 | Scheduled audits remain separate, deferred runtime automation. Source, package, installed, enabled, discovered, active and verified are distinct states and are never inferred from one another. | `STATE.md` open work; deferred, not active. The state vocabulary is also carried in `LEARNINGS.md` L-001 |
 
 Item 3 is why `LEARNINGS.md` now exists at this repository root. It is
 non-authoritative by construction: it carries the predecessor's retention and
@@ -505,6 +490,45 @@ currently true, is corrected. Dated evidence written before the change is left
 intact, because those statements were true when recorded; the change is recorded as
 a later revision note in
 `evidence/PREDECESSOR-BACKOFFICE-REVIEW-2026-08-20.md` instead.
+
+**D-32.** The authority-carrier portion of **D-30 is superseded**. The
+authoritative carrier for all five decisions adopted in D-30 is **`DECISIONS.md`
+itself -- D-30 as amended by this entry** -- until each is promoted to its canonical
+Hub owner. Decided by: User.
+
+D-30's "Owner here" column named three artifacts that cannot own a decision:
+
+| Named in D-30 | Why it cannot be an owner |
+|---|---|
+| `plans/reference/HUB-DOCUMENTATION-predecessor.md` | `plans/reference/` is explicitly never an authority. Its files carry a non-authority banner and exist as provenance only |
+| `AGENT-SSOT.json` | An Agent Hub asset. The copy in this repository is backoffice staging pending placement in the canonical Hub, and is not a live authority here. `DECISIONS.md` D-25 |
+| `plans/AGENT-HUB-CONSOLIDATION.md` | A backoffice planning record. It sequences work and creates no governance |
+
+`LEARNINGS.md` is also **not** an owner. It is non-authoritative by its own
+construction; it holds retrieval aids and promotes any finding that becomes
+normative to the owner that governs it.
+
+Corrected reading of D-30, replacing its third column:
+
+| # | Decision | Where the material also appears, non-authoritatively |
+|---|---|---|
+| 1 | Agent-first authoring; human-oriented synonym replacement must not weaken technical precision | `LEARNINGS.md` L-003 as a retrieval aid; `plans/reference/HUB-DOCUMENTATION-predecessor.md` as provenance |
+| 2 | The glossary may explain canonical terms but never redefine them, and must not be placed in `rules/` | `plans/AGENT-HUB-CONSOLIDATION.md` G-04 as a planning record |
+| 3 | Durable learnings are recorded concisely; normative outcomes are promoted to their sole owner | `LEARNINGS.md`, which states these rules and applies them to itself |
+| 4 | Skill first, plugin only when stable and needing installable distribution | `STATE.md` open work item 22. Settled but deferred |
+| 5 | Scheduled audits remain separate deferred runtime automation; source, package, installed, enabled, discovered, active and verified are never inferred from one another | `STATE.md` open work item 23. Settled but deferred |
+
+D-30's other content -- the five decisions themselves, their attribution, and the
+settled-but-deferred status of items 4 and 5 -- stands unchanged.
+
+**Procedural note.** The first attempt at this correction edited D-30 in place, in
+commit `cc854b6`. `DECISIONS.md` is append-only per `AGENTS.md` § File ownership, so
+that was not compliant regardless of the correction being right. D-30 has been
+restored verbatim to its text at `cc854b6^` and the correction now lives here, in an
+appended entry. The non-compliant edit and its restoration both remain visible in
+git history; nothing was concealed. Recorded as a learning: a correct finding does
+not license a non-compliant mechanism, and an append-only record is corrected by
+appending a superseding entry, never by rewriting the original.
 
 ## Recorded as not decided
 
