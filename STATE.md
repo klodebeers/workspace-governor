@@ -87,8 +87,6 @@ incomplete where known gaps remain -- gaps are listed under Blockers and Open
 work below. `README.md` owns the full relationship table. `DECISIONS.md` D-24
 records the decision.
 
-**The GitHub rename itself is not yet done.** See Verification assignments.
-
 ## Blockers
 
 Current phase is Hub consolidation. Blockers are grouped by the phase they bind.
@@ -250,6 +248,15 @@ Neither result is acceptable if the other did not hold.
 Both are read-only, make no network calls, emit no file contents, resolve the Hub
 path from the environment and record the resolved path, and do not read or
 enumerate inside `design-systems\.remember`.
+
+**`scripts/Collect-LocalEvidence.ps1` is supplemental and does not satisfy this
+gate.** It collects broader machine evidence in one pass -- PowerShell edition,
+runtime and PATH facts, configuration presence, Codex stale paths -- and is useful
+alongside the two commands above. It carries neither the pruning proof verdict nor
+a baseline comparison, so it cannot stand in for either. Step 1 opens only on
+`Proof verdict: PASS` **and** `Completeness: COMPLETE` from the two scripts named
+above. Recorded because those two were verbally substituted with the collector in
+session; the gate itself was never changed.
 
 Do not accept the target tree before that evidence exists. Do not execute
 consolidation. Do not run Gateway discovery.
