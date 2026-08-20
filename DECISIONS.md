@@ -598,6 +598,44 @@ No obligation is restated, so `PENDING-GLOBAL-PROMOTIONS.md` P-03 is unaffected:
 the addition is the part neither existing owner covers, and it travels with the
 rule when P-03 is resolved at consolidation.
 
+**D-35.** Step 1 outcomes, decided from the live inventory rather than inferred.
+Decided by: Agent, under ENGINEER-OWNERSHIP. Full basis in
+`evidence/HUB-TARGET-TREE-AND-CLASSIFICATION-2026-08-21.md`.
+
+| # | Decision |
+|---|---|
+| 1 | **Hub-root `STATE.md` is retired from the Hub.** The taxonomy left this open. The live file is a mutable operational checkpoint, which is backoffice management state, not agent-consumable desired state -- and the directive states that management, migration and consolidation-progress state is not automatically added to the live Hub. `workspace-governor/STATE.md` already serves that role; keeping both creates two mutable state files for one concern and invites exactly the drift D-33 forbids |
+| 2 | **`CATALOG.md` is kept, resolving plan delta D-l.** The taxonomy made it conditional on justification. The live Codex global instruction file requires Hub `README.md` and `CATALOG.md`, so a runtime consumer already depends on it, and the artifact exists with real content |
+| 3 | **`policies/` and `prompts/` are not created yet.** No machine-verifiable policy artifact exists; the only candidate, the registry schema, must be rewritten first. The four `agents-hub-two` prompt files are loading instructions, so they are adapter material rather than canonical prompts. The directive's ownership rules define what a directory owns **if it exists**; the tree itself is content-driven, and both are created by their first accepted artifact |
+| 4 | **`governance-templates/` and the 7 zero-byte placeholders are retired.** Verified empty on disk. Empty scaffolding is forbidden, and `templates/` is the accepted owner once real templates land |
+| 5 | **`design-systems/` remains `Conflict`**, preserved in place and visibly excluded. B-2 is unresolved and the Conflict guard forbids silent reclassification |
+
+B-6 is closed with its premise **disproved**, not aged out. It assumed the live Hub
+might hold real content behind GitHub's placeholders. The inventory shows 9 live
+files, all byte-identical to baseline `47c0187`, nothing live that the baseline
+lacks, and nothing differing. This also verifies D-15's direction against live state
+-- the shared audit is live in the Hub -- and confirms the predecessor ledger row
+that said to retire the Hub copy was wrong.
+
+Nothing is applied. Restructuring requires approval per
+`plans/AGENT-HUB-CONSOLIDATION.md` § 6.7.
+
+**D-36.** Committed evidence emitted by the PowerShell tooling carries a UTF-8 BOM
+and CRLF line endings, because `Set-Content -Encoding UTF8` writes a BOM on Windows
+PowerShell 5.1. Recorded as a defect; **not fixed now.** Decided by: Agent, under
+ENGINEER-OWNERSHIP.
+
+`evidence/LIVE-HUB-INVENTORY-2026-08-21.json` is machine-readable evidence that a
+standard parser **rejects**: Python's `json.load` raises on the BOM and requires
+`utf-8-sig`. Git also classifies one emitted markdown file as binary. The evidence
+content is sound and was read correctly; the encoding makes it hostile to ordinary
+tooling, which is a real defect in evidence intended for machine consumption.
+
+Not fixed because `STATE.md` open work item 16 records that the tooling is not to be
+modified during this reconciliation phase. The fix is to write with a
+no-BOM UTF-8 encoder rather than `-Encoding UTF8`, and it belongs with the other
+recorded tooling work.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

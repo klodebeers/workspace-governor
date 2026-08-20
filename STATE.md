@@ -87,6 +87,19 @@ incomplete where known gaps remain -- gaps are listed under Blockers and Open
 work below. `README.md` owns the full relationship table. `DECISIONS.md` D-24
 records the decision.
 
+### Step 1 gate -- satisfied
+
+Both required results are in, from the operator's machine, committed at `12f93e6`:
+
+| Script | Required | Returned |
+|---|---|---|
+| `Assert-RememberPruning.ps1` | `Proof verdict: PASS` | **PASS**, fail-closed. A1-A7 PASS. 12 directories visited, 1 safety-pruned, 0 violations |
+| `Invoke-HubInventory.ps1` | `Completeness: COMPLETE` | **COMPLETE**. 9 live files, 0 only-in-live, 0 content differs |
+
+Step 1 is therefore complete: the target tree and item classification are in
+`evidence/HUB-TARGET-TREE-AND-CLASSIFICATION-2026-08-21.md`. **Applying it needs
+approval** per `plans/AGENT-HUB-CONSOLIDATION.md` § 6.7.
+
 ## Blockers
 
 Current phase is Hub consolidation. Blockers are grouped by the phase they bind.
@@ -97,7 +110,7 @@ Current phase is Hub consolidation. Blockers are grouped by the phase they bind.
 |---|---|---|---|
 | B-1 | Hub One target tree and ownership map not accepted. `workspace-governor-agents-hub-one/STATE.md` stop condition: do not refactor before acceptance. | Assessment and a proposed target tree are permitted. Refactoring either source repository is not. | Resolved by accepting the deliverable of this phase |
 | B-2 | `design-systems/.remember` has unresolved provenance and sensitivity. | Must not be read, hashed, moved, or classified | Requires separate review |
-| B-6 | The content of the live local `.agents-hub` directory is not **currently** verified. **Narrowed 2026-08-20:** a read-only inventory of it exists in the predecessor backoffice -- `workspace-governor-agents-hub-one/evidence/BASELINE-AUDIT-2026-08-16.md` -- covering root structure, the five-file `rules/` contract, empty `runtime-adapters/`, `references/`, empty `governance-templates/`, and `.remember` presence. It is 4 days stale and instructs re-inspection, so a current inventory is still required, but the content was not unknown. The canonical `.agents-hub` repository is a placeholder skeleton at `47c0187`: 7 of its 16 files are 0-byte. Note the distinction -- the canonical *repository* is settled; the local runtime *directory* content is not. | The proposed target tree cannot be accepted as canonical, because the consolidation inputs are not fully known. | Local agent runs `scripts/Invoke-HubInventory.ps1` and commits the evidence |
+| B-6 | ~~Live local `.agents-hub` content not currently verified.~~ **CLOSED 2026-08-21 on evidence, premise disproved.** The live Hub holds 9 files, all byte-identical to baseline `47c0187`; 0 files exist live that the baseline lacks; 0 content differs; the 7 baseline-only files are the zero-byte placeholders, absent on disk. B-6 assumed the live Hub might hold real content behind those placeholders, leaving inputs unknown. It does not. | Consolidation inputs are now fully known | Closed by `evidence/LIVE-HUB-INVENTORY-2026-08-21.md` and `evidence/REMEMBER-PRUNING-PROOF-2026-08-21.md` |
 
 ### Required before Gateway runtime integration and completion — not binding this phase
 
@@ -151,11 +164,11 @@ shell `&&` logic reported that failure as existence; and `git ls-remote` on the
 redirects after a rename. The authenticated repository listing is the reliable
 method. Recorded as `LEARNINGS.md` L-014.
 
-### PowerShell runtime verification
+### PowerShell runtime verification -- COMPLETE
 
 | Field | Value |
 |---|---|
-| Status | PENDING |
+| Status | **DONE 2026-08-21.** Both scripts executed on the operator's Windows machine and emitted their evidence. `Assert-RememberPruning.ps1`: `PASS`, fail-closed, A1-A7 all PASS, `.remember` found and pruned, 0 violations, 0 reparse points in returned items. `Invoke-HubInventory.ps1`: `Completeness: COMPLETE`. Committed at `12f93e6` |
 | Assigned environment | Local Windows |
 | Assigned executor | Klo / local Windows agent |
 | Cloud Claude responsibility | Parse and execute under PowerShell 7 on Linux against synthetic fixtures. Done. |
@@ -221,45 +234,26 @@ unexercised. Live-Hub evidence cannot be accepted until
 
 ## Next action
 
-Run the local Hub inventory on the Windows machine and commit the evidence files
-it emits. This is the only remaining input needed to make the target tree
-acceptable.
+**Approval decision, then Step 2.** Step 1 is complete and nothing has been
+applied. The accepted target tree and the item-by-item classification of all 46
+inputs are in `evidence/HUB-TARGET-TREE-AND-CLASSIFICATION-2026-08-21.md`.
 
-**Pull current `main` first. Do not run any script copied earlier.** The versions
-before `main` failed to parse on Windows PowerShell 5.1: 61 em dashes in
-non-BOM UTF-8 sources were decoded as ANSI, and one of the resulting bytes is a
-character PowerShell treats as a string delimiter. All `.ps1` files are now pure
-ASCII. Earlier versions also carried case-insensitive variable collisions:
-`Assert-RememberPruning.ps1` would have failed before writing its verdict, and
-`Invoke-HubInventory.ps1` would have dropped its unverified list whenever the
-inventory came back INCOMPLETE. Both are fixed on `main`. See
-`evidence/SCRIPT-STRUCTURE-DEFECTS-2026-08-20.md`.
+What approval covers, in the order it would be executed:
 
-From the repository root, in order:
+1. Move `rules/AGENTS.md` to the Hub root as `AGENTS.md`, updating inbound
+   references. Structural only; no content change.
+2. Retire from the Hub: `STATE.md`, the empty `governance-templates/` tree, and the
+   7 zero-byte `placeholder.md` files.
+3. Create `agents/`, `orchestration/`, `registry/`, `templates/` and `context/`, each
+   with its first accepted artifact from `agents-hub-two`.
+4. Leave `design-systems/` untouched and visibly excluded. B-2 is unresolved and the
+   `Conflict` guard forbids silent reclassification.
 
-```powershell
-.\scripts\Assert-RememberPruning.ps1
-.\scripts\Invoke-HubInventory.ps1
-```
+Not in scope for that approval: adapter population, which is Step 9 and depends on
+the fresh-session bootstrap result.
 
-The first must report `Proof verdict: PASS`; the second, `Completeness: COMPLETE`.
-Neither result is acceptable if the other did not hold.
-
-Both are read-only, make no network calls, emit no file contents, resolve the Hub
-path from the environment and record the resolved path, and do not read or
-enumerate inside `design-systems\.remember`.
-
-**`scripts/Collect-LocalEvidence.ps1` is supplemental and does not satisfy this
-gate.** It collects broader machine evidence in one pass -- PowerShell edition,
-runtime and PATH facts, configuration presence, Codex stale paths -- and is useful
-alongside the two commands above. It carries neither the pruning proof verdict nor
-a baseline comparison, so it cannot stand in for either. Step 1 opens only on
-`Proof verdict: PASS` **and** `Completeness: COMPLETE` from the two scripts named
-above. Recorded because those two were verbally substituted with the collector in
-session; the gate itself was never changed.
-
-Do not accept the target tree before that evidence exists. Do not execute
-consolidation. Do not run Gateway discovery.
+Still open and unaffected: the fresh-agent bootstrap and runtime activation
+assignment, and the unresolved Codex global-versus-repository precedence question.
 
 ## Stop conditions
 
