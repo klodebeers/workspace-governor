@@ -234,24 +234,6 @@ function Get-GitRepoFact {
 # ============================================================================
 # REPORT
 # ============================================================================
-$R = [ordered]@{
-    meta = [ordered]@{
-        generatedUtc  = $stampISO
-        script        = 'Invoke-GatewayDiscovery.ps1'
-        schemaVersion = '1.1'
-        directive     = 'mcp-gateway section 5 — Discovery. Evidence collection only.'
-        readOnly      = $true
-        networkCalls  = $false
-        secretsPolicy = 'names, locations and configuration metadata only; values never collected'
-        hubPath       = $HubPath
-        hubState      = $hubState
-        hubPresupposed = $false
-        workspaceRoot = $WorkspaceRoot
-        machine       = $env:COMPUTERNAME
-    }
-}
-Write-Host '=== MCP Gateway Discovery — read-only evidence collection ===' -ForegroundColor Cyan
-
 # ============================================================================
 # HUB STATE. Determined first, because most sections below are only meaningful
 # if a canonical Hub exists. Where it does not, those sections report
@@ -282,12 +264,58 @@ $hubState =
 $hubAbsentReason = 'The canonical .agents-hub does not exist at the supplied path. It is the output of consolidating agents-hub-one and agents-hub-two (DECISIONS.md D-02, D-05). Hub-derived findings are therefore not applicable, not empty.'
 
 # Roots to scan. When the canonical Hub is absent its path contributes nothing,
-# so the pre-consolidation sources stand in. Recorded so the evidence states
-# what was actually searched.
+# so the pre-consolidation sources stand in.
+#
+# The source repositories normally live INSIDE the workspace root, so the roots
+# overlap and the same file is reachable by two paths. Roots are deliberately
+# NOT collapsed to the outermost one: depth limits are measured per root, and
+# collapsing would silently drop files that are within depth of a source root
+# but beyond depth of the workspace root. Instead the overlap is disclosed and
+# findings are deduplicated by canonical full path before any count is reported.
 $scanRoots = @()
 if ($hubPresent) { $scanRoots += $HubPath } else { $scanRoots += $resolvedSources }
 $scanRoots += $WorkspaceRoot
-$scanRoots = @($scanRoots | Where-Object { $_ -and (Test-Path -LiteralPath $_) } | Select-Object -Unique)
+$scanRootsResolved = @()
+foreach ($r in $scanRoots) {
+    if ([string]::IsNullOrWhiteSpace($r)) { continue }
+    if (-not (Test-Path -LiteralPath $r)) { continue }
+    try { $scanRootsResolved += (Resolve-Path -LiteralPath $r).Path } catch { $scanRootsResolved += $r }
+}
+$scanRoots = @($scanRootsResolved | Select-Object -Unique)
+
+# Which roots contain which. Recorded so a reader knows counts were deduplicated.
+$rootOverlaps = @()
+foreach ($a in $scanRoots) {
+    foreach ($b in $scanRoots) {
+        if ($a -eq $b) { continue }
+        $pref = $b.TrimEnd('\') + '\'
+        if ($a.StartsWith($pref, [System.StringComparison]::OrdinalIgnoreCase)) {
+            $rootOverlaps += [ordered]@{ inner = $a; outer = $b }
+        }
+    }
+}
+
+function Select-UniqueByFullName {
+    <#
+    .SYNOPSIS
+      Deduplicates filesystem findings by canonical full path, case-insensitively.
+    .DESCRIPTION
+      Overlapping scan roots return the same file more than once. Counts must be
+      reported over distinct paths, not distinct discoveries.
+    #>
+    param($Items)
+    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    $out = @()
+    foreach ($i in $Items) {
+        if ($null -eq $i) { continue }
+        $fn = $null
+        if ($i.PSObject.Properties['FullName']) { $fn = $i.FullName }
+        elseif ($i.PSObject.Properties['path']) { $fn = $i.path }
+        if ([string]::IsNullOrWhiteSpace($fn)) { continue }
+        if ($seen.Add($fn)) { $out += $i }
+    }
+    return @($out)
+}
 
 Write-Host ("  hub state    : {0}" -f $hubState) -ForegroundColor $(if ($hubState -eq 'PRESENT') { 'Green' } else { 'Yellow' })
 Write-Host ("  hub path     : {0}" -f $HubPath)
@@ -304,16 +332,37 @@ $R['00_hubState'] = [ordered]@{
     hubState = $hubState
     preConsolidationSources = @($resolvedSources)
     scanRoots = @($scanRoots)
+    scanRootOverlaps = @($rootOverlaps)
+    deduplicationNote = 'Scan roots overlap where a source repository lives inside the workspace root. Findings are deduplicated by canonical full path before any count is reported.'
     interpretation = if ($hubPresent) { 'Canonical Hub present at the supplied path.' } else { $hubAbsentReason }
     note = 'Discovery does not presuppose the canonical Hub exists. Sections whose meaning depends on it carry an applicable flag.'
 }
 
+$R = [ordered]@{
+    meta = [ordered]@{
+        generatedUtc  = $stampISO
+        script        = 'Invoke-GatewayDiscovery.ps1'
+        schemaVersion = '1.1'
+        directive     = 'mcp-gateway section 5 — Discovery. Evidence collection only.'
+        readOnly      = $true
+        networkCalls  = $false
+        secretsPolicy = 'names, locations and configuration metadata only; values never collected'
+        hubPath       = $HubPath
+        hubState      = $hubState
+        hubPresupposed = $false
+        workspaceRoot = $WorkspaceRoot
+        machine       = $env:COMPUTERNAME
+    }
+}
+Write-Host '=== MCP Gateway Discovery — read-only evidence collection ===' -ForegroundColor Cyan
+
 # --- 1. .agents-hub location and structure ----------------------------------
 Write-Host '[ 1/14] .agents-hub location and structure'
 $R['01_agentsHub'] = [ordered]@{
-    applicable = $hubPresent
+    canonicalHubApplicable = $hubPresent
     notApplicableReason = if ($hubPresent) { $null } else { $hubAbsentReason }
     hubState  = $hubState
+    canonicalHub = [ordered]@{
     hub       = Get-PathFact -Path $HubPath
     inventory = Get-TreeInventory -Root $HubPath -MaxDepth 3
     rootFiles = [ordered]@{
@@ -325,8 +374,11 @@ $R['01_agentsHub'] = [ordered]@{
     rulesDir = Get-TreeInventory -Root (Join-Path $HubPath 'rules') -MaxDepth 1
     rememberExists = (Test-Path -LiteralPath (Join-Path $HubPath 'design-systems\.remember'))
     rememberContentsInspected = $false
+    rememberContentsInspected = $false
     rememberNote = 'Existence only. Nothing inside was enumerated, counted, read, or hashed, per STATE.md stop condition B-2.'
-    preConsolidationSourceInventory = if ($hubPresent) { $null } else {
+    }
+    preConsolidationSourcesInspected = (-not $hubPresent)
+    preConsolidationSources = if ($hubPresent) { @() } else {
         $si = @()
         foreach ($sp in $resolvedSources) {
             $si += [ordered]@{
@@ -337,6 +389,7 @@ $R['01_agentsHub'] = [ordered]@{
         }
         $si
     }
+    semanticNote = 'canonicalHub describes the canonical .agents-hub only. Source-repository findings are never substituted into it; they live under preConsolidationSources.'
 }
 
 # --- 2. Claude Code configuration and native controls -----------------------
@@ -451,22 +504,47 @@ $R['06_runtimeDependencies'] = [ordered]@{
 
 # --- 7. Shared assets and tool registries -----------------------------------
 Write-Host '[ 7/14] shared assets and tool registries'
-$reg = @()
-foreach ($n in @('CATALOG.md','agent-registry.json','registry.json','catalog.json','package-layout.json','*.schema.json')) {
-    $regRoots = if ($hubPresent) { @($HubPath) } else { @($resolvedSources) }
-    $found = @()
-    foreach ($rr in $regRoots) { $found += @((Get-SafeChildItems -Root $rr -MaxDepth 3 -FilesOnly -Filter $n).items) }
-    foreach ($f in $found) { $reg += (Get-PathFact -Path $f.FullName -Hash) }
+$regPatterns = @('CATALOG.md','agent-registry.json','registry.json','catalog.json','package-layout.json','*.schema.json')
+
+# Canonical Hub registries. Populated ONLY from the canonical Hub. Empty and
+# not-applicable when the Hub is absent — never backfilled from a source repo.
+$regHub = @()
+if ($hubPresent) {
+    foreach ($n in $regPatterns) {
+        foreach ($f in @((Get-SafeChildItems -Root $HubPath -MaxDepth 3 -FilesOnly -Filter $n).items)) {
+            $regHub += (Get-PathFact -Path $f.FullName -Hash)
+        }
+    }
 }
+$regHub = Select-UniqueByFullName -Items $regHub
+
+# Pre-consolidation source registries. A separate field with separate semantics.
+$regSrc = @()
+if (-not $hubPresent) {
+    foreach ($sp in $resolvedSources) {
+        foreach ($n in $regPatterns) {
+            foreach ($f in @((Get-SafeChildItems -Root $sp -MaxDepth 3 -FilesOnly -Filter $n).items)) {
+                $regSrc += (Get-PathFact -Path $f.FullName -Hash)
+            }
+        }
+    }
+}
+$regSrc = Select-UniqueByFullName -Items $regSrc
+
 $R['07_sharedAssetsAndRegistries'] = [ordered]@{
-    applicable = $hubPresent
+    canonicalHubApplicable = $hubPresent
     notApplicableReason = if ($hubPresent) { $null } else { $hubAbsentReason }
-    searchedRoots = if ($hubPresent) { @($HubPath) } else { @($resolvedSources) }
-    registryCandidates = $reg
-    registryCount = $reg.Count
-    hubTemplatesDir = Get-TreeInventory -Root (Join-Path $HubPath 'templates') -MaxDepth 2
-    hubSkillsDir    = Get-TreeInventory -Root (Join-Path $HubPath 'skills') -MaxDepth 2
-    hubAgentsDir    = Get-TreeInventory -Root (Join-Path $HubPath 'agents') -MaxDepth 2
+    canonicalHubSearchedRoots = if ($hubPresent) { @($HubPath) } else { @() }
+    canonicalHubRegistryCandidates = $regHub
+    canonicalHubRegistryCount = @($regHub).Count
+    canonicalHubTemplatesDir = if ($hubPresent) { Get-TreeInventory -Root (Join-Path $HubPath 'templates') -MaxDepth 2 } else { $null }
+    canonicalHubSkillsDir    = if ($hubPresent) { Get-TreeInventory -Root (Join-Path $HubPath 'skills') -MaxDepth 2 } else { $null }
+    canonicalHubAgentsDir    = if ($hubPresent) { Get-TreeInventory -Root (Join-Path $HubPath 'agents') -MaxDepth 2 } else { $null }
+    preConsolidationSourcesInspected = (-not $hubPresent)
+    preConsolidationSearchedRoots = if ($hubPresent) { @() } else { @($resolvedSources) }
+    preConsolidationRegistryCandidates = $regSrc
+    preConsolidationRegistryCount = @($regSrc).Count
+    semanticNote = 'A canonicalHub* count of 0 with canonicalHubApplicable false means the canonical Hub does not exist, not that no registries exist anywhere. Source findings are reported separately and are never merged into the canonical fields.'
 }
 
 # --- 8. Scripts and APIs potentially relevant for exposure ------------------
@@ -479,12 +557,15 @@ foreach ($root in $scanRoots) {
         foreach ($f in $found) { $sc += [ordered]@{ path=$f.FullName; ext=$f.Extension; size=$f.Length } }
     }
 }
+$sc = Select-UniqueByFullName -Items $sc
 $R['08_scriptsAndApis'] = [ordered]@{
     applicable = $true
     hubIncludedInSearch = $hubPresent
     searchedRoots = @($scanRoots)
+    scanRootOverlaps = @($rootOverlaps)
+    deduplicatedByFullPath = $true
     candidates = $sc
-    count = $sc.Count
+    count = @($sc).Count
     note = 'Inventory only. No script was executed. When the canonical Hub is absent its path contributes nothing and the pre-consolidation sources are searched instead.'
 }
 
@@ -508,10 +589,13 @@ foreach ($c in @(
     (Join-Path $env:USERPROFILE '.codex\auth.json'),
     (Join-Path $env:USERPROFILE '.config\anthropic')
 )) { $f = Get-PathFact -Path $c; $f['contentsRead'] = $false; $credFiles += $f }
+$dotenv = Select-UniqueByFullName -Items $dotenv
 $R['09_authAndSecrets'] = [ordered]@{
     applicable = $true
     hubIncludedInSearch = $hubPresent
     searchedRoots = @($scanRoots)
+    scanRootOverlaps = @($rootOverlaps)
+    deduplicatedByFullPath = $true
     sensitiveEnvVarNames = $envSecretNames
     dotEnvFiles = $dotenv
     credentialStoreLocations = $credFiles
@@ -521,35 +605,46 @@ $R['09_authAndSecrets'] = [ordered]@{
 
 # --- 10. Audit and logging mechanisms --------------------------------------
 Write-Host '[10/14] audit and logging mechanisms'
-$logs = @()
+$logsHub = @()
+if ($hubPresent) {
+    foreach ($c in @((Join-Path $HubPath 'audit'), (Join-Path $HubPath 'logs'))) { $logsHub += (Get-PathFact -Path $c) }
+}
+$logsRuntime = @()
 foreach ($c in @(
-    (Join-Path $HubPath 'audit'), (Join-Path $HubPath 'logs'),
     (Join-Path $env:USERPROFILE '.claude\logs'), (Join-Path $env:USERPROFILE '.claude\history'),
     (Join-Path $env:USERPROFILE '.codex\log'), (Join-Path $env:USERPROFILE '.codex\logs'),
     (Join-Path $env:USERPROFILE '.codex\sessions')
-)) { $logs += (Get-PathFact -Path $c) }
+)) { $logsRuntime += (Get-PathFact -Path $c) }
 $R['10_auditAndLogging'] = [ordered]@{
-    hubCandidatesApplicable = $hubPresent
-    notApplicableReason = if ($hubPresent) { $null } else { 'Hub audit and logs paths are not applicable while the canonical Hub is absent. Runtime candidates are still evaluated.' }
-    candidates = $logs
-    existingCount = @($logs | Where-Object { $_.exists }).Count
+    canonicalHubApplicable = $hubPresent
+    notApplicableReason = if ($hubPresent) { $null } else { 'Canonical Hub audit and log paths are not applicable while the Hub is absent. Runtime candidates are evaluated independently below.' }
+    canonicalHubCandidates = $logsHub
+    canonicalHubExistingCount = @($logsHub | Where-Object { $_.exists }).Count
+    runtimeCandidates = $logsRuntime
+    runtimeExistingCount = @($logsRuntime | Where-Object { $_.exists }).Count
+    semanticNote = 'Hub and runtime log locations are counted separately. A zero Hub count while the Hub is absent is not evidence that no audit mechanism exists.'
 }
 
 # --- 11. Duplicated governance locations -----------------------------------
 Write-Host '[11/14] duplicated governance locations'
 $gov = @()
-$govCandidates = @()
+# Canonical Hub governance. Populated only when the Hub exists.
+$govHub = @()
 if ($hubPresent) {
-    $govCandidates += (Join-Path $HubPath 'rules\AGENTS.md')
-    $govCandidates += (Join-Path $HubPath 'AGENTS.md')
-} else {
+    foreach ($c in @((Join-Path $HubPath 'rules\AGENTS.md'), (Join-Path $HubPath 'AGENTS.md'))) {
+        $govHub += (Get-PathFact -Path $c -Hash)
+    }
+}
+# Pre-consolidation source governance. Separate field, separate semantics.
+$govSrc = @()
+if (-not $hubPresent) {
     foreach ($sp in $resolvedSources) {
-        $govCandidates += (Join-Path $sp 'rules\AGENTS.md')
-        $govCandidates += (Join-Path $sp 'AGENTS.md')
+        foreach ($c in @((Join-Path $sp 'rules\AGENTS.md'), (Join-Path $sp 'AGENTS.md'))) {
+            $govSrc += (Get-PathFact -Path $c -Hash)
+        }
     }
 }
 foreach ($c in @(
-    $govCandidates,
     (Join-Path $env:USERPROFILE '.codex\AGENTS.md'),
     (Join-Path $env:USERPROFILE '.claude\CLAUDE.md'),
     (Join-Path $WorkspaceRoot 'workspace-governor\AGENTS.md'),
@@ -560,10 +655,24 @@ $present = @($gov | Where-Object { $_.exists -and $_.sha256 })
 foreach ($g in ($present | Group-Object -Property sha256)) {
     if ($g.Count -gt 1) { $dupGroups += [ordered]@{ sha256=$g.Name; paths=@($g.Group | ForEach-Object { $_.path }) } }
 }
+# Duplication is assessed across every governance file actually inspected:
+# canonical Hub (if present), pre-consolidation sources (if the Hub is absent),
+# and the runtime files. Grouping by hash spans all three sets on purpose —
+# that is the point of the check — but each set is reported separately so no
+# source finding is presented as a canonical-Hub finding.
+$govAll = Select-UniqueByFullName -Items (@($govHub) + @($govSrc) + @($gov))
+$presentAll = @($govAll | Where-Object { $_.exists -and $_.sha256 })
+$dupGroups = @()
+foreach ($g in ($presentAll | Group-Object -Property sha256)) {
+    if ($g.Count -gt 1) { $dupGroups += [ordered]@{ sha256=$g.Name; paths=@($g.Group | ForEach-Object { $_.path }) } }
+}
 $R['11_duplicatedGovernance'] = [ordered]@{
-    hubGovernanceApplicable = $hubPresent
-    notApplicableReason = if ($hubPresent) { $null } else { 'Hub governance paths are not applicable while the canonical Hub is absent. Duplication across runtimes and the pre-consolidation sources is still assessed.' }
-    governanceFiles = $gov
+    canonicalHubApplicable = $hubPresent
+    notApplicableReason = if ($hubPresent) { $null } else { 'Canonical Hub governance paths are not applicable while the Hub is absent. Duplication across runtimes and the pre-consolidation sources is still assessed.' }
+    canonicalHubGovernanceFiles = $govHub
+    preConsolidationSourcesInspected = (-not $hubPresent)
+    preConsolidationSourceGovernanceFiles = $govSrc
+    runtimeGovernanceFiles = $gov
     identicalContentGroups = $dupGroups
     note = 'Identical sha256 proves a literal copy. Different hashes do not rule out semantic overlap, which requires manual review under HUB-MANAGEMENT.md.'
 }
@@ -591,23 +700,46 @@ $R['13_bypassPaths'] = [ordered]@{
 
 # --- 14. Repository and workspace paths ------------------------------------
 Write-Host '[14/14] repository and workspace paths'
+# Probe the ACTUAL repository state, which currently includes the two
+# pre-consolidation source repositories. Omitting them would describe an
+# architecture that does not yet exist while hiding the one that does.
 $repoCandidates = @(
     (Join-Path $WorkspaceRoot 'workspace-governor'),
+    (Join-Path $WorkspaceRoot 'agents-hub-one'),
+    (Join-Path $WorkspaceRoot 'agents-hub-two'),
     (Join-Path $WorkspaceRoot 'mcp-gateway'),
     (Join-Path $WorkspaceRoot 'atrium_workspace'),
     $HubPath
 )
+foreach ($sp in $resolvedSources) { $repoCandidates += $sp }
+$repoCandidates = @($repoCandidates | Where-Object { $_ } | Select-Object -Unique)
 $repos = @()
-foreach ($p in $repoCandidates) { $repos += (Get-GitRepoFact -Path $p) }
+foreach ($pth in $repoCandidates) { $repos += (Get-GitRepoFact -Path $pth) }
+
+function Get-RepoByLeaf { param([string]$Leaf) return ($repos | Where-Object { (Split-Path $_.path -Leaf) -ieq $Leaf } | Select-Object -First 1) }
+
 $R['14_repositoryPaths'] = [ordered]@{
     workspaceRoot = Get-TreeInventory -Root $WorkspaceRoot -MaxDepth 1
+    hubState = $hubState
     architectureComponents = [ordered]@{
-        'workspace-governor' = ($repos | Where-Object { $_.path -like '*workspace-governor' } | Select-Object -First 1)
-        '.agents-hub'        = ($repos | Where-Object { $_.path -eq $HubPath } | Select-Object -First 1)
-        'mcp-gateway'        = ($repos | Where-Object { $_.path -like '*mcp-gateway' } | Select-Object -First 1)
+        'workspace-governor' = Get-RepoByLeaf -Leaf 'workspace-governor'
+        'mcp-gateway'        = Get-RepoByLeaf -Leaf 'mcp-gateway'
+        '.agents-hub'        = [ordered]@{
+            path = $HubPath
+            present = $hubPresent
+            state = $hubState
+            note = if ($hubPresent) { 'canonical Hub present' } else { 'canonical .agents-hub: ABSENT — it is the output of consolidating agents-hub-one and agents-hub-two' }
+            repo = ($repos | Where-Object { $_.path -eq $HubPath } | Select-Object -First 1)
+        }
     }
+    preConsolidationSourceRepositories = [ordered]@{
+        inspected = $true
+        'agents-hub-one' = Get-RepoByLeaf -Leaf 'agents-hub-one'
+        'agents-hub-two' = Get-RepoByLeaf -Leaf 'agents-hub-two'
+    }
+    humanLayer = [ordered]@{ 'atrium_workspace' = Get-RepoByLeaf -Leaf 'atrium_workspace' }
     allProbed = $repos
-    note = 'The three architecture components are workspace-governor (control), .agents-hub (canonical desired state) and mcp-gateway (enforcement).'
+    note = 'Target architecture is workspace-governor (control), .agents-hub (canonical desired state) and mcp-gateway (enforcement). While .agents-hub is absent, agents-hub-one and agents-hub-two are the actual pre-consolidation sources and are reported as such, not as the canonical Hub.'
 }
 
 # --- Explicit non-verification ---------------------------------------------
@@ -663,20 +795,20 @@ if (-not $hubPresent) {
 }
 $L.Add('| # | Item | Finding |')
 $L.Add('|---|---|---|')
-$L.Add("| 1 | .agents-hub | state=$hubState, exists=$($R['01_agentsHub'].hub.exists), $($R['01_agentsHub'].inventory.itemCount) items inventoried |")
+$L.Add("| 1 | .agents-hub | state=$hubState, canonical exists=$($R['01_agentsHub'].canonicalHub.hub.exists), $($R['01_agentsHub'].canonicalHub.inventory.itemCount) items |")
 $L.Add("| 2 | Claude Code | CLI present=$($R['02_claudeCode'].cli.present), version=$($R['02_claudeCode'].cli.version) |")
 $L.Add("| 3 | Codex | CLI present=$($R['03_codex'].cli.present), stale-path hits=$($R['03_codex'].stalePathScan.Count) |")
 $L.Add("| 4 | MCP configs | Claude: $(@($R['04_mcpConfigurations'].claudeServerNames) -join ', ') / Codex: $(@($R['04_mcpConfigurations'].codexServerNames) -join ', ') |")
 $L.Add("| 5 | PATH | $($R['05_pathAndEnvironment'].pathEntryCount) entries, $($R['05_pathAndEnvironment'].agentRelevantPathCount) agent-relevant |")
 $L.Add("| 6 | Dependencies | node=$(($R['06_runtimeDependencies'].commands | Where-Object {$_.name -eq 'node'}).version), python=$(($R['06_runtimeDependencies'].commands | Where-Object {$_.name -eq 'python'}).version) |")
-$L.Add("| 7 | Registries | $($R['07_sharedAssetsAndRegistries'].registryCount) candidates |")
+$L.Add("| 7 | Registries | canonical Hub: $($R['07_sharedAssetsAndRegistries'].canonicalHubRegistryCount) (applicable=$hubPresent) / pre-consolidation sources: $($R['07_sharedAssetsAndRegistries'].preConsolidationRegistryCount) |")
 $L.Add("| 8 | Scripts/APIs | $($R['08_scriptsAndApis'].count) candidates |")
 $L.Add("| 9 | Secrets | $($R['09_authAndSecrets'].sensitiveEnvVarNames.Count) env names, $($R['09_authAndSecrets'].dotEnvFiles.Count) .env files (values NOT collected) |")
-$L.Add("| 10 | Audit/logging | $($R['10_auditAndLogging'].existingCount) existing locations |")
+$L.Add("| 10 | Audit/logging | canonical Hub: $($R['10_auditAndLogging'].canonicalHubExistingCount) (applicable=$hubPresent) / runtime: $($R['10_auditAndLogging'].runtimeExistingCount) |")
 $L.Add("| 11 | Duplicated governance | $($R['11_duplicatedGovernance'].identicalContentGroups.Count) identical-content groups |")
 $L.Add("| 12 | Native capabilities | candidate list requires confirmation |")
 $L.Add("| 13 | Bypass paths | $(@($R['13_bypassPaths'].configuredInBothRuntimes).Count) servers configured in both runtimes |")
-$L.Add("| 14 | Repositories | workspace root exists=$($R['14_repositoryPaths'].workspaceRoot.exists) |")
+$L.Add("| 14 | Repositories | workspace root exists=$($R['14_repositoryPaths'].workspaceRoot.exists); canonical .agents-hub present=$hubPresent; sources probed: agents-hub-one, agents-hub-two |")
 $L.Add('')
 $L.Add('## Codex governance-conflict check')
 $L.Add('')
