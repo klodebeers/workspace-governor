@@ -575,6 +575,29 @@ the renumbering, so they were repointed to D-33:
 
 No other file cited `D-26`. Verified by search across `*.md`, `*.json` and `*.ps1`.
 
+**D-34.** Verification has two independent dimensions: **depth is proportionate to
+risk; source is always the correct authority.** Proportionality never licenses
+checking the wrong source. An authority map for recurring question classes is added
+to `rules/VERIFICATION-RESOLUTION.md`, which already owns verification scoping.
+Decided by: User.
+
+Rationale: the failure pattern in this project was inconsistent verification
+*quality*, not quantity. Early work over-verified low-risk questions by building
+custom machinery; later work under-verified a high-consequence fact -- repository
+identity -- by trusting a stale local record, then compounded it with two checks
+that cannot answer the question at all: an unauthenticated `ls-remote` that fails on
+credentials rather than absence, and the old repository name resolving, which
+survives a rename by design. Both the rule and `AGENT-SSOT.json`
+§ `verification_and_audit` already required identifying where authoritative
+evidence exists. Neither named a source, so the choice was re-derived per task and
+re-derived wrongly. The map names the authority and, for each class, what is
+explicitly **not** authoritative -- the second column is the one that would have
+prevented this error.
+
+No obligation is restated, so `PENDING-GLOBAL-PROMOTIONS.md` P-03 is unaffected:
+the addition is the part neither existing owner covers, and it travels with the
+rule when P-03 is resolved at consolidation.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

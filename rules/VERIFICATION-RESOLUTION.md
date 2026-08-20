@@ -25,9 +25,36 @@ For each technical verification or investigation task:
 
 - **Complexity circuit breaker:** If validating the verification method itself becomes a substantial task, stop expanding the mechanism and reconsider whether the original question can be answered more directly.
 
+## Authority selection
+
+Verification has two independent dimensions. **Depth is proportionate to risk.
+Source is not.** A low-risk question still has exactly one correct authority, and
+a cheap check against the wrong source is not a cheap check -- it is a wrong
+answer obtained quickly.
+
+Step 2 above requires identifying where the authoritative evidence exists. This
+section names it for recurring classes, so the choice is not re-derived, and
+re-derived wrongly, each time. Neither this rule nor `AGENT-SSOT.json`
+§ `verification_and_audit` previously named a source; this section adds only that.
+
+| Question | Authoritative source | **Not** authoritative for this question |
+|---|---|---|
+| Does a repository exist; what is it named now | Authenticated repository listing or API for the owning account | A local clone's remote URL; a record in this repository; an unauthenticated `ls-remote`, which fails on credentials rather than absence; **the old name resolving, because a rename leaves a redirect** |
+| What a repository contains at a ref | The remote at that ref | A local working tree, which may be stale, dirty, or on another branch |
+| Did a change reach the remote | `git fetch` then compare against `origin/<branch>` | Local `HEAD`, or a push command's exit status alone |
+| State of the operator's machine -- installed tools, PATH, configuration presence | That machine, via read-only collection | This repository's records; any cloud environment |
+| Did a runtime discover, load, or enforce an instruction | A fresh session of that runtime, asked without being told the answer | File presence, configuration presence, or source placement. None of these is evidence of activation |
+| Vendor product behaviour -- limits, precedence, discovery paths | Current official vendor documentation, or implementation source at a pinned commit, recorded with its date | Memory; third-party summaries; a prior research file not re-verified |
+| Status of work assigned to someone else | The live system where that work lands | The assignment record here. It states what was true when written |
+| What was decided | `DECISIONS.md` | `STATE.md`, which states what is currently true, not what was settled |
+| Whether text is present or absent in a file or transcript | The simplest unfiltered read -- plain search over raw content | Any filtered, limited, or shape-scoped query. A partial result reads exactly like a complete one |
+
+Where a class is absent from this table, apply step 2 and add the class once
+resolved.
+
 ## Core standard
 
-> Choose the simplest reliable method that is proportionate to the risk and sufficient for the next decision. Prefer existing capabilities and perform checks in the environment containing the evidence. Escalate only when the current method cannot answer the question reliably. Stop once the required decision is adequately supported.
+> Choose the simplest reliable method that is proportionate to the risk and sufficient for the next decision, **against the source that actually holds the answer**. Prefer existing capabilities and perform checks in the environment containing the evidence. Escalate only when the current method cannot answer the question reliably. Stop once the required decision is adequately supported.
 
 ## Anti-patterns
 
