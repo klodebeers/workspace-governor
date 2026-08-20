@@ -87,7 +87,30 @@ gate limits current work to reconciliation, and Gateway discovery is under a sto
 condition until consolidation completes, so there is no operational pressure to
 change that script mid-reconciliation.
 
-## One conflict to surface
+## Superseded for execution -- classification, not an open question
+
+**Resolved 2026-08-20.** No new decision was required. The Agent Hub Consolidation
+directive already supersedes any older instruction authorizing remediation,
+installation, deletion, restructuring or machine changes during this
+reconciliation phase. Raising it as a user decision was an error: the governing
+directive had already answered it.
+
+Classification applied:
+
+| Spec portion | Class |
+|---|---|
+| `01` Phase 3 -- safe corrections to PATH | **Superseded for execution. Provenance-only.** |
+| `03` Part B -- remediate baseline gaps, installs | **Superseded for execution. Provenance-only.** |
+| `03` Part C -- finalize `.agents-hub` | **Superseded for execution.** Concern now owned by `plans/AGENT-HUB-CONSOLIDATION.md`. |
+| `03` Part D -- clean consolidation, incl. deletion | **Superseded for execution. Provenance-only.** |
+
+Preserved historically in `workspace-governor-agents-hub-one`, which is unmodified.
+Not executed, and not to be handed to a local agent as live instructions. The
+inventory, configuration-analysis, dependency, semantic-duplication and
+fresh-session verification requirements in the same specs remain valid and are
+carried forward.
+
+## The superseded portions, in detail
 
 Spec 01 Phase 3 and spec 03 Parts B, C and D **authorize machine changes** --
 PATH edits, dependency installation, finalizing the Hub, and consolidation

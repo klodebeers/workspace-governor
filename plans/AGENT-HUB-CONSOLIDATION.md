@@ -76,7 +76,7 @@ Predecessor identifiers mapped to current ones. One row per real issue; no dupli
 |---|---|---|---|
 | C-01 | B-3 | Codex authority file has stale `C:\Users\ByteBoss\...` paths and overlaps Hub-owned responsibilities | Open. Blocks Codex adapter activation only. Needs user authorization to open as a scoped change (D-11). |
 | C-02 | B-2 | `design-systems/.remember` provenance and sensitivity unresolved | Open. Existence-only handling enforced in tooling. Blocks classification of that area only. |
-| C-03 | -- | Claude Code project-versus-global loading can let project instructions outrank global governance | Open. Carried forward. Blocks Claude Code adapter finalization only. **Not previously recorded in this backoffice.** |
+| C-03 | -- | Claude Code instruction placement enforces nothing on its own; an enforcement carrier must be chosen per rule | Open, **narrowed and restated 2026-08-20**. The carried-forward wording -- "project instructions outrank global governance" -- conflated advisory instructions with enforced settings. Managed settings cannot be overridden by a project. Blocks adapter finalization only. `evidence/RUNTIME-CONVENTIONS-2026-08-20.md` |
 | G-01 | -- | Hub reference audit overlaps project research; unique evidence not mapped | Open. Carried forward. Step 6. |
 | G-02 | -- | Third-party scaffolder provenance and licence not accepted | Open. Matches the `agent-governance-toolkit` open item. |
 | G-03 | B-5 | Runtime discovery, permissions, hooks and activation behavior may drift | Open. Local execution required. |
