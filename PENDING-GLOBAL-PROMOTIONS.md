@@ -59,3 +59,84 @@ local copy is a temporary binding, not its intended home.
 Steps 1 and 2 are the verification this rule itself governs: the sufficient
 result is that the rule is present under its canonical owner and reachable by
 governed agents. Nothing beyond that is required to close the promotion.
+
+---
+
+## P-02 -- `AGENT-SSOT.json`
+
+**Status:** Pending promotion. Held at this repository root; belongs to shared
+governance.
+
+```text
+Current artifact:
+workspace-governor/AGENT-SSOT.json  (v1.1, user-supplied 2026-08-20)
+
+Current enforcement:
+workspace-governor/AGENTS.md bootstrap order item 0, ownership table, and
+Standing rules
+
+Target:
+final canonical .agents-hub root, alongside the root AGENTS.md contract
+
+Promotion trigger:
+canonical .agents-hub structure and rule ownership are finalized
+```
+
+It is placed at the repository **root**, not in `rules/`, because it is a root
+behavior contract rather than a routed topic owner -- the same structural point
+recorded as Observation 1 in
+`evidence/GOVERNANCE-STRUCTURE-OBSERVATIONS-2026-08-20.md`.
+
+`USER-SSOT.json`, named second in its `load_order`, **is not persisted in any
+repository**. It was supplied in an earlier session and exists in no accessible
+location. The declared load order cannot be satisfied until it is supplied again.
+
+### Terms
+
+- Cross-agent behavior contract, not a `workspace-governor` policy.
+- Must be promoted to the canonical Hub root once an owner exists.
+- On promotion it must be the **single** owner of agent behavior, audience
+  translation, communication format and verification scoping -- see P-03.
+- Runtime adapters must expose it at session start, as the hub root contract
+  already requires of the governance package.
+- Promotion must be verified before the local copy is retired.
+
+---
+
+## P-03 -- Duplicate ownership to resolve at consolidation
+
+**Status:** Open governance conflict. Surfaced, deliberately not resolved.
+
+`AGENT-SSOT.json` overlaps two existing rule owners. Precedence is settled by
+Normative Authority; ownership is not. Full analysis in
+`evidence/GOVERNANCE-STRUCTURE-OBSERVATIONS-2026-08-20.md` § Observation 3.
+
+| Concern | Competing owners | Recommended resolution |
+|---|---|---|
+| Verification scoping, stopping condition, proportionality, circuit breaker | `AGENT-SSOT.json` § `verification_and_audit` vs `rules/VERIFICATION-RESOLUTION.md` | SSOT becomes sole owner; the rule file is retired into it or demoted to a routed detail file adding no duplicate obligation. |
+| Ownership split; non-transferable decisions | `AGENT-SSOT.json` § `escalation_and_ownership` vs `rules/ENGINEER-OWNERSHIP.md` | SSOT owns the split; the rule retains intake and technical decision resolution. |
+| Communication substance and audience | `AGENT-SSOT.json` § `technical_translation_and_audience` vs `rules/ENGINEER-OWNERSHIP.md` § Communication | SSOT owns audience and format; remove the overlapping clause from the rule. |
+
+Not resolved now because `rules/VERIFICATION-RESOLUTION.md` and P-01 were created
+on explicit user direction, and retiring them is a governance decision about the
+user's artifact rather than an ordinary engineering correction.
+
+---
+
+## P-04 -- Conflict-resolution coverage gaps
+
+**Status:** Recorded as governance gaps. No new rule file created, as directed.
+
+Assessment against all five `agents-hub-one` rule owners found the great majority
+of conflict classes already owned. Three gaps remain:
+
+| Gap | Class | Currency | Recommended home |
+|---|---|---|---|
+| G-1 | Peer agent output conflict, outside any delegation hierarchy | Live | Section in `CONTEXT-AND-ORCHESTRATION.md` |
+| G-2 | Contradiction between requirements or constraints at the **same** authority level | Plausible now | Section in `AGENTS.md` § Normative Authority |
+| G-3 | Stakeholder-goal conflict under multiple principals | Latent | Defer; record only |
+
+`CONFLICT-RESOLUTION.md` is **not** recommended. Each gap is the missing branch
+of a rule an existing owner already holds, and the hub root contract's Governance
+Owner Creation Standard forbids a new owner where a focused section serves
+cleanly.

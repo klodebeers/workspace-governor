@@ -11,6 +11,9 @@ runtime.
 
 Read in this order before deciding or changing anything:
 
+0. `AGENT-SSOT.json` — authoritative agent behavior contract: ownership, audience
+   translation, verification scoping, escalation. Its own `load_order` places it
+   first, before `USER-SSOT.json`. Read it before deciding anything.
 1. `README.md` — purpose, scope, managed components, repository relationships.
 2. `STATE.md` — current verified state, phase, blockers, open work, next action.
 3. `DECISIONS.md` — settled decisions. Treat each as settled within its recorded
@@ -80,6 +83,7 @@ One owner per concern. Do not duplicate content between these files.
 | `DECISIONS.md` | Settled decisions and their rationale. Append-only. |
 | `AGENTS.md` | Bootstrap order, persistence requirement, file ownership |
 | `mcp-gateway` | Gateway build and configuration requirements |
+| `AGENT-SSOT.json` | Agent behavior: ownership boundaries, audience translation, communication format, verification scoping, escalation. User-supplied and authoritative. |
 | `rules/VERIFICATION-RESOLUTION.md` | How verification and investigation work is scoped, bounded and stopped |
 | `PENDING-GLOBAL-PROMOTIONS.md` | Rules held locally that are owed to shared governance, and their promotion terms |
 
@@ -114,6 +118,13 @@ than routing them back to the user.
 Escalate only an unresolved matter that exceeds granted authority, crosses a
 protected boundary, or genuinely requires business judgement.
 
+`AGENT-SSOT.json` § `escalation_and_ownership` is the current authority on this
+split, including what must never be transferred to the user: ordinary
+implementation choices, tooling selection, environment setup the agent can
+perform itself, and technical investigation the agent can carry out with
+available evidence. Difficulty, uncertainty, or the need for further
+investigation are not grounds for transfer.
+
 ## Standing rules
 
 `rules/VERIFICATION-RESOLUTION.md` is **binding** for all verification and
@@ -124,6 +135,18 @@ gathered, how much evidence is enough, and when to stop.
 It is not a `workspace-governor` policy. It is a cross-agent rule held here
 temporarily because the canonical `.agents-hub` does not yet exist to own it. Its
 promotion obligation is recorded in `PENDING-GLOBAL-PROMOTIONS.md`.
+
+`AGENT-SSOT.json` is **binding** and outranks this repository's governance. It
+owns the ownership split, audience translation, communication format, and
+verification scoping. Route to it; do not restate it here.
+
+**Open governance conflict.** `AGENT-SSOT.json` § `verification_and_audit`
+substantially duplicates `rules/VERIFICATION-RESOLUTION.md`, and its
+§ `escalation_and_ownership` overlaps `rules/ENGINEER-OWNERSHIP.md`. Precedence
+is settled -- an explicit user instruction outranks the contract package -- but
+ownership is not: two files state the same obligation. Surfaced, not blended, per
+the hub root contract. See
+`evidence/GOVERNANCE-STRUCTURE-OBSERVATIONS-2026-08-20.md` § Observation 3.
 
 ## Stop conditions
 

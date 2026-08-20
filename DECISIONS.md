@@ -197,6 +197,37 @@ application of `rules/VERIFICATION-RESOLUTION.md`, and it indicts the earlier
 tooling built in this repository rather than vindicating it. Evidence:
 `evidence/POWERSHELL-EXECUTION-2026-08-20.md`.
 
+**D-21.** `AGENT-SSOT.json` is persisted at the `workspace-governor` repository
+root and is authoritative for agent behavior, outranking this repository's
+governance. Decided by: User (authority and content); Agent (placement).
+
+Rationale: the user supplied it as an authoritative machine-readable agent
+behavior contract. Root placement, not `rules/`, because it is a root behavior
+contract rather than a routed topic owner -- the same structural distinction
+recorded as Observation 1 for the canonical Hub. Its own `load_order` places it
+before `USER-SSOT.json`, so it is bootstrap item 0 in `AGENTS.md`. One supplied
+syntax defect was corrected: a missing comma after the `document` member, which
+made the object unparseable; content is otherwise verbatim and validates under a
+JSON parser. `USER-SSOT.json` is named in the load order but is not present in
+any repository or accessible path, so the declared order cannot yet be satisfied.
+
+**D-22.** No `CONFLICT-RESOLUTION.md` will be created. Decided by: Agent, under
+ENGINEER-OWNERSHIP, per the user's instruction to assess before inventing.
+
+Rationale: all five `agents-hub-one` rule owners were read, not the three named,
+because absence from three files is not absence from the package -- and two
+classes assumed uncovered proved owned by the two unnamed files
+(`CONTEXT-AND-ORCHESTRATION.md` owns delegated-agent output conflict;
+`VERIFICATION-AND-EVIDENCE.md` owns detection of evidence inconsistent with
+accepted findings). Three genuine gaps remain: peer agent output conflict outside
+any delegation hierarchy (live), same-level requirement or constraint
+contradiction (plausible), and stakeholder-goal conflict (latent). Each is the
+missing branch of a rule an existing owner already holds, so the hub root
+contract's Governance Owner Creation Standard condition 6 forbids a new owner. A
+single new file spanning all three would cut across three owners' concerns and
+reintroduce the duplication the package exists to prevent. Recorded as gaps in
+`PENDING-GLOBAL-PROMOTIONS.md` P-04.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

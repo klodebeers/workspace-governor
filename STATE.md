@@ -107,12 +107,15 @@ unexercised. Live-Hub evidence cannot be accepted until
 1. Inventory the live local Hub against the committed GitHub baseline, then revise the preliminary target tree against that evidence.
 2. ~~Revise the Gateway discovery tooling so it does not presuppose `.agents-hub` exists.~~ **Closed** — semantics verified across the full report, and the `00_hubState` ordering defect fixed. Still unexecuted; awaits the local Windows runtime test recorded under Verification assignments.
 3. Execute the accepted classification once the target tree is accepted. Assessment and classification are complete; `change`, `reference-update` and `verify` remain. See `evidence/HUB-RECONCILIATION-ASSESSMENT-2026-08-19.md`.
-4. Persist the user SSOT. `USERSSOT.json` was supplied in session as an authoritative user-side responsibilities file and exists in no repository. Its placement is undecided.
+4. Persist `USER-SSOT.json`. Named second in `AGENT-SSOT.json` § `load_order`; not present in any repository or on any accessible path as of 2026-08-20. The declared load order cannot be satisfied until the file is supplied. Placement decided: repository root, alongside `AGENT-SSOT.json`. **Blocked on the artifact, not on a decision** -- the user is resending it.
 5. Open B-3 as a separate scoped change once authorized.
 6. Determine placement of the three agent rulings recorded in `DECISIONS.md` under D-07 through D-09.
 7. Trim the duplicated live-state narrative in `workspace-governor-agents-hub-one/research/` per D-15. Edits another repository; sequenced separately.
 8. ~~Correct the case-insensitive variable collisions found in four scripts, two of them live defects in the assigned local commands.~~ **Closed** — fixed, and a static gate added to prevent the class. See `evidence/SCRIPT-STRUCTURE-DEFECTS-2026-08-20.md`.
 9. Promote the Verification Resolution Rule into the canonical `.agents-hub` once its structure and rule ownership are finalized. Held locally as an interim binding; terms and on-promotion steps in `PENDING-GLOBAL-PROMOTIONS.md` P-01. Blocked by the same absence of a canonical Hub as B-4.
+10. Resolve the duplicate ownership between `AGENT-SSOT.json` and `rules/VERIFICATION-RESOLUTION.md` / `rules/ENGINEER-OWNERSHIP.md` at consolidation. Open governance conflict, surfaced not blended. `PENDING-GLOBAL-PROMOTIONS.md` P-03.
+11. Correct `AGENTS.md` placement in the canonical Hub: root, not `rules/`. Structural only. `evidence/GOVERNANCE-STRUCTURE-OBSERVATIONS-2026-08-20.md` Observation 1. Do not refactor `agents-hub-one` now.
+12. Close conflict-resolution gaps G-1 and G-2 as sections in existing owners at consolidation. G-3 deferred. `PENDING-GLOBAL-PROMOTIONS.md` P-04. No new rule file.
 
 ## Next action
 
@@ -156,6 +159,7 @@ consolidation. Do not run Gateway discovery.
 - Do not run the discovery tooling in `scripts/` until it is revised per open work item 2 **and** Hub consolidation is complete (`DECISIONS.md` D-05, D-06).
 - Do not adopt `agent-governance-toolkit` without provenance, licence, and generated-output review.
 - Do not commit a `.ps1` under `scripts/` containing any byte above 0x7F. Windows PowerShell 5.1 reads non-BOM sources as ANSI, and U+2014 becomes a string delimiter.
+- Do not restate any obligation `AGENT-SSOT.json` already states. It is authoritative and outranks this repository's governance; route to it.
 - Do not choose a verification method before reading `rules/VERIFICATION-RESOLUTION.md`. It is binding, and it bounds the method, the stopping condition, and when new tooling is justified.
 - Do not hand any script under `scripts/` to the local operator until
   `python3 scripts/Assert-ScriptStructure.py --selftest` and the same tool run
