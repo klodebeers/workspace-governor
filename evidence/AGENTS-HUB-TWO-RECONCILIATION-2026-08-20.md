@@ -1,13 +1,36 @@
 # Reconciliation -- `agents-hub-two` artifact by artifact
 
 **Date:** 2026-08-20
-**Source:** `agents-hub-two` @ `0a222df`, 27 files, 65 KB. All 27 read.
-**Method:** actual file content, field level. No artifact classified from its
-filename. Every JSON parsed.
+**Revision:** 2. Revision 1 contained five material errors, corrected below and
+listed in § Corrections. Revision 1 is superseded in place because it was issued
+the same day and leaving its wrong findings standing would be worse than a
+same-day revision. The dated-baseline supersession rule applies to inventories
+with downstream consumers, not to a same-day correction of the authoring error.
+**Source:** `agents-hub-two` @ `0a222df`, 27 files, 65,519 bytes. All 27 read.
+**Method:** actual file content, field level. **Revision 2 additionally verified
+every claim by direct re-read after an independent adversarial review.**
 **Status:** Reconciliation analysis. **No source repository modified. Nothing
 applied.** Approval required before restructuring (`plans/AGENT-HUB-CONSOLIDATION.md` § 6.7).
-**Blocked portion:** none. This input required no live-Hub evidence, so it
-proceeded while B-6 remains open.
+
+## Corrections to revision 1
+
+Found by an independent adversarial subagent review, then verified by the parent
+agent against source. All five are confirmed.
+
+| # | Revision 1 claimed | Actually true | Cause |
+|---|---|---|---|
+| C1 | "Both coordinators carry the same key set" -- eight keys listed | Both carry **15** keys. Revision 1 never saw `escalation_rules`, `dependency_chain` or `meta` | **Authoring defect: my own key listing was truncated to the first 12 keys, and I then reasoned as though it were complete.** The same class of error as reporting a filtered result as a full one |
+| C2 | "At field level it is four of four templates Notion-specific", correcting an earlier three-of-four | `templates/verification-checklist-template.json` is **domain-neutral**: `check_name`, `method`, `expected_result`, `pass_criteria`, `fail_criteria`, `human_review_required`, `notes`. The earlier three-of-four was right; revision 1 was a **regression** | Two contracts disagree on *synonyms* (`expected_result` vs `expected_output`), which I read as a domain field set |
+| C3 | "`task-brief-template.json` matches the Notion task-brief contract" | It matches **`NOTION-COORDINATOR-ORCHESTRATOR.handoff_contract.required_fields`** -- all 10 fields, same order, plus 2 extras. It is the **handoff** artifact under a task-brief filename. No conforming task-brief template exists | **Classified from its filename**, in a document whose method line disclaims exactly that |
+| C4 | The `decision_rules.must_not_do` boundary restatement described as a property of both coordinators | Only the **general** coordinator restates boundaries. The Notion coordinator's four items are schema, formula-migration, ambiguity and approval-authority rules -- three are legitimate domain specialisation | One file's content generalised to a class of blocks |
+| C5 | Four duplicated governance blocks | **Five.** `escalation_rules` is present in both coordinators and is the most literal duplication in the repository | Consequence of C1 |
+
+A sixth defect, in citation rather than finding: revision 1 named
+`rules/ENGINEER-OWNERSHIP.md`, `rules/AUTONOMY-AND-PROTECTED-BOUNDARIES.md` and
+`rules/VERIFICATION-AND-EVIDENCE.md` as bare paths. Locally, `rules/` holds only
+`VERIFICATION-RESOLUTION.md`; those three live in the canonical Hub. Under this
+repository's own evidence standard that was an unverified citation. Corrected
+throughout to `.agents-hub/rules/...`.
 
 ## Summary of what this repository actually is
 
@@ -23,17 +46,24 @@ are not agents at all**.
 |---|---|
 | `config/agent-registry.json` -> `entry_point` | Notion coordinator **only** |
 | `package-layout.json` -> `entry_points` | **Both** coordinators |
-| `prompts/*.prompt.txt` | Each prompt hardcodes its own entry path |
+| `prompts/notion-coordinator.prompt.txt` | Names an agent file as "the entry point"; the other three name no agent entry point |
+| `schemas/agent-registry.schema.json` | A **fourth, machine-readable** declaration: `entry_point` typed as a single **string** and `coordinator` as a single **object** |
 
 A general, non-Notion request entering through the registry's declared entry point
-reaches the **Notion** coordinator. This is a live inconsistency in the source, not
-an artifact of consolidation. One owner is required: `orchestration/`.
+reaches the **Notion** coordinator. One owner is required: `orchestration/`.
+
+**This is an executable defect, not only a declaration inconsistency.**
+`prompts/general-coordinator.prompt.txt` instructs the general coordinator to
+"route work to the correct specialist using the workspace registry in
+`./config/agent-registry.json`" -- a registry whose `routing_rules` contains a
+`notion` key only. A general coordinator following its own prompt finds **no
+routing rules for any of its six specialists**.
 
 ## Finding 2 -- routing logic exists in four places at three fidelities
 
 | Location | Coverage | Fidelity |
 |---|---|---|
-| `AGENT-COORDINATOR-ORCHESTRATOR.routing_logic` | 7 general routes | trigger + route_to + output |
+| `AGENT-COORDINATOR-ORCHESTRATOR.routing_logic` | **6 routes plus 1 differently-shaped rule** | trigger + route_to + output, except `patterns[0]` ("Business request with unclear requirements") which has **no `route_to` and no `output`** and uses an `action` key -- a pre-routing clarification rule, not a route |
 | `NOTION-COORDINATOR-ORCHESTRATOR.routing_logic` | 5 Notion routes | trigger + route_to + output |
 | `NOTION-SYSTEM-DEPENDENCIES.routing_logic` | the **same 5** Notion routes | trigger + route_to + output, **differently worded** |
 | `config/agent-registry.json` -> `routing_rules` | 5 Notion ids **only** | bare id list, no triggers |
@@ -48,19 +78,20 @@ registry's `routing_rules` covers Notion only; the seven general agents sit in
 Five template contracts are declared in **both** dependency files with **different
 required fields**, and only four template files exist.
 
-| Concept | `AGENT-SYSTEM-DEPENDENCIES` declares | `NOTION-SYSTEM-DEPENDENCIES` declares | File on disk |
-|---|---|---|---|
-| verification checklist | `expected_output`, `human_action_required` | `expected_result`, `human_review_required` | matches **Notion** |
-| execution record | `objective`, `files_changed`, `commands_run`, `environment_assumptions`, `result`, `failure_modes` | `issue_summary`, `database_names`, `changes_made`, `formula_or_property_details`, `risks_and_follow_ups` | matches **Notion** |
-| technical spec | `proposed_solution`, `data_requirements`, `system_dependencies`, `acceptance_criteria`, `risks` | `database_scope`, `related_databases`, `properties_affected`, `relation_paths`, `formula_logic`, `view_requirements`, `automation_rules` | matches **Notion** |
-| task brief | `goal`, `context`, `constraints`, `required_data`, `dependencies`, `success_criteria`, `owner` | `issue_or_goal`, `database_name`, `expected_behavior`, `current_behavior`, `user_approval_points` | matches **Notion** |
-| handoff | declared | declared | **no file exists** |
+| Concept | File on disk | Verdict |
+|---|---|---|
+| verification checklist | `check_name`, `method`, `expected_result`, `pass_criteria`, `fail_criteria`, `human_review_required`, `notes` | **Domain-neutral.** Satisfies the Notion contract 6/6. The two contracts differ only in synonyms -- `expected_result`/`human_review_required` vs `expected_output`/`human_action_required`. The only unique field is `notes`, in neither contract |
+| execution record | Notion field set | Notion-specific. **Missing the Notion contract's required `absolute_or_workspace_paths`** |
+| technical spec | **Hybrid** | Carries `business_rules` and `risks`, which appear only in the **general** contract; missing Notion's required `related_databases` and `properties_affected`; has `properties_involved`, a third name. Plus `assumptions` and `expected_behavior`, in neither contract |
+| task brief | Matches the **Notion coordinator's `handoff_contract.required_fields`** -- 10 fields, same order, plus `open_questions` and `dependencies` | **Misnamed.** It is the handoff artifact. It covers only 3 of 9 Notion task-brief fields and 2 of 8 general ones |
+| handoff | **no file** | Declared **four** times with four different field sets: both dependency files' `handoff_template`, and `handoff_contract.required_fields` in **both** coordinators. A fifth variant exists as `handoff_format` in `AGENT-RESEARCH-DOCUMENTATION.json` |
 
-So: **all four template files carry the Notion field set, the general variants are
-declared but unimplemented, and the handoff template is declared twice and exists
-nowhere.** This corrects the earlier statement in
-`evidence/HUB-RECONCILIATION-ASSESSMENT-2026-08-19.md` that three of four
-templates are Notion-specific -- at field level it is four of four.
+**Corrected conclusion.** Three of four template files are Notion-specific; the
+verification checklist is domain-neutral. One file is misnamed and is really the
+handoff artifact, so **no conforming task-brief template exists**. Only the
+verification checklist fully satisfies its own contract. The earlier
+three-of-four figure in `evidence/HUB-RECONCILIATION-ASSESSMENT-2026-08-19.md`
+was correct and is reinstated.
 
 ## Finding 4 -- topology and sequence duplicated
 
@@ -73,27 +104,33 @@ domain. Both are orchestration concepts, not agent definitions.
 Semantic duplication of Hub-owned governance, found by comparing obligations
 rather than wording. None of it may be carried into the Hub.
 
-| Block | Restates | Existing owner |
+| Block | Verdict | Existing owner |
 |---|---|---|
-| `ownership` -- user is business owner and decision-maker; agent does implementation | the ownership split | `rules/ENGINEER-OWNERSHIP.md`; `AGENT-SSOT.json` § `escalation_and_ownership` |
-| `decision_rules.must_not_do` -- no budget or vendor approval without the user; no financial execution, contracts, or MFA-privileged actions | protected boundaries | `rules/AUTONOMY-AND-PROTECTED-BOUNDARIES.md`; `AGENT-SSOT.json` § `execution_constraints` |
-| `communication_style` -- direct, action-oriented, precise; translate a rough request into implementation-ready language | tone, format, and requirements translation | `AGENT-SSOT.json` § `communication_and_format`, § `requirements_translation_and_specification` |
-| `verification_rules` -- verify before implementing, require verification criteria, name human steps, mark blocked with the missing item | verification and evidence | `rules/VERIFICATION-AND-EVIDENCE.md`; `AGENT-SSOT.json` § `verification_and_audit` |
+| `escalation_rules` -- "Escalate to a human executor for any action that requires MFA, account ownership, bank payment, or secret-based flow" (general coordinator) | **CONFIRMED. The most literal duplication in the repository.** Missed in revision 1 | `.agents-hub/rules/AUTONOMY-AND-PROTECTED-BOUNDARIES.md`; `AGENT-SSOT.json` § `execution_constraints.cannot_do` |
+| `ownership` | **OVERSTATED.** Only the `user:` line restates the authority split. The `agent:` line enumerates the coordinator's functional scope -- role definition, not governance -- and the two coordinators' blocks differ. Stripping the block wholesale destroys the role definition | `.agents-hub/rules/ENGINEER-OWNERSHIP.md`; `AGENT-SSOT.json` § `escalation_and_ownership` |
+| `decision_rules.must_not_do` | **CONFIRMED for the general coordinator only.** Its items 1-2 restate boundaries. The Notion coordinator's four items are schema, formula-migration, ambiguity and approval-authority rules -- three are legitimate domain specialisation | as above |
+| `decision_rules.must_do` | **CONFIRMED, missed in revision 1.** Carries two further restatements: "Keep the communicative style direct, structured, and action-oriented" and "Never present the coordinator as the business owner or decision-maker" | `AGENT-SSOT.json` § `communication_and_format`; ownership owners above |
+| `communication_style` | **CONFIRMED.** Duplicates tone and the requirements-translation obligation | `AGENT-SSOT.json` § `communication_and_format`, § `requirements_translation_and_specification` |
+| Response format -- Action / Status / Next | **CONFIRMED and understated in revision 1.** Restated in **six** places: both coordinators' `handoff_contract` (as `output_format` and `response_format`) and all four `prompts/*.prompt.txt` | `AGENT-SSOT.json` § `communication_and_format.response_format` |
+| `verification_rules` | **CONFIRMED for the general coordinator.** The Notion coordinator's are domain instantiations -- "check the actual database behavior", "pass/fail evidence for formula, relation, view, automation fixes". Deleting those leaves the domain with no statement of what evidence counts | `.agents-hub/rules/VERIFICATION-AND-EVIDENCE.md`; `AGENT-SSOT.json` § `verification_and_audit` |
+| Specialist boundary restatements | **Only two exist**, both missed in revision 1: `AGENT-PAYMENTS-BILLING.rules.must_not_do[0]` and `AGENT-IAM-ACCESS.rules.must_not_do[1]` | as above |
 
-`communication_style` is present in the general coordinator and **absent** from the
-Notion coordinator -- an asymmetry with no stated reason, and further evidence that
-these blocks are incidental copies rather than owned content.
+Revision 1's claim that `communication_style`'s absence from the Notion
+coordinator evidenced incidental copying is **wrong**: the Notion coordinator
+carries the same obligation in `decision_rules.must_do`. The asymmetry is key
+placement, not content.
 
 ## Finding 6 -- the Notion coordinator is not a separate agent
 
 Decided from content, as the directive requires.
 
-Both coordinators carry the **same key set** -- `ownership`,
-`core_responsibilities`, `decision_rules`, `routing_logic`, `required_inputs`,
-`required_artifacts`, `handoff_contract`, `verification_rules` -- differing only
-in domain vocabulary and two domain extras (`notion_formula_v2_guidance` on one,
-`communication_style` on the other). The routing structure is identical:
-trigger -> route_to -> output.
+Both coordinators carry **15 keys**, identical at top level except one swap --
+`communication_style` on the general, `notion_formula_v2_guidance` on the Notion.
+**Nested, they differ**: `handoff_contract.output_format` vs `.response_format`;
+`meta.notes` vs `meta.note`; `dependency_chain` lists the four templates in the
+general file and only agents in the Notion file. Routing shape is
+trigger -> route_to -> output in both, **except** the general coordinator's
+`patterns[0]`, which uses `action` and routes nowhere.
 
 **Conclusion: one general orchestrator plus domain-specific orchestration
 definitions.** The Notion coordinator is the same orchestrator role instantiated
@@ -105,6 +142,63 @@ second coordinator identity.
 Specialist separation is **preserved**. The five Notion and six general
 specialists have materially different responsibilities, inputs and outputs; they
 are not flattened.
+
+**Cost of folding, not stated in revision 1.** The two
+`handoff_contract.required_fields` sets share only **4 of 10** fields
+(`task_name`, `specialist_agent`, `acceptance_criteria`, `verification_steps`),
+and only the Notion one has a template file on disk. Folding requires choosing or
+parameterising the handoff contract. The Notion coordinator also escalates to "the
+relevant team or owner if the database change affects a critical workflow" -- a
+third-party escalation target with no general-coordinator equivalent.
+
+## Finding 6b -- the registry schema cannot express the model it validates
+
+Missed in revision 1. Verified directly.
+
+`schemas/agent-registry.schema.json` declares `required` and `properties` over six
+keys only: `name`, `workspace_root`, `version`, `entry_point`, `coordinator`,
+`specialists`. The live registry has **eight** keys. `non_notion_agents` and
+`routing_rules` are **absent from `properties`**, and there is **no
+`additionalProperties: false`**, so the seven general agents and every routing
+rule pass through **unvalidated**. The schema validates only the Notion half.
+
+It also types `coordinator` as a single object and `entry_point` as a single
+string, so it **structurally forbids the two-coordinator model** the repository
+implements. That is schema-level evidence *for* Finding 6 and *against*
+`package-layout.json`'s two entry points.
+
+Separately, `$id` is `"./schemas/agent-registry.schema.json"` -- a relative
+reference. Draft 2020-12 requires an absolute URI, so the schema will not resolve
+in a standard validator.
+
+## Finding 6c -- two incompatible agent-definition shapes, and no schema for either
+
+Missed in revision 1. The two coordinators use `core_responsibilities`,
+`decision_rules{must_do,must_not_do}`, `handoff_contract`, `dependency_chain`. All
+eleven specialists use `primary_responsibilities`, `rules{must_do,must_not_do}`,
+`dependencies` -- the same concepts under different keys. `schemas/` covers agent
+definitions **not at all**.
+
+For a consolidation whose objective is one `agents/` folder with one owner per
+concern, this is the real structural blocker.
+
+## Finding 6d -- Notion formula knowledge is quadruplicated
+
+Missed in revision 1, which mentioned it twice only in passing. The same domain
+knowledge appears in four files under four different key names:
+`NOTION-COORDINATOR-ORCHESTRATOR.notion_formula_v2_guidance`,
+`NOTION-SYSTEM-DEPENDENCIES.notion_formula_v2_notes`,
+`NOTION-FORMULA-LOGIC-AGENT.formula_2_0_notes`,
+`NOTION-SCHEMA-RELATIONS-AGENT.notion_formula_v2_considerations`.
+
+This is the largest genuine content duplication in the repository and the
+strongest concrete argument for a `context/` extraction.
+
+## Finding 6e -- template identifiers use two naming conventions
+
+Agent files reference `"task-brief-template"` with hyphens; dependency files
+declare and reference `"task_brief_template"` with underscores. Any consumer
+resolving dependencies needs a mapping table.
 
 ## Finding 7 -- stale identity claim
 
@@ -125,14 +219,16 @@ Record fields: purpose, canonical owner, disposition, overlaps, references, runt
 | `agents/NOTION-COORDINATOR-ORCHESTRATOR.json` | Notion orchestrator, same role | `orchestration/` domain definition | **Fold** into the general orchestrator + domain definition |
 | `agents/AGENT-SYSTEM-DEPENDENCIES.json` | Topology, template contracts, creation sequence. **Not an agent** | `orchestration/` (topology, sequence); `templates/` (contracts) | **Move** + **Fold** |
 | `agents/NOTION-SYSTEM-DEPENDENCIES.json` | Same, plus 4th routing copy, `validated_references`, `planning_model`, formula notes | `orchestration/`; formula notes to `context/` | **Move** + **Fold** |
-| `agents/AGENT-{AUTOMATION-BUILDER, IAM-ACCESS, INTEGRATION, PAYMENTS-BILLING, REPORTING-DASHBOARD, RESEARCH-DOCUMENTATION}.json` (6) | General specialist definitions | `agents/` | **Keep**, minus any Finding 5 duplication |
-| `agents/NOTION-{AUTOMATION, DATA-QUALITY-TROUBLESHOOTING, FORMULA-LOGIC, SCHEMA-RELATIONS, VIEWS-DASHBOARD}-AGENT.json` (5) | Notion specialist definitions | `agents/` | **Keep**, minus Finding 5 duplication |
+| `agents/AGENT-{AUTOMATION-BUILDER, IAM-ACCESS, INTEGRATION, PAYMENTS-BILLING, REPORTING-DASHBOARD, RESEARCH-DOCUMENTATION}.json` (6) | General specialist definitions | `agents/` | **Adapt.** No specialist carries the coordinator governance blocks, so that work is zero here. The real work is key-vocabulary normalisation (Finding 6c), removing two boundary restatements (PAYMENTS-BILLING, IAM-ACCESS), and relocating `AGENT-RESEARCH-DOCUMENTATION.handoff_format` -- an output contract living inside an agent definition, which is `templates/` content |
+| `agents/NOTION-{AUTOMATION, DATA-QUALITY-TROUBLESHOOTING, FORMULA-LOGIC, SCHEMA-RELATIONS, VIEWS-DASHBOARD}-AGENT.json` (5) | Notion specialist definitions | `agents/` | **Adapt.** Key-vocabulary normalisation, plus extracting the formula blocks per Finding 6d |
 | `config/agent-registry.json` | Identity + classification + partial routing + entry point | `registry/` for identity; routing and entry point to `orchestration/` | **Adapt** -- split |
-| `schemas/agent-registry.schema.json` | Machine-verifiable registry structure | `registry/`, or `policies/` if enforced | **Move** -- owner decided in Step 3 |
-| `templates/{task-brief, technical-spec, verification-checklist, execution-record}-template.json` (4) | Output templates, Notion field sets | `templates/` | **Adapt** -- reconcile against the two declared contracts; decide whether general variants are needed or the declaration is retired |
+| `schemas/agent-registry.schema.json` | Declares itself the registry schema but omits two of the registry's eight keys, forbids the two-coordinator model, and has a non-resolving relative `$id` | `registry/`, or `policies/` if enforced | **Adapt / rewrite.** It does not describe its target. Ownership is the secondary question |
+| `templates/verification-checklist-template.json` | Domain-neutral verification checklist | `templates/` | **Keep.** Retire the general contract's synonym fields rather than building a needless "general variant" |
+| `templates/task-brief-template.json` | The Notion **handoff** artifact under a task-brief filename | `templates/` | **Adapt + rename.** Reconcile against the four handoff declarations, and record that no conforming task-brief template exists |
+| `templates/{technical-spec, execution-record}-template.json` | Output templates; technical-spec is a hybrid, execution-record is missing a required field | `templates/` | **Adapt** -- reconcile against the declared contracts |
 | `prompts/{general,notion}-{coordinator,specialist}.prompt.txt` (4) | Runtime bootstrap prompts naming relative paths and entry points | `prompts/` **only if** canonical and reusable | **Adapt** -- each hardcodes `./package-layout.json` and `./agents/...`; all break on restructure |
-| `package-layout.json` | Package/distribution layout, second entry-point declaration | none -- `packages/` is not in the accepted taxonomy | **Retire for execution; provenance only** |
-| `docs/README.md` | Navigation + stale canonical claim | `README.md` | **Adapt** -- keep navigation, drop the identity claim |
+| `package-layout.json` | Package/distribution layout, second entry-point declaration | none -- `packages/` is not in the accepted taxonomy | **Retire for execution; provenance only.** Note the dependency: **all four prompts instruct reading it first**, so retiring it requires updating every prompt |
+| `docs/README.md` | Navigation, stale canonical claim, **and runtime bootstrap** | `README.md` | **Adapt.** Keep navigation; drop the identity claim; and note that `## Typical usage` and `## Example prompt` duplicate `prompts/general-coordinator.prompt.txt` -- bootstrap content, not navigation. A second stale claim: it describes `./schemas/` as holding "validation schemas for generated config and templates", but no template schema exists |
 
 ## Runtime implications
 
@@ -151,9 +247,12 @@ Record fields: purpose, canonical owner, disposition, overlaps, references, runt
 
 1. Decide whether the declared general template variants are built or the
    declaration is retired. Do not silently keep contracts with no artifact.
-2. Decide the owner of `agent-registry.schema.json`: `registry/` as structure, or
-   `policies/` if it is actually enforced. Requires knowing whether anything
-   validates against it.
+2. Rewrite `agent-registry.schema.json` before deciding its owner. It omits two of
+   its target's eight keys, forbids the two-coordinator model, and has a
+   non-resolving `$id`. Also determine whether anything validates against it at
+   all -- if nothing does, it is aspirational, not enforcement.
+2b. Author a schema for agent definitions. There is none, and two incompatible
+   shapes are in use (Finding 6c).
 3. Decide whether the four prompts are canonical reusable prompts or runtime
    bootstrap belonging to `runtime-adapters/`. Their content is loading
    instructions, which suggests adapter, not `prompts/`.
