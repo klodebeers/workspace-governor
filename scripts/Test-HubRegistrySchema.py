@@ -77,11 +77,18 @@ def main(hub):
             "relative $id is the predecessor schema's defect." % schema.get("$id"))
 
     declared = base.get("$schema")
-    if declared and os.path.exists(os.path.join(os.path.dirname(inst_path), declared)):
-        ok("instance declares its own schema, and the declaration resolves")
-    else:
+    declared_full = os.path.join(os.path.dirname(inst_path), declared) if declared else None
+    if not declared or not os.path.exists(declared_full):
         bad("instance does not declare a resolvable schema ($schema=%r); the only "
             "binding would be a path hardcoded in this script" % declared)
+    elif not os.path.samefile(declared_full, schema_path):
+        # Existence is not enough: an earlier version called a governance document
+        # a resolved schema declaration because the file happened to exist.
+        bad("instance $schema=%r resolves to %s, which is not the schema being applied "
+            "(%s)" % (declared, os.path.relpath(declared_full, hub),
+                      os.path.relpath(schema_path, hub)))
+    else:
+        ok("instance declares its own schema, and it resolves to the schema applied here")
 
     errs = list(V(schema).iter_errors(base))
     if errs:
@@ -140,7 +147,18 @@ def main(hub):
     if checked_defs:
         ok("every definition file agrees with its registry entry (%d checked)" % checked_defs)
     else:
-        ok("no definition files to cross-check (all entries have definition: null)")
+        print("NOTE  no definition files to cross-check; this check did not run")
+
+    # Every definition file on disk must be claimed by exactly one entry.
+    agents_dir = os.path.join(hub, "agents")
+    on_disk = sorted(f for f in os.listdir(agents_dir) if f.endswith(".json")) \
+        if os.path.isdir(agents_dir) else []
+    claimed = {os.path.basename(a["definition"]) for a in agents if a.get("definition")}
+    orphans = sorted(set(on_disk) - claimed)
+    if orphans:
+        bad("definition file(s) in agents/ that no registry entry claims: %s" % orphans)
+    else:
+        ok("every definition file in agents/ is claimed by a registry entry (%d files)" % len(on_disk))
 
     # ---- routing resolves against the registry ------------------------------
     doms = {a.get("domain") for a in agents}
@@ -168,6 +186,22 @@ def main(hub):
         else:
             ok("no %s" % label)
 
+    retired = {a["id"] for a in agents if a.get("canonical_status") == "retired"}
+    live_retired = sorted({r.get("route_to") for r in routes if r.get("route_to") in retired})
+    if live_retired:
+        bad("route(s) destined for a retired identity: %s" % live_retired)
+    else:
+        ok("no route is destined for a retired identity")
+
+    # A domain that carries routes must be selectable, or those routes are unreachable.
+    selectable = {d.get("domain") for d in routing.get("domain_selection", [])}
+    routed_doms = {r.get("domain") for r in routes}
+    unreachable = sorted(routed_doms - selectable)
+    if unreachable:
+        bad("domain(s) carrying routes that domain_selection cannot select: %s" % unreachable)
+    else:
+        ok("every domain carrying routes is selectable by domain_selection")
+
     ep = (routing.get("entry_point") or {}).get("agent")
     ep_entry = next((a for a in agents if a.get("id") == ep), None)
     if ep_entry is None:
@@ -189,6 +223,38 @@ def main(hub):
         ok("route triggers are distinct")
     else:
         bad("duplicate route trigger(s): %s" % sorted({t for t in trig if trig.count(t) > 1}))
+
+    # ---- the invariant every one of these artifacts asserts ----------------
+    GRANTING = ("permission", "permissions", "grant", "grants", "granted",
+                "authorize", "authorized", "authorization", "approves", "may_approve")
+    offenders = []
+    for dirpath, dirnames, filenames in os.walk(hub):
+        if ".git" in dirpath.split(os.sep):
+            continue
+        for fn in filenames:
+            if not fn.endswith(".json"):
+                continue
+            rel = os.path.relpath(os.path.join(dirpath, fn), hub).replace(os.sep, "/")
+            try:
+                body = load(os.path.join(dirpath, fn))
+            except Exception:
+                continue
+
+            def scan(o, path=""):
+                if isinstance(o, dict):
+                    for k, v in o.items():
+                        if k.lower() in GRANTING:
+                            offenders.append("%s: key %r at %s" % (rel, k, path or "root"))
+                        scan(v, path + "/" + k)
+                elif isinstance(o, list):
+                    for i, v in enumerate(o):
+                        scan(v, "%s[%d]" % (path, i))
+            scan(body)
+    if offenders:
+        for o in offenders:
+            bad("artifact carries a permission-shaped key -- %s. These artifacts grant nothing." % o)
+    else:
+        ok("no Hub artifact carries a permission-shaped key")
 
     # ---- negative cases, fixtures chosen by the property under test ---------
     def find(pred, what):

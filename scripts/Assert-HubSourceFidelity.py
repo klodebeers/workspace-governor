@@ -76,7 +76,7 @@ def main(hub, src):
     src_pre = [p for p in gen if "route_to" not in p]
     hub_pre = routing.get("pre_routing") or []
     if len(src_pre) == len(hub_pre) == 1 and \
-            hub_pre[0].get("condition", "").rstrip(".") == src_pre[0]["trigger"].rstrip("."):
+            hub_pre[0].get("condition") == src_pre[0]["trigger"]:
         ok("the pre-routing condition matches the source pattern that carries no destination")
     else:
         bad("the pre-routing condition does not match the source: source %r, hub %r"
@@ -121,9 +121,10 @@ def main(hub, src):
         if a["responsibility"] != norm and "responsibility_source" not in a:
             unmarked.append("%s: responsibility %r is not the normalised source role %r and "
                             "carries no responsibility_source" % (a["id"], a["responsibility"], norm))
-        if a["name"] != names.get(a["id"]) and "responsibility_source" not in a \
+        if a["name"] != names.get(a["id"]) and "name_source" not in a \
                 and "folded_ids" not in a:
-            unmarked.append("%s: name %r differs from source %r with nothing recording it"
+            unmarked.append("%s: name %r differs from source %r with nothing recording it. "
+                            "A responsibility marker does not cover a name."
                             % (a["id"], a["name"], names.get(a["id"])))
     if unmarked:
         for u in unmarked:
@@ -150,17 +151,22 @@ def main(hub, src):
     else:
         ok("template field set is unchanged from source (%d fields)" % len(t_src))
     for k in t_src:
-        if t_src[k] == t_hub.get(k):
-            continue
         key = ("templates/verification-checklist.json", k)
+        same = t_src[k] == t_hub.get(k)
         if key in EXEMPT:
-            ok("template %s differs by recorded exemption -- %s" % (k, EXEMPT[key]))
-        else:
+            # A recorded exemption REQUIRES the divergence. Reverting it is a defect,
+            # not a silent return to source: the divergence is a settled decision.
+            if same:
+                bad("template %s no longer diverges from source, but the divergence is "
+                    "required -- %s" % (k, EXEMPT[key]))
+            else:
+                ok("template %s diverges as required -- %s" % (k, EXEMPT[key]))
+        elif not same:
             bad("template %s changed from %r to %r with no recorded exemption"
                 % (k, t_src[k], t_hub.get(k)))
 
     # ---- the consolidated context file lost nothing ------------------------
-    ctx = open(os.path.join(hub, "context/NOTION-FORMULA-V2.md"), encoding="utf-8").read()
+    ctx = open(os.path.join(hub, "context/NOTION-FORMULA-V2.md"), encoding="utf-8-sig").read()
     refs = S("agents/NOTION-SYSTEM-DEPENDENCIES.json")["validated_references"]
     lost = [u for u in refs if u not in ctx]
     if lost:
@@ -178,6 +184,31 @@ def main(hub, src):
         bad("platform capability named in the source but not in the context file: %s" % absent)
     else:
         ok("every platform capability the source names is stated in the context file (%d)" % len(caps))
+
+    # Each source implication must still be represented. Keyword coverage was not
+    # enough: deleting the whole consequences section passed a capabilities-only check.
+    IMPLICATIONS = {
+        "explicit transform for richer outputs": r"transform",
+        "legacy formulas may need adjustment": r"[Ll]egacy formulas may",
+        "rollup-first workaround often unnecessary": r"rollup-first",
+        "property type change affects formula output": r"[Pp]roperty type changes may affect",
+        "schema and formula work are coupled": r"retyped or restructured",
+        "formula logic has its own verification model": r"own verification model",
+    }
+    missing_imp = sorted(k for k, pat in IMPLICATIONS.items()
+                         if not re.search(pat, ctx, re.IGNORECASE))
+    if missing_imp:
+        bad("source implication(s) absent from the context file: %s" % missing_imp)
+    else:
+        ok("every source implication is represented in the context file (%d)" % len(IMPLICATIONS))
+
+    # A source obligation must be stated as an obligation, or recorded as owed
+    # elsewhere. The context file must at least declare that it does not absorb them.
+    if re.search(r"does not absorb the obligations", ctx):
+        ok("the context file declares that it does not absorb source obligations")
+    else:
+        bad("the context file no longer declares that it does not absorb the obligations "
+            "that accompanied this material; without that, a dropped must reads as absent")
 
     # The four source keys must be named, so the consolidation is traceable.
     for key in ("notion_formula_v2_guidance", "notion_formula_v2_notes",
@@ -197,11 +228,12 @@ def main(hub, src):
         if ".git" in dirpath.split(os.sep):
             continue
         for fn in filenames:
-            if not fn.endswith(".json"):
+            if not fn.endswith((".json", ".md")):
                 continue
             body = open(os.path.join(dirpath, fn), encoding="utf-8-sig").read()
             for block in ("escalation_rules", "communication_style", "decision_rules",
-                          "handoff_contract", "core_responsibilities", "dependency_chain"):
+                          "handoff_contract", "core_responsibilities", "dependency_chain",
+                          "ownership", "verification_rules"):
                 if '"%s"' % block in body:
                     leaked.append("%s carries source block %s"
                                   % (os.path.relpath(os.path.join(dirpath, fn), hub), block))
@@ -209,8 +241,9 @@ def main(hub, src):
         for l in leaked:
             bad("source governance block leaked into the Hub -- %s" % l)
     else:
-        ok("no source governance block (escalation, communication, decision, handoff, "
-           "core_responsibilities, dependency_chain) appears in any Hub artifact")
+        ok("no source governance block (escalation_rules, communication_style, decision_rules, "
+           "handoff_contract, core_responsibilities, dependency_chain, ownership, "
+           "verification_rules) appears in any Hub artifact, .json or .md")
 
     print()
     print("checks run: %d passed, %d failed" % (len(PASS), len(FAIL)))

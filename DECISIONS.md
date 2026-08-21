@@ -1037,6 +1037,64 @@ obligations are listed in `STATE.md` open work so they land when their owners
 migrate. A record that an obligation was dropped is not a carrier for it; the record
 exists so the carrier is not forgotten.
 
+**D-62.** A source obligation met by structure is recorded as met, not left as an
+attribution. Decided by: agent, on the fifth audit's finding.
+
+The source states that formula logic must be treated as a dedicated domain with its
+own verification model. The consolidation turned that into "which the source package
+gives as the reason for treating it as a dedicated domain" -- an attribution of
+rationale, with nothing saying whether the obligation was met. Three sibling
+obligations from the same material were recorded as owed; this fourth was handled
+differently and silently, which is the defect D-39 exists to prevent: a class swept
+three quarters of the way.
+
+It is in fact met: the `notion-operations` domain and its formula specialist exist,
+and that specialist's rules state what evidence counts for formula work. The context
+file now states the obligation and how it is met, and `STATE.md` records it as met
+rather than owed. Either outcome is acceptable; leaving a reader unable to tell which
+is not.
+
+**D-63.** A governance gap surfaced inside the governed tree is also recorded in the
+backoffice. Decided by: agent.
+
+`orchestration/routing.json` surfaces an unowned obligation from the source -- define
+the required fields and produce a decision brief before technical work -- because the
+root contract requires surfacing rather than answering. That disclosure is correct
+and stays. But open work is owned by `STATE.md`, and a gap visible only to a reader
+of the governed tree is not recorded as owed. Both records are required: the tree
+tells a consumer that no owner carries it; the backoffice tells whoever schedules
+work that it needs an owner.
+
+**D-64.** A route's `output` is the routing-time expectation; an agent definition's
+`outputs` govern. Decided by: agent.
+
+Both answer what an agent produces, both are carried from the source, and they
+disagree in content for the one migrated agent. The definition owns the agent's
+deliverables, as its own authority block already claims. `orchestration/routing.json`
+now states the relationship in its `does_not_own` block, so the duplication has an
+owner before the remaining ten migrations replicate it eleven times. Assigned rather
+than blended: neither wording was rewritten to match the other.
+
+**D-65.** A verification script must fail the defect it was written to catch, and
+that is proved by building the defect. Decided by: agent, on the fifth audit's
+demonstrations.
+
+The fifth audit built defective trees and showed the checks passing them: the whole
+consequences section of the context file deleted; a falsified agent name masked by an
+unrelated marker; the one deliberate template divergence reverted, with the check
+count silently dropping while the script still reported that every check ran; two
+source governance blocks the approved record names absent from the leak list;
+markdown never scanned; ten of fourteen real references unexamined because only two
+JSON keys were read; a governance document accepted as a resolved schema declaration
+because the file existed; and no check at all for the permission-shaped keys that all
+three scripts exist to prevent.
+
+All are closed, and the eleven defect cases the audit built are now regression cases
+that each produce a non-zero exit. The standing rule: a check is not evidence until
+it has failed on a built instance of the defect and passed on clean content. A
+recorded exemption **requires** its divergence rather than merely excusing it, since
+an exemption that only excuses lets a settled decision be reverted silently.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

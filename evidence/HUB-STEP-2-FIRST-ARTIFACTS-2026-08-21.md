@@ -1,20 +1,21 @@
 # Step 2 -- first accepted artifact per domain
 
 **Date:** 2026-08-21
-**Revision:** 3. Revision 1 described the artifacts as first written; two reviews
+**Revision:** 4. Revision 1 described the artifacts as first written; two reviews
 reworked them before anything was committed. Revision 2 described the committed
 state at `d1a8553`. Four further blind audits then found material defects in that
-committed state, which were fixed at `df33f07`. Both earlier revisions are
-superseded in place: revision 1 never described committed content, and revision 2
-described content that has since been corrected.
+committed state, which were fixed at `df33f07`. A fifth, final audit found eight
+more, closed at `1a91d32`. Earlier revisions are superseded in place: revision 1
+never described committed content, and revisions 2 and 3 described content that has
+since been corrected.
 **Scope:** Create `agents/`, `orchestration/`, `registry/`, `templates/` and
 `context/` in the canonical Hub, each with its first accepted artifact.
 **Authorisation:** User, 2026-08-21: "proceed with Step 2".
 **Source:** `agents-hub-two` @ `0a222df`. Classification carried from
 `evidence/AGENTS-HUB-TWO-RECONCILIATION-2026-08-20.md` revision 2 and
 `evidence/HUB-TARGET-TREE-AND-CLASSIFICATION-2026-08-21.md`.
-**Base commit:** `c6c966b`. **Result commit:** `df33f07` (first applied at
-`d1a8553`), verified on the live remote and by extracting `origin/main` and
+**Base commit:** `c6c966b`. **Result commit:** `1a91d32` (first applied at
+`d1a8553`, corrected at `df33f07` and `1a91d32`), verified on the live remote and by extracting `origin/main` and
 re-running all three checks against the extraction.
 
 ## What "first accepted artifact" means here
@@ -177,6 +178,42 @@ deferred, so no consumer can resolve a handoff today. The fold's identity half i
 sound and stays; the unpaid prerequisite is recorded as `STATE.md` open work 29c and
 blocks further agent migration.
 
+### Round 3, the final audit, on the corrected state at `df33f07`
+
+One reviewer, same blind conditions, asked plainly whether the step could be
+declared complete. Answer: not yet, with eight findings. All eight verified and
+closed at `1a91d32`.
+
+| Finding | Verification | Resolution |
+|---|---|---|
+| A **fourth** formula `must` was softened into an attribution, with nothing recording whether it was met. Its three siblings were recorded as owed | Confirmed against `NOTION-SYSTEM-DEPENDENCIES.json implications[0]`, and confirmed absent from every approved record. The earlier sweep found three of four | Stated as the obligation it is, with how it is met. D-62 |
+| The pre-routing obligation is genuinely unowned -- the reviewer independently confirmed the gap claim against the rule -- but was recorded only inside the governed artifact | Confirmed by reading `rules/ENGINEER-OWNERSHIP.md`: it governs when to ask and states neither the required-fields nor the decision-brief obligation | Recorded in `STATE.md` open work as well. D-63 |
+| A route's `output` and a definition's `outputs` state the same agent's deliverables differently, with no owner and no record; it would replicate across ten remaining migrations | Confirmed: 3 items versus 5, not a subset, both carried from source | The definition governs; the relationship is stated in the routing file. D-64 |
+| Backoffice narrative remained in six named locations, including a schema description arguing with its predecessor and a migration-progress sentence in the catalog beside the sentence denying it holds migration state | Each read directly. The reviewer fairly noted that lineage is authorised and argument is not, which is the line D-52 drew | Trimmed to lineage. The surfaced gap stays, stating the gap rather than narrating the source |
+| `STATE.md`'s own header said 2026-08-19 and "reconciliation assessment in progress" while its body recorded Steps 1 and 2 applied | Confirmed. The file that owns current state carried a stale header, and its own text says to replace stale content | Corrected |
+| **Three false passes in the fidelity script.** It passed a tree with the whole consequences section deleted; it exempted a falsified name whenever a responsibility marker was present; and reverting the one required divergence passed while the check count silently dropped from 19 to 18 | All three reproduced by the reviewer with commands and output | Implications are now checked individually; a name needs its own marker; an exemption **requires** its divergence. D-65 |
+| `README.md` asserted the registry was a canonical source for "where work goes" while the registry disclaims routing | Confirmed by reading both | Routing owns where work goes; the registry owns who the agents are |
+| `docs/README.md`'s recorded **Adapt** disposition was absent from the remaining-migration ledger, in the change that edited its target | Confirmed. It also carries two further uncarried source obligations about workspace-relative paths | Added to `STATE.md` item 29 |
+
+**Further tooling defects the audit demonstrated, all closed:** two source governance
+blocks the approved record names were missing from the leak list and markdown was
+never scanned; ten of the fourteen real references in the new artifacts went
+unexamined because only two JSON keys were read; a governance document was accepted
+as a resolved schema declaration because the file existed; the reference check would
+have failed the next legitimate edit naming `runtime-adapters\`,
+`governance-templates\` or `STATE.md`; an orphan definition file, a retired identity
+still used as a route destination, and a domain carrying routes that domain selection
+cannot select all passed; and nothing enforced the one invariant all three checks
+exist to protect -- that these artifacts grant no permission. A fabricated
+`"permission": "The orchestrator may approve its own structural changes."` passed
+every check.
+
+**One finding confirmed authorised rather than fixed.** The reviewer flagged that the
+template's recorded disposition is `Keep` while a rename and a value change were
+applied, and said it could not verify authorisation from the decision window it was
+given. Both are authorised: D-50 for the value, D-58 for the identifier convention.
+The reviewer named the limit correctly rather than assuming.
+
 ## Open conflict -- surfaced, not resolved
 
 The accepted taxonomy says `context/` holds "scoped operating context, **not
@@ -200,9 +237,13 @@ proven against injected defects in both directions.
 
 | Script | Assertions | Result | Proven by |
 |---|---|---|---|
-| `scripts/Test-HubRegistrySchema.py` | 28 | PASS | Duplicate id, a definition file contradicting its registry entry, a missing routing artifact, and a corrupted `entry_point`/`domain_selection` domain each produce FAIL with exit 1 |
-| `scripts/Assert-HubSourceFidelity.py` | 19 | PASS | A reworded route output, a softened agent rule, a changed template field, a removed citation and a removed platform capability produce five FAILs |
-| `scripts/Assert-ReferenceIntegrity.py` | 53 tokens, plus URI semantics and catalog coverage | PASS, 0 dangling | A dangling backtick path, a dangling markdown link target, a relative `$id` and an unindexed artifact are each detected |
+| `scripts/Test-HubRegistrySchema.py` | 32 | PASS | Duplicate id, a definition contradicting its entry, an orphan definition file, a retired identity used as a route destination, a domain unreachable from domain selection, a permission-shaped key, a schema declaration resolving to a non-schema, a missing routing artifact, and a corrupted `entry_point` domain each produce exit 1 |
+| `scripts/Assert-HubSourceFidelity.py` | 21 | PASS | A reworded route output, a softened agent rule, a falsified agent name, a changed template field, a **reverted** required divergence, a deleted implications section, an injected source governance block, a removed citation and a removed platform capability each produce a FAIL |
+| `scripts/Assert-ReferenceIntegrity.py` | 58 tokens, plus URI semantics and catalog coverage | PASS, 0 dangling | A dangling backtick path, a dangling markdown link target, a broken cross-owner pointer inside an authority block, a relative `$id`, a schema declaration to a non-schema, and an unindexed artifact are each detected; the documented-as-absent tokens are correctly not flagged |
+
+Eleven defect trees built from the fifth audit's own demonstrations are retained as
+regression cases; each produces a non-zero exit from at least one check, and the
+clean tree passes all three.
 
 What the fidelity script checks, which nothing checked before: all 11 routes
 byte-identical to source in source order; the pre-routing condition exact; every

@@ -1,7 +1,9 @@
 # Workspace Governor State
 
-**Updated:** 2026-08-19
-**Phase:** Hub consolidation — reconciliation assessment in progress. Repository bootstrap complete.
+**Updated:** 2026-08-21
+**Phase:** Hub consolidation — Steps 1 and 2 applied and verified in the canonical
+Hub. Step 3 not started. Reconciliation assessment complete for the inputs Steps 1
+and 2 required.
 **Authority:** Non-authoritative continuity record. Settled decisions live in `DECISIONS.md`.
 
 This file records current state only. It defines no rules. Replace stale
@@ -89,7 +91,7 @@ records the decision.
 
 ### Canonical Hub -- current verified state
 
-`klodebeers/.agents-hub` at **`df33f07`**, Step 1 restructuring applied and Step 2
+`klodebeers/.agents-hub` at **`1a91d32`**, Step 1 restructuring applied and Step 2
 first artifacts added, then corrected after four independent blind audits. Verified against the tree extracted from `origin/main`, not
 only the working copy: both checks pass there. Fifteen tracked files:
 
@@ -129,6 +131,15 @@ The most serious finding was lost governance, not structure: consolidating the
 formula material dropped three source obligations and softened their modality. The
 obligations are recorded as owed under Open work rather than left absorbed. D-61.
 
+A **fifth blind audit** then ran on the corrected state and returned eight findings
+that had to be resolved before the step could be declared complete: a fourth
+softened obligation the earlier sweep missed, an unrecorded pre-routing obligation,
+an unassigned deliverables duplication, remaining backoffice narrative in live
+artifacts, this file's own stale header, three false-pass defects in the fidelity
+script, a README claim the registry contradicts, and a missing disposition in the
+remaining-migration ledger. All are closed at `1a91d32` and in these records.
+D-62 through D-64.
+
 **Step 2 authorisation.** The stop condition below requires approval before applying
 canonical restructuring or modifying live Hub governance. It was given by the user on
 2026-08-21 ("proceed with Step 2"), and again for the correction round ("fix
@@ -145,7 +156,7 @@ two of these and two logic bugs in the third; all are closed. The reference chec
 refuses to run outside the Hub, where it produced 1022 false positives.
 
 **The live local Hub is behind again.** Klo materialized `c6c966b`; the repository
-is now at `df33f07`. Under D-41 every Hub commit reopens the materialization item
+is now at `1a91d32`. Under D-41 every Hub commit reopens the materialization item
 until `git rev-parse HEAD` matches on both sides. Same command, same verification,
 new expected SHA -- see Verification assignments.
 
@@ -214,12 +225,12 @@ pending verification is not a defect and is not re-flagged each session; see
 
 | Field | Value |
 |---|---|
-| Status | **PENDING again.** `c6c966b` materialized and confirmed by the operator 2026-08-21. Reopened by `d1a8553` and again by `df33f07`, exactly as D-41 says every Hub commit does |
-| Requirement | D-33: the repository and `C:\Users\Chloe\.agents-hub` are one logical Hub and must not drift. `c6c966b` was materialized 2026-08-21; the repository has since moved to `df33f07` |
+| Status | **PENDING again.** `c6c966b` materialized and confirmed by the operator 2026-08-21. Reopened by `d1a8553`, `df33f07` and `1a91d32`, exactly as D-41 says every Hub commit does |
+| Requirement | D-33: the repository and `C:\Users\Chloe\.agents-hub` are one logical Hub and must not drift. `c6c966b` was materialized 2026-08-21; the repository has since moved to `1a91d32` |
 | Why no remote action can do it | The path is on the operator's Windows machine, unreachable from a cloud session (blocker B-5). No cloud-side change can move it |
 | Assigned executor | Klo, on the local Windows machine |
 | Method | `cd C:\Users\Chloe\.agents-hub` then `git pull`. Mechanism settled as git, not hand-copying, per D-41 |
-| Verification | `git rev-parse HEAD` returns `df33f079c22afbcd97a13f78062a0f1f2eec9974`, and `git status` reports a clean tree. Tree afterwards adds `registry/`, `orchestration/`, `agents/`, `context/` and `templates/`; still no `STATE.md`, no `governance-templates/`, no `runtime-adapters/`; `design-systems/` unchanged |
+| Verification | `git rev-parse HEAD` returns `1a91d32846fe298f1d18cdffe4219129b2f0f5f0`, and `git status` reports a clean tree. Tree afterwards adds `registry/`, `orchestration/`, `agents/`, `context/` and `templates/`; still no `STATE.md`, no `governance-templates/`, no `runtime-adapters/`; `design-systems/` unchanged |
 | Known wrinkle | The local clone's `origin` may still carry the pre-rename URL `.../agents-hub-one`. It resolves through GitHub's redirect, so `git pull` works; `git remote set-url origin https://github.com/klodebeers/.agents-hub` re-points it when convenient. A repository rename never renames a clone or rewrites its remote |
 | Recheck trigger | Any later commit to the canonical Hub. Every Hub change reopens this until the two are equal |
 
@@ -332,17 +343,18 @@ unexercised. Live-Hub evidence cannot be accepted until
 26. Reconcile the handoff contract and build its template. Declared five times with five different field sets in the source and having no file on disk. Blocks the remaining agent migrations, which all reference it.
 27. Decide whether an evidence-record template is accepted, and from what. No accepted artifact exists; the source's `execution_record_template` is the candidate and is missing a field its own contract requires. Surfaced by the Step 2 governance review; `DECISIONS.md` D-51 item 1.
 28. Resolve C-04: whether domain knowledge may live in `context/`. Two accepted records disagree. Surfaced, not resolved. Blocks a second context artifact.
-29a. Carry three orphaned source obligations to their owners when those definitions migrate. `DECISIONS.md` D-61. They are: a formula must be validated after a schema change, and schema and formulas must be reviewed together when migrating older logic -- both owed to `notion-schema-relations-agent`; and a formula migration must validate actual behavior against current property types and output expectations -- owed to the orchestrator definition. Nothing in the Hub carries them today.
+29a. Carry three orphaned source obligations to their owners when those definitions migrate. `DECISIONS.md` D-61. A fourth -- formula logic must be treated as a dedicated domain with its own verification model -- is **met by structure**, not owed: the `notion-operations` domain and its formula specialist exist, and that specialist's rules state what evidence counts for formula work. Recorded because the fifth audit found it softened into an attribution with nothing saying how it was met. D-62. They are: a formula must be validated after a schema change, and schema and formulas must be reviewed together when migrating older logic -- both owed to `notion-schema-relations-agent`; and a formula migration must validate actual behavior against current property types and output expectations -- owed to the orchestrator definition. Nothing in the Hub carries them today.
+29a-ii. Decide who owns the pre-routing obligation the source stated and no rule carries: define the required fields and produce a short decision brief before technical work begins. `rules/ENGINEER-OWNERSHIP.md` governs when to ask and states neither. Surfaced in `orchestration/routing.json` as a governance gap; recorded here because the surfaced gap is only visible to a reader of the governed tree, and open work is owned by this file. D-63.
 29b. Carry the source's third-party escalation destination -- escalate to the relevant team or owner if a database change affects a critical workflow -- or decide it is superseded by the escalation contract. It has no equivalent in the general coordinator and was identified as a cost of the fold; it is currently carried nowhere.
 29c. Decide the handoff contract before any further agent migration. The fold's stated prerequisite was to choose or parameterise it, and it was deferred. Every route ends in a handoff, so no consumer can resolve one today. A conforming shape exists in the source as `templates/task-brief-template.json`, which is the handoff artifact under a task-brief filename.
 29d. Carry or retire the two coordinators' `dependency_chain` arrays, which state that the templates precede the specialists. Neither carried, superseded nor previously recorded as deferred.
 29e. Record an answer for a request that selects a domain but matches no route trigger. The gap is inherited from the source and is now stated in `orchestration/routing.json`; it has no default.
 29f. Resolve the agent-definition shape question before migrating a second definition. The accepted shape has no slot for a specialist's domain-focus block, and four of the eleven source specialists carry one that is an internal issue taxonomy rather than platform behavior -- so it fits neither the current definition shape nor the `context/` gloss. Blocks item 25.
-29. Migrate the remaining `agents-hub-two` artifacts under their recorded dispositions: 11 specialist definitions, the topology and sequence artifacts, `shared_dependencies` and `specialist_agents` maps, `planning_model`, and the three unreconciled templates. Gated by items 25 and 26.
+29. Migrate the remaining `agents-hub-two` artifacts under their recorded dispositions: 11 specialist definitions, the topology and sequence artifacts, `shared_dependencies` and `specialist_agents` maps, `planning_model`, the three unreconciled templates, and `docs/README.md`, whose recorded disposition is **Adapt** into the Hub `README.md` and which carries two further source obligations about workspace-relative paths. `docs/README.md` was absent from this list while the change edited its target. Gated by items 25 and 26.
 
 ## Next action
 
-**Materialize `df33f07` into the live local Hub.** `c6c966b` was materialized and
+**Materialize `1a91d32` into the live local Hub.** `c6c966b` was materialized and
 confirmed 2026-08-21; Step 2 and its correction round have since moved the repository forward, and under D-41
 that reopens this until both sides report the same HEAD. Requires the local Windows
 machine, which no cloud session can reach.
@@ -355,7 +367,7 @@ git status --short
 ```
 
 Verification: `git rev-parse HEAD` returns
-`df33f079c22afbcd97a13f78062a0f1f2eec9974` and `git status --short` prints nothing.
+`1a91d32846fe298f1d18cdffe4219129b2f0f5f0` and `git status --short` prints nothing.
 Expected tree afterwards adds `registry/`, `orchestration/`, `agents/`, `context/`
 and `templates/`; `AGENTS.md` still at the root; still no `STATE.md`,
 `governance-templates/` or `runtime-adapters/`; `design-systems/` unchanged.

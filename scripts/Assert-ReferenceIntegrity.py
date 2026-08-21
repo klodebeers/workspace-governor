@@ -12,8 +12,11 @@ Coverage, stated precisely because an earlier version overstated it:
     a separator or ends in a known extension. Tokens containing a space are treated
     as prose, not paths -- so `rules/DOES NOT EXIST.md` is NOT checked. That is a
     real limit, not a claim of completeness.
-  * JSON: the values of "path" and "definition"; and "$schema" and "$id", which are
-    checked by URI semantics rather than as paths.
+  * JSON: every repository-path-shaped token in every string value, wherever it
+    appears -- not only under keys named "path" or "definition". "$schema" and "$id"
+    are checked by URI semantics instead, since they are identifiers. A string that
+    opens with 'repo@sha' is a lineage string: the paths inside it belong to that
+    repository at that commit, so they are out of scope rather than dangling.
   * Index: every tracked artifact appears in CATALOG.md, and every CATALOG.md path
     exists.
 
@@ -38,12 +41,17 @@ import sys
 ALLOW = {
     'design-systems\\.remember\\',   # present in the materialized Hub, not tracked here
     'policies\\', 'prompts\\', 'skills\\', 'tools\\', 'runbooks\\',   # stated as intentionally absent
+    'runtime-adapters\\', 'governance-templates\\', 'STATE.md',   # retired; nameable as absent
 }
 EXTERNAL = ('agents-hub-two/', 'workspace-governor/', 'mcp-gateway/')
 SKIP_DOCS = {'references/AGENTS-MD-LIVE-AUDIT-2026-08-16.md'}   # dated evidence: true when written
 BACKTICK = re.compile(r'`([^`\n]+)`')
 MDLINK = re.compile(r'\[[^\]\n]*\]\(([^)\s]+)\)')
 JSON_PATH_KEYS = {'path', 'definition'}
+# Repository-path-shaped tokens embedded anywhere in a JSON string value.
+EMBEDDED = re.compile(r'[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)+\.(?:md|json|py|ps1|txt|yaml|yml)')
+# A lineage string: 'repo@sha ...'. Paths inside it belong to that repository.
+LINEAGE = re.compile(r'^[a-z0-9.-]+@[0-9a-f]{7,40}\b')
 
 dangling, unreadable, uri_defects, index_defects = [], [], [], []
 absolute = 0
@@ -82,12 +90,7 @@ def walk_json(root, obj, rel, full):
     if isinstance(obj, dict):
         for k, v in obj.items():
             if isinstance(v, str) and v:
-                if k in JSON_PATH_KEYS:
-                    if looks_like_path(v) is True:
-                        checked += 1
-                        if not resolve(root, v, os.path.dirname(full)):
-                            dangling.append((rel, v, 'json:' + k))
-                elif k == '$id':
+                if k == '$id':
                     # A schema identifier must be an absolute URI. A relative path
                     # here is the predecessor schema's defect, so it must fail.
                     if not re.match(r'^[a-z][a-z0-9+.-]*:', v):
@@ -101,6 +104,23 @@ def walk_json(root, obj, rel, full):
                         checked += 1
                         if not resolve(root, v, os.path.dirname(full)):
                             dangling.append((rel, v, 'json:$schema'))
+                elif LINEAGE.match(v):
+                    # A lineage string names another repository at another commit, so
+                    # the paths inside it are out of this repository's scope by
+                    # construction -- the repo@sha prefix is the scope marker.
+                    global absolute
+                    absolute += len(EMBEDDED.findall(v))
+                else:
+                    # Every other string value: a repository path may appear anywhere,
+                    # not only under a key we thought to name. An earlier version
+                    # checked "path" and "definition" only, so 10 of the 14 real
+                    # references in these artifacts -- every cross-owner pointer in
+                    # authority blocks -- went unexamined.
+                    for tok in EMBEDDED.findall(v):
+                        if looks_like_path(tok) is True:
+                            checked += 1
+                            if not resolve(root, tok, os.path.dirname(full)):
+                                dangling.append((rel, tok, 'json:' + k))
             walk_json(root, v, rel, full)
     elif isinstance(obj, list):
         for i in obj:
