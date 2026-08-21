@@ -133,6 +133,7 @@ One owner per concern. Do not duplicate content between these files.
 | `USER-SSOT.json` (as staged here) | **Agent Hub asset.** Its current content is Greyed-scoped and, under the naming model settled in `DECISIONS.md` D-80, is the future `GREYED-SSOT.json`. The name `USER-SSOT.json` is reserved for the global, shared user-context asset, which has no content yet. Backoffice staging/provenance copy only, pending placement. Loaded only where its scope applies. Read-only absent explicit user instruction. Not a governance owner. |
 | `rules/VERIFICATION-RESOLUTION.md` | How verification and investigation work is scoped, bounded and stopped |
 | `PENDING-GLOBAL-PROMOTIONS.md` | Rules held locally that are owed to shared governance, and their promotion terms |
+| `PENDING.md` | Deferred **operational setup not sequenced by a plan** -- automation, scheduled runs, scaffolding. Never work that a plan step covers; that is `STATE.md` § Open work. An item is never in both. |
 | `LEARNINGS.md` | Durable non-obvious findings that prevent rediscovery. Non-authoritative; carries its own retention and promotion rules. |
 | `_intake-hub/` | Requests for changes to `.agents-hub`, and the disposition of each. Requests only -- never authority, never a change log. Its `README.md` owns how submission and triage work. |
 | `plans/reference/` | Provenance copies of predecessor and superseded material, with source hashes. Never executable, never an authority. |
