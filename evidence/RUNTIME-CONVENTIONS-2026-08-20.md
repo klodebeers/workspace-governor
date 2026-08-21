@@ -241,3 +241,48 @@ Code.
   documentation. See below.
 - Whether the global `AGENTS.md` counts against the 32 KiB budget. Code path
   suggests not; not documented.
+
+## Addendum 2026-08-21 -- Claude Code does not read `AGENTS.md`
+
+Verified from current Anthropic documentation (`code.claude.com/docs/en/memory`) via
+an independent documentation lookup. This is the single most consequential vendor
+constraint recorded here, because the canonical Hub's bootstrap file is named
+`AGENTS.md`.
+
+| Question | Answer |
+|---|---|
+| What does Claude Code discover automatically? | `CLAUDE.md` and `CLAUDE.local.md`, from the working directory and its parents. **Nothing else.** |
+| Does it read `AGENTS.md` natively? | **No.** The documentation states it plainly and gives the import workaround as the supported route: "Claude Code reads `CLAUDE.md`, not `AGENTS.md`. If your repository already uses `AGENTS.md` for other coding agents, create a `CLAUDE.md` that imports it so both tools read the same instructions without duplicating them." |
+| A repository with `AGENTS.md` and no `CLAUDE.md`? | **Nothing is loaded.** The session starts with no instruction context from that file |
+| `@path` import behaviour | The imported file is expanded and inlined at session start. **Four hops** maximum. Relative paths resolve against **the importing file**, not the working directory. Parsing skips code spans and fenced blocks, so a path in backticks stays literal |
+| Is a one-line `CLAUDE.md` containing `@AGENTS.md` supported? | Yes, and documented as the standard pattern. A project-root import of a project-root file needs no approval dialog |
+| Precedence | Project-level `CLAUDE.md` loads **after** user-level `~/.claude/CLAUDE.md`, so project instructions are read last |
+| Alternative | `ln -s AGENTS.md CLAUDE.md` works on Linux and macOS; on Windows it needs Administrator or Developer Mode |
+
+### Consequence for the canonical Hub
+
+**The Hub's root contract does not load in Claude Code today.** `.agents-hub/` holds
+`AGENTS.md` and no `CLAUDE.md`, so a Claude Code session opened there receives none
+of it. Codex discovers `AGENTS.md` natively; Claude Code does not. This is exactly
+the adapter projection that delta D-k and D-29 require, and it is unbuilt.
+
+**It also predicts the outcome of the Step 11 fresh-agent test.** That test asks a
+fresh session which instruction files it loaded and from where. For Claude Code, run
+inside `.agents-hub` as it now stands, the expected answer is *none* -- and that is a
+correct negative result about the current state, not a failure of the test or of the
+Hub's content. Recording the prediction in advance so the result is not misread as
+something else, and so a negative is not treated as inconclusive.
+
+**Placement note for whoever builds it.** The accepted adapter location is
+`adapters/claude/` (D-68), but Claude Code only discovers `CLAUDE.md` at a directory
+root or in a parent. An adapter file sitting inside `adapters/claude/` would never be
+found. So the projection has to be a root `CLAUDE.md` -- the thinnest possible form
+being a single `@AGENTS.md` import, which duplicates no governance and states no rule.
+`adapters/claude/` remains the right home for anything larger that is not
+discovery-critical.
+
+### Not verified
+
+- Whether the one-line import pattern is version-gated. The documentation gives a
+  minimum version only for the `/import` command (v2.1.213+), not for the import
+  syntax itself.
