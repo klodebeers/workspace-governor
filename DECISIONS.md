@@ -1571,6 +1571,38 @@ difficulty is never grounds, the reasoning is stated, the smallest unresolved it
 named. This applies them outward. A standard the agent holds for its own reports and
 not for its answers to other people is not a standard.
 
+**D-83.** Every intake submission carries a `Keyword:` field, and the submitter says
+that keyword in chat when they submit. Decided by: user, 2026-08-21. Written into
+`_intake-hub/SUBMISSION-TEMPLATE.md` as the first field, and into
+`_intake-hub/README.md` § Keyword.
+
+**What it is for.** The file and the conversation that produced it each need a way to
+find the other. The file holds the request; the chat holds the reasoning, the
+back-and-forth and the context that never reaches a form. Without a shared handle the
+two separate, and the request arrives stripped of why it was asked.
+
+**Two obligations, both on the submitter.** Put a distinctive keyword at the top of the
+file, and state it in chat when submitting -- announcing the submission is itself part
+of it, since a file nobody mentions can sit unnoticed.
+
+**Guidance that makes it work rather than decorate:** the keyword must be *searchable*.
+`update`, `fix`, `hub`, `change` match everything and therefore find nothing; a couple
+of unusual words joined up do the job. And no secret, credential or customer name, since
+the keyword is quoted in chat, in the file, and in whatever record the outcome lands in.
+
+**Binding on triage:** search the transcript for the keyword **before** assessing.
+Judging a submission on the form alone when the keyword would have found the context is
+the cheapest avoidable mistake in this pipeline.
+
+**Not a hard gate.** A submission without a keyword is still read -- a request is never
+turned away for paperwork, and refusing one on form would contradict D-82's rule that
+inconvenience is not grounds. The cost is stated instead: the request cannot be tied
+back to its conversation, so triage has only the form, and the cost falls on that
+request.
+
+**Incidental benefit:** the literal label `Keyword:` is uniform across submissions, so
+the folder itself is greppable by it.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

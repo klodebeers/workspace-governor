@@ -1,5 +1,6 @@
 # <short subject>
 
+**Keyword:** <a distinctive phrase you also say in chat — see README § Keyword>
 **Submitted by:**
 **Date:**
 **Affects:** <the part of the Hub you think this touches, or "not sure">
