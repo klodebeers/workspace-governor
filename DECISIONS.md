@@ -1363,6 +1363,33 @@ evidence here records `.codex` as a known Codex location and root and nested
 `AGENTS.md` as discovered, but not that exact path. Whoever wires it confirms it at
 that point; nothing here depends on it.
 
+**D-76.** Step 2's gate passes. Decided by: agent, on evidence.
+`evidence/PROVENANCE-AND-SENSITIVITY-GATES-2026-08-21.md`.
+
+`agents-hub-two` is **cleared** as the source of the content already migrated into the
+Hub: owned by the same account as the destination, `fork: false` with no upstream
+parent, no `LICENSE` or `NOTICE` file so no third-party terms attach, private, no secret
+or credential value in any of its 27 files, and no runtime state. The two scan hits for
+secret-shaped words are rule text *about* secrets, not values.
+
+Recorded as a limitation rather than glossed: the source is a single "Initial Commit"
+with no history, so provenance *within* that commit cannot be traced from the
+repository. If any of it was copied from a third party before the import, this clearance
+does not reach that. Recheck trigger: a new commit, a licence file, a fork parent, an
+additional contributor, or evidence of third-party material in the import.
+
+`design-systems\.remember` is **explicitly blocked and excluded**, which the gate
+permits, and nothing was inspected to record it. The gate's condition -- no downstream
+action depends on an unresolved item -- is verified by search: the only two references
+to `design-systems` anywhere in the Hub are the `CATALOG.md` and `README.md` lines
+instructing preservation. No artifact, route, registry entry, definition, template or
+context file touches it.
+
+Two further sources are recorded so they are not mistaken for uncleared Hub inputs: the
+predecessor backoffice, whose material went to `plans/reference/` in this repository and
+never to the Hub; and `agent-governance-toolkit`, which is not adopted and contributes
+nothing, though its MIT attribution terms become live if adoption is ever proposed.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

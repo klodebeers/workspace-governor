@@ -220,8 +220,8 @@ position is current state; two copies would drift.
 |---|---|---|
 | 0 -- bootstrap and drift check | Done informally | No dated drift-check record produced. Low consequence: the baseline was re-inspected repeatedly in practice |
 | 1 -- accept target tree and classify | **Done** | D-35. All 46 inputs classified |
-| 2 -- provenance, sensitivity, external-source gates | **NOT done** | Two open gates. Next action |
-| 3 -- semantic owner and dependency map | **NOT done** | No owner-map artifact exists. Next action after Step 2 |
+| 2 -- provenance, sensitivity, external-source gates | **Done 2026-08-21** | Gate PASS. `agents-hub-two` cleared with evidence; `.remember` explicitly blocked and excluded with nothing depending on it, verified by search; predecessor backoffice cleared with no Hub exposure; `agent-governance-toolkit` outside the set. `evidence/PROVENANCE-AND-SENSITIVITY-GATES-2026-08-21.md` |
+| 3 -- semantic owner and dependency map | **In progress** | Independent analysis of the corpus running; the map is the deliverable |
 | 4 -- version preservation and rollback | **Satisfied by substitution** | Git is the mechanism, D-28 |
 | 5 -- refactor runtime-neutral core and root controls | **Done** | The root `AGENTS.md` move, retiring the Hub `STATE.md` and the placeholders, and the later `AGENTS.md` edits. Recorded at the time under the labels "Step 1" and "Step 2" |
 | 6 -- consolidate references and evidence | Partly done, partly deferred | D-15 settled the disposition; execution edits another repository |
