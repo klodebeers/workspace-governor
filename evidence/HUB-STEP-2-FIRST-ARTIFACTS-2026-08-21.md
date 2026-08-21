@@ -66,9 +66,14 @@ work.
 existed twice with different phrasing. The coordinator's copy is taken because
 routing is the coordinator's role; the other is superseded, its wording preserved
 in the reconciliation record rather than merged into a third phrasing neither
-source states. The routes are now **generated from the source files** by the
-build step that wrote the artifact, so "verbatim" is true by construction rather
-than by assertion.
+source states. The routes are **verified byte-identical to the
+source** by `scripts/Assert-HubSourceFidelity.py`, which re-reads both sides on demand.
+An earlier version of this paragraph said they were "generated from the source files, so
+verbatim is true by construction". That claim is withdrawn: the generator was an
+uncommitted inline script, so nothing could re-derive it, and a claim that cannot be
+re-run is the failure D-53 exists to prevent. A committed verifier is the honest form.
+The withdrawal is also recorded in the round-2 findings table below -- this paragraph
+contradicted it until 2026-08-21.
 
 **4. A reference to something that does not exist is `null` with a status, never a
 path.** Eleven of twelve registry entries have no normalized definition; they

@@ -1678,6 +1678,46 @@ disclaimer and then carried position anyway, which is the duplication D-74 remov
 re-created with a note on top. D-86 makes the arrangement deliberate and gives it a
 tiebreak, instead of leaving a contradiction covered by a disclaimer.
 
+**D-87.** The decline standard binds the agent's own rejections, not only its answers
+to submitters. Decided by: agent, closing a gap in D-82.
+
+D-82 set out what a decline must contain -- what exactly is declined, the ground by name
+with file and section, what was checked and where, verified versus assumed, and what
+would reopen it -- and justified it with the observation that a standard held for your
+own reports and not for your answers to other people is not a standard.
+
+**That argument runs both ways, and D-82 stated only one direction.** The same
+requirements apply when the agent rejects a review finding, an audit result, a subagent's
+conclusion, or a submission. In this session eight findings were rejected across five
+review rounds, and some of the reasoning leaned on recollection of the reconciliation
+record rather than on quoting it -- which is precisely the unarguable refusal D-82
+forbids.
+
+So: a rejected finding is recorded with the same five items, and the ground is **read at
+the time, not recalled**. A rejection argued from memory of a rule is not supported, and
+the person or agent whose finding it was is entitled to check it.
+
+**D-88.** Two claims recorded as fixed were not, found by checking rather than by
+recall. Decided by: agent.
+
+`evidence/HUB-STEP-2-FIRST-ARTIFACTS-2026-08-21.md` **both asserted and withdrew** the
+same claim: one paragraph said the routes were "generated from the source files, so
+verbatim is true by construction", while the round-2 findings table below it recorded
+that exact claim as withdrawn. The file contradicted itself for several revisions.
+Corrected; the paragraph now states what is true -- the routes are verified byte-identical
+by a committed script -- and notes that it contradicted the table until today.
+
+And the narrative-in-live-artifacts class is **not** closed, though it was reported as
+addressed twice. Two instances stand: the registry schema's field descriptions carry
+settled-decision rationale ("Closed: the orchestrator/specialist split is a settled
+classification"; "Null rather than a prospective path: a path written before its file
+exists is a dangling reference"), and one `context/` bullet reports an obligation and
+asserts it is met. Both are U-6 in the ownership map, open.
+
+**The lesson is the method, not the instances.** Asked which of ten self-identified
+conflicts were fixed, answering from memory would have reported eight; checking the files
+reported six, and found one contradiction that memory had no idea about.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.
