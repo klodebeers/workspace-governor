@@ -1095,6 +1095,80 @@ it has failed on a built instance of the defect and passed on clean content. A
 recorded exemption **requires** its divergence rather than merely excusing it, since
 an exemption that only excuses lets a settled decision be reverted silently.
 
+**D-66.** Conflict C-04 is resolved. `context/` owns scoped knowledge and supporting
+operating context; it owns no authority. Decided by: user, as taxonomy owner,
+2026-08-21. Supersedes the gloss "scoped operating context, not knowledge or
+authorization" and confirms the accepted Step-1 target tree.
+
+It owns domain concepts, architecture explanations, domain and product terminology,
+design rationale, integration constraints, project-specific workflows, historical and
+operational references, supporting technical background, and detail that would
+otherwise bloat the root instruction files. It is version-controlled and travels with
+the Hub.
+
+It does **not** own governance, permissions, approvals, protected boundaries,
+behavioral obligations, verification authority or instruction precedence. Those stay
+with `rules/` or another explicitly assigned Hub owner.
+
+Two clauses carry beyond `context/` and are now stated in the Hub itself:
+
+1. **A file is not mandatory because it exists.** Anything under `context/` is loaded
+   only when explicitly routed by the Hub bootstrap, the orchestration layer, an agent
+   definition, or a runtime adapter.
+2. **A runtime adapter is a discovery entry point, not a definition.** Codex, Claude
+   Code and future runtimes may load or expose canonical Hub context through their own
+   mechanisms; they must not redefine what `context/` means, what it owns, what
+   authority it has, or where canonical knowledge belongs. The Hub stays
+   agent-agnostic.
+
+`context/NOTION-FORMULA-V2.md` is confirmed correctly placed: supporting domain
+knowledge, absorbing no obligation, granting no authority. Backoffice separation is
+restated with it -- `workspace-governor` keeps research, evidence, migration work,
+provenance, recovery, planning, project state and history, and none of that becomes
+runtime context by being useful. Full text: `plans/AGENT-HUB-CONSOLIDATION.md`
+section 6.2a.
+
+**D-67.** General reusable capability knowledge belongs in global context; exact
+domain implementation belongs in domain or project context. Decided by: user,
+2026-08-21, corrected the same day.
+
+Global context is `context/global/` **inside the Hub** -- user-level and
+version-controlled. The first statement of this rule placed it outside the repository
+in `~/.codex/` or `~/.claude/`; the corrected sample keeps it in the Hub, which is the
+"another explicitly managed global location" that rule already allowed. Those runtime
+directories are discovery locations an adapter projects into, which is what runtime
+separation says they are, and it keeps global knowledge version-controlled instead of
+unmanaged on one machine.
+
+Accepted shape: `context/global/` with `user-preferences/`, `user-stack/`,
+`tooling/{git,powershell,python,node,mcp}/`,
+`services/{notion,excel,dashboards}/` and `terminology/`. Exact domain
+implementation -- named databases and their ids, exact properties and allowed values,
+relations between specific databases, project formulas and views, domain workflow
+rules and terminology, for Greyed, Fina, Klo Professional, Klo Personal or a specific
+dashboard schema -- is held per owner outside `context/global/`.
+
+Applied to the one artifact this affects: `NOTION-FORMULA-V2.md` is general Notion
+platform behavior, not any project's schema, so it moved to
+`context/global/services/notion/`. **No empty branches were created.** Every other
+directory in the shape arrives with its first accepted artifact, as everywhere else in
+this taxonomy.
+
+**D-68.** The adapter directory is `adapters/`, with `claude/`, `codex/` and
+`generic/` beneath it. Decided by: user, as taxonomy owner, 2026-08-21. Supersedes
+`runtime-adapters/` in the accepted taxonomy and in the Hub `CATALOG.md`.
+
+Surfaced rather than applied silently: two accepted records said
+`runtime-adapters/`, and D-13 and D-37 both refer to it by that name. The corrected
+sample is the later statement from the owner of the taxonomy, so the new name governs
+and the earlier name is superseded wherever it appears. `generic/` is new -- the
+earlier taxonomy named only per-runtime adapters.
+
+Nothing is built. No adapter exists, the directory is created with its first accepted
+adapter, and this is therefore a rename of an unbuilt domain. `CATALOG.md` states the
+accepted names so the rename is visible where a reader looks for adapters, and the
+adapter projection that `agents/` now owes (D-29) will land under the new name.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

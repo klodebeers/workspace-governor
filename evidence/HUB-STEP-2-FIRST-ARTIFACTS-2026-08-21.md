@@ -1,7 +1,7 @@
 # Step 2 -- first accepted artifact per domain
 
 **Date:** 2026-08-21
-**Revision:** 4. Revision 1 described the artifacts as first written; two reviews
+**Revision:** 5. Revision 1 described the artifacts as first written; two reviews
 reworked them before anything was committed. Revision 2 described the committed
 state at `d1a8553`. Four further blind audits then found material defects in that
 committed state, which were fixed at `df33f07`. A fifth, final audit found eight
@@ -214,20 +214,51 @@ applied, and said it could not verify authorisation from the decision window it 
 given. Both are authorised: D-50 for the value, D-58 for the identifier convention.
 The reviewer named the limit correctly rather than assuming.
 
-## Open conflict -- surfaced, not resolved
+## The surfaced conflict, resolved
 
-The accepted taxonomy says `context/` holds "scoped operating context, **not
-knowledge or authorization**". The accepted Step-1 target tree says
-`context/ domain knowledge, e.g. the quadruplicated formula notes`. Those two
-accepted records disagree about whether domain knowledge may live in `context/`,
-and the artifact created here is exactly the case they disagree about.
+Two accepted records disagreed about whether domain knowledge may live in
+`context/`: the taxonomy's gloss said "scoped operating context, **not knowledge or
+authorization**", and the accepted Step-1 target tree assigned
+`context/ domain knowledge, e.g. the quadruplicated formula notes`. The artifact
+created here was exactly the case they disagreed about. Surfaced rather than
+resolved silently, and escalated to the taxonomy owner.
 
-The file has been reframed as operating context -- platform behavior needed to plan
-and check work correctly -- and the authorization half is unambiguously satisfied:
-it states that it grants nothing. That reframing makes the artifact defensible
-under either reading. It does **not** settle which reading governs, and the
-question returns the moment a second context artifact is proposed. Surfaced per
-the hub root contract rather than resolved silently. The taxonomy owner decides.
+**Resolved by the taxonomy owner, 2026-08-21.** `context/` owns scoped knowledge and
+supporting operating context, and owns no governance, permissions, approvals,
+boundaries, behavioral obligations, verification authority or precedence. The gloss
+is superseded; the target tree stands. `context/NOTION-FORMULA-V2.md` is confirmed
+correctly placed on the ground the reframing had already established: it carries
+supporting domain knowledge, absorbs no obligation, and grants no authority.
+
+Two additions came with the resolution and are wider than this step: a file is not
+mandatory merely because it sits under `context/` -- it loads only when routed; and
+general reusable capability knowledge belongs in global machine-level context while
+exact domain implementation belongs in domain or project context.
+`plans/AGENT-HUB-CONSOLIDATION.md` sections 6.2a and 6.2b; `DECISIONS.md` D-66 and
+D-67.
+
+### What the resolution changed after Step 2 closed
+
+Applied at `c384c60`, on top of the completed step:
+
+- The three places in the Hub that carried the superseded phrase "scoped operating
+  context" now carry the canonical wording. That phrase came from the definition the
+  resolution replaced, so leaving it would have kept the resolved conflict alive in
+  the Hub's own text.
+- Two clauses from the resolution were missing from the Hub and are now readable
+  there: a file under `context/` is not mandatory because it exists, and a runtime
+  adapter may load or expose an artifact but must not redefine what it owns.
+- `NOTION-FORMULA-V2.md` moved to `context/global/services/notion/`. It is general
+  Notion platform behavior -- formula fundamentals and general limitations, not any
+  project's schema -- which the capability-versus-implementation rule places in
+  global context. References updated in the agent definition, the catalog and the
+  README; the move was checked by the reference sweep rather than assumed.
+- No empty branches were scaffolded. Every other directory in the accepted global
+  shape arrives with its first accepted artifact.
+- The adapter domain's accepted name is now `adapters/`, superseding
+  `runtime-adapters/`. Surfaced as a supersession, not applied silently: two accepted
+  records and two earlier decisions use the old name. Nothing is built, so it is a
+  rename of an unbuilt domain, and the catalog states the accepted names.
 
 ## Verification performed
 

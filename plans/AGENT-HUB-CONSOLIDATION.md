@@ -127,8 +127,8 @@ directory because another system uses the name.
 |                        composition, verification
 |-- runbooks/            durable operational procedures for agents
 |-- templates/
-|-- context/             scoped operating context, not knowledge or authorization
-|-- runtime-adapters/    mappings to runtime-native representations
+|-- context/             scoped knowledge and supporting operating context; not authority
+|-- adapters/            mappings to runtime-native representations (renamed from runtime-adapters/, section 6.2c)
 `-- references/          supporting references, not backoffice history
 ```
 
@@ -158,6 +158,114 @@ adaptation*; these are the adaptations, and the directive governs.
 | `evaluations/`, `packages/`, `archive/` | Approved candidate domains | Not in the taxonomy; `archive/` conflicts with "no backoffice history in live authority" | Directive governs. Archive and history belong in `workspace-governor`. `evaluations/` and `packages/` are not created without justifying artifacts -- both documents already forbid empty domains, so no real conflict. |
 | `references/` | Non-authoritative research, audits and retained source material | Supporting references, **not** backoffice history | Directive narrows it. Audit and research history moves to the backoffice. |
 | `STATE.md` in Hub root | Mutable operational checkpoint, a root control file | Do not add management state, migration state or consolidation progress to the live Hub | Directive governs. Distinguish agent-consumable desired state -- potentially canonical -- from backoffice management state, which is `workspace-governor` material. Whether the Hub retains any `STATE.md` is a Step 1 decision from actual content. |
+
+### 6.2a Canonical definition of `context/` -- C-04 resolved
+
+Directive-given 2026-08-21, superseding the earlier gloss "scoped operating
+context, not knowledge or authorization", which conflicted with the accepted
+Step-1 target tree. This is the single agent-agnostic definition. `DECISIONS.md`
+D-66.
+
+`context/` **owns** scoped knowledge and supporting operating context needed by
+agents: domain concepts, architecture explanations, domain and product terminology,
+design rationale, integration constraints, project-specific workflows, historical or
+operational references, supporting technical background, and detail that would
+otherwise bloat the root instruction files. It is version-controlled and travels
+with the Hub.
+
+`context/` **does not own** governance, permissions, approvals, protected
+boundaries, behavioral obligations, verification authority, or instruction
+precedence. Those stay with their canonical owners, primarily `rules/` or another
+explicitly assigned Hub owner.
+
+**A file is not mandatory because it exists under `context/`.** It is loaded only
+when explicitly routed or referenced by the Hub bootstrap, the orchestration layer,
+an agent definition, or a runtime adapter.
+
+**Scope separation.** Global context is the explicitly managed global location
+`~/.agents-hub/context/global/` -- user-level, and version-controlled with the Hub.
+It holds only what applies broadly across projects: personal response and coding
+preferences, the user's stack, preferred tools and package managers, general
+engineering habits, cross-project terminology, centrally managed organization-wide
+defaults, and references to global workflows. Repository-specific commands,
+architecture, domain knowledge, client information, project assumptions, project
+decisions and project-specific constraints must not go there.
+
+**Corrected 2026-08-21.** An earlier statement of this rule placed global context
+"outside the repository" in `~/.codex/` or `~/.claude/`. The corrected model keeps it
+inside the Hub at `context/global/`, which is the "another explicitly managed global
+location" the same rule allowed. `~/.codex/` and `~/.claude/` are runtime discovery
+locations that an adapter projects into -- consistent with runtime separation below,
+and it keeps global knowledge version-controlled instead of unmanaged on one machine.
+
+Project-specific knowledge stays in the Hub outside `context/global/`, or with
+another explicitly assigned project owner.
+
+**Runtime separation.** Codex, Claude Code and future runtimes may each use their own
+global and project instruction mechanisms. Those are adapters and discovery entry
+points only. They may load or expose canonical Hub context; they must not redefine
+what `context/` means, what it owns, what authority it has, or where canonical
+knowledge belongs. The Hub stays agent-agnostic.
+
+**Backoffice separation.** `workspace-governor` remains the backoffice for research,
+evidence, migration work, provenance, recovery, planning, project state and
+historical records. Backoffice material does not become runtime context merely by
+being useful; it enters the live Hub only once accepted, classified, and assigned to
+a canonical Hub owner.
+
+### 6.2b Capability knowledge versus domain implementation
+
+Directive-given 2026-08-21, corrected the same day. The key rule: **general reusable
+capability knowledge belongs in global context; exact domain implementation belongs
+in domain or project context.** `DECISIONS.md` D-67.
+
+Accepted global shape, from the corrected sample:
+
+```text
+context/global/
+|-- user-preferences/
+|-- user-stack/
+|-- tooling/
+|   |-- git/
+|   |-- powershell/
+|   |-- python/
+|   |-- node/
+|   `-- mcp/
+|-- services/
+|   |-- notion/
+|   |-- excel/
+|   `-- dashboards/
+`-- terminology/
+```
+
+For Notion, general reusable capability knowledge means database creation and
+editing, property types, relations and rollups, views, filters and sorts, formula
+fundamentals, page and database structure, common database patterns, and general
+migration, cleanup, validation, limitation and behavior knowledge. It goes under
+`context/global/services/notion/`.
+
+Domain or project context means the exact implementation: named databases and their
+ids, exact properties and allowed values, relations between specific databases,
+project-specific formulas and views, domain workflow rules and domain terminology --
+for Greyed, Fina, Klo Professional, Klo Personal, or a specific dashboard schema. It
+is held per owner, outside `context/global/`.
+
+**Empty branches are not created.** Each directory in the shape above comes into
+existence with its first accepted artifact, as everywhere else in this taxonomy. The
+shape records where content goes, not a skeleton to scaffold.
+
+### 6.2c Adapter directory name -- superseded, surfaced
+
+The corrected sample names the adapter directory **`adapters/`**, with `claude/`,
+`codex/` and `generic/` beneath it. The accepted taxonomy in section 6 and the Hub
+`CATALOG.md` both say `runtime-adapters/`.
+
+Recorded as a supersession by the taxonomy owner rather than resolved silently: the
+sample is the later statement and comes from the owner of the taxonomy. `adapters/`
+governs. Nothing in the Hub changes yet -- no adapter exists, and the directory is
+created with its first accepted adapter -- so the correction is a name change to an
+unbuilt domain. `generic/` is new: the earlier taxonomy named only per-runtime
+adapters. `DECISIONS.md` D-68.
 
 ### 6.3 Special ownership boundaries
 
@@ -263,8 +371,8 @@ runtime-neutral source; thin existing adapters; clear orchestration; no semantic
 duplication; no backoffice history in live authority; no runtime state in
 canonical governance.
 
-Do not finalize uncertain names or structures -- including the exact `context/`
-substructure -- until existing material has been compared.
+Do not finalize uncertain names or structures -- the exact `context/`
+substructure is now shaped by section 6.2b, and other structures -- until existing material has been compared.
 
 ## 7. Immediate next action
 

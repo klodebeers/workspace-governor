@@ -42,6 +42,7 @@ ALLOW = {
     'design-systems\\.remember\\',   # present in the materialized Hub, not tracked here
     'policies\\', 'prompts\\', 'skills\\', 'tools\\', 'runbooks\\',   # stated as intentionally absent
     'runtime-adapters\\', 'governance-templates\\', 'STATE.md',   # retired; nameable as absent
+    'adapters\\', 'adapters\\claude\\', 'adapters\\codex\\', 'adapters\\generic\\',   # accepted names, created with their first adapter
 }
 EXTERNAL = ('agents-hub-two/', 'workspace-governor/', 'mcp-gateway/')
 SKIP_DOCS = {'references/AGENTS-MD-LIVE-AUDIT-2026-08-16.md'}   # dated evidence: true when written
