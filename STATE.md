@@ -91,7 +91,7 @@ records the decision.
 
 ### Canonical Hub -- current verified state
 
-`klodebeers/.agents-hub` at **`c384c60`**, Step 1 restructuring applied and Step 2
+`klodebeers/.agents-hub` at **`3e35f9d`**, Step 1 restructuring applied and Step 2
 first artifacts added, then corrected after four independent blind audits. Verified against the tree extracted from `origin/main`, not
 only the working copy: both checks pass there. Fifteen tracked files:
 
@@ -107,7 +107,7 @@ registry/agent-registry.json                  12 agent identities, 1 with a defi
 registry/agent-registry.schema.json           validates the registry; no runtime enforcement
 orchestration/routing.json                    entry point, domain selection, 11 routes
 agents/notion-formula-logic.json              first normalized agent definition
-context/global/services/notion/NOTION-FORMULA-V2.md   Notion formulas 2.0, global capability knowledge
+context/NOTION-FORMULA-V2.md                  Notion formulas 2.0 capability knowledge
 templates/verification-checklist.json         pre-action checklist shape
 references/AGENTS-MD-LIVE-AUDIT-2026-08-16.md retained dated audit
 design-systems/placeholder.md                 EXCLUDED, Conflict, untouched
@@ -115,7 +115,8 @@ design-systems/placeholder.md                 EXCLUDED, Conflict, untouched
 
 Not created, by decision: `policies/`, `prompts/`, `skills/`, `tools/`,
 `runbooks/`, `adapters/` (renamed from `runtime-adapters/` by D-68), and every
-unused branch of `context/global/`. Each is created by its first accepted artifact.
+unused branch of `context/`. There is no `global/` folder: the Hub is the global
+layer (D-69). Each is created by its first accepted artifact.
 Detail in `DECISIONS.md` D-37 and D-43 through D-53.
 
 **Step 2 was reviewed twice, before and after commit.** The pre-commit round fixed
@@ -159,8 +160,9 @@ refuses to run outside the Hub, where it produced 1022 false positives.
 
 **The local Hub is one commit behind.** It was verified equal at `1a91d32` -- a
 fast-forward from `c6c966b` whose diffstat matched the repository exactly, which also
-proves the clone carried no divergent local commits. `c384c60` has since applied the
-C-04 resolution, so under D-41 materialization is open again.
+proves the clone carried no divergent local commits. `c384c60` and `3e35f9d` have since applied the
+C-04 resolution and removed the `global/` layer, so under D-41 materialization is
+open again.
 
 ### Conflict C-05 -- closed 2026-08-21
 
@@ -233,16 +235,16 @@ with its assigned executor, rather than repeated as an open caveat. An assigned
 pending verification is not a defect and is not re-flagged each session; see
 `AGENTS.md` § Evidence standard.
 
-### Local Hub materialization -- PENDING at `c384c60`
+### Local Hub materialization -- PENDING at `3e35f9d`
 
 | Field | Value |
 |---|---|
-| Status | **PENDING.** `1a91d32` was materialized and verified 2026-08-21 -- fast-forward from `c6c966b`, diffstat matched exactly. Reopened by `c384c60`, which applies the C-04 resolution. The operator reported `git rev-parse HEAD` = `1a91d32846fe298f1d18cdffe4219129b2f0f5f0` for the previous state. Earlier commits `c6c966b` through `1a91d32` are all carried locally; only `c384c60` is not |
+| Status | **PENDING.** `1a91d32` was materialized and verified 2026-08-21 -- fast-forward from `c6c966b`, diffstat matched exactly. Reopened by `c384c60` and `3e35f9d`, which apply the C-04 resolution and then remove the `global/` layer. The operator reported `git rev-parse HEAD` = `1a91d32846fe298f1d18cdffe4219129b2f0f5f0` for the previous state. Earlier commits `c6c966b` through `1a91d32` are all carried locally; `c384c60` and `3e35f9d` are not |
 | Requirement | D-33: the repository and `C:\Users\Chloe\.agents-hub` are one logical Hub and must not drift |
 | Why no remote action can do it | The path is on the operator's Windows machine, unreachable from a cloud session (blocker B-5). No cloud-side change can move it |
 | Assigned executor | Klo, on the local Windows machine |
 | Method | `cd C:\Users\Chloe\.agents-hub` then `git pull`. Mechanism settled as git, not hand-copying, per D-41 |
-| Verification | `git rev-parse HEAD` must return `c384c60927f65457d8837b4b0cda2b4aeacc924f`, and `git status --short` print nothing. Previous round, done: the reported HEAD was `1a91d32846fe298f1d18cdffe4219129b2f0f5f0`, an exact match. The operator's `git pull` transcript shows a **fast-forward** `c6c966b..1a91d32`, which is stronger evidence than the SHA alone: a fast-forward is only possible if the local clone carried no divergent commits, so nothing had been committed locally and lost. Its diffstat -- 9 files, 583 insertions, 3 deletions, 6 created -- matches `git diff --stat c6c966b..1a91d32` in the repository exactly. The `git status` half was not reported; a dirty tree there would be local drift rather than a materialization failure, and would show up as a mismatch at the next pull. Tree afterwards, this round: `context/NOTION-FORMULA-V2.md` has moved to `context/global/services/notion/NOTION-FORMULA-V2.md`, and `AGENTS.md`, `CATALOG.md`, `README.md` and `agents/notion-formula-logic.json` are modified. Nothing else is added or removed; `design-systems/` unchanged |
+| Verification | `git rev-parse HEAD` must return `3e35f9d3d56dcfae8a052d57f5ae31be2544a085`, and `git status --short` print nothing. Previous round, done: the reported HEAD was `1a91d32846fe298f1d18cdffe4219129b2f0f5f0`, an exact match. The operator's `git pull` transcript shows a **fast-forward** `c6c966b..1a91d32`, which is stronger evidence than the SHA alone: a fast-forward is only possible if the local clone carried no divergent commits, so nothing had been committed locally and lost. Its diffstat -- 9 files, 583 insertions, 3 deletions, 6 created -- matches `git diff --stat c6c966b..1a91d32` in the repository exactly. The `git status` half was not reported; a dirty tree there would be local drift rather than a materialization failure, and would show up as a mismatch at the next pull. Tree afterwards, this round: no file added or removed. `AGENTS.md`, `CATALOG.md`, `README.md`, `agents/notion-formula-logic.json` and `context/NOTION-FORMULA-V2.md` are modified; `context/NOTION-FORMULA-V2.md` stays at that path. `design-systems/` unchanged |
 | Known wrinkle | The local clone's `origin` may still carry the pre-rename URL `.../agents-hub-one`. It resolves through GitHub's redirect, so `git pull` works; `git remote set-url origin https://github.com/klodebeers/.agents-hub` re-points it when convenient. A repository rename never renames a clone or rewrites its remote |
 | Recheck trigger | Any later commit to the canonical Hub. Every Hub change reopens this until the two are equal |
 
@@ -355,8 +357,8 @@ unexercised. Live-Hub evidence cannot be accepted until
 26. Reconcile the handoff contract and build its template. Declared five times with five different field sets in the source and having no file on disk. Blocks the remaining agent migrations, which all reference it.
 27. Decide whether an evidence-record template is accepted, and from what. No accepted artifact exists; the source's `execution_record_template` is the candidate and is missing a field its own contract requires. Surfaced by the Step 2 governance review; `DECISIONS.md` D-51 item 1.
 28. ~~Resolve C-04: whether domain knowledge may live in `context/`.~~ **Closed 2026-08-21** by the taxonomy owner. `DECISIONS.md` D-66; definition in `plans/AGENT-HUB-CONSOLIDATION.md` section 6.2a. A second context artifact is unblocked.
-28a. Populate `context/global/` as content is accepted, per the shape in plan section 6.2b and D-67. Nothing is scaffolded: each branch arrives with its first accepted artifact. General Notion capability knowledge beyond formulas 2.0 -- database creation and editing, property types, relations and rollups, views, filters and sorts, page structure, common patterns, general migration, cleanup and validation practice -- is the largest identified gap, and none of it exists yet.
-28b. Establish where exact domain implementation is held per owner -- Greyed, Fina, Klo Professional, Klo Personal -- and by which owner. D-67 settles that it is outside `context/global/`; it does not settle the location. No domain implementation content is in the Hub, so nothing is blocked today.
+28a. Populate `context/` as content is accepted, per the shape in plan section 6.2b, D-67 and D-69. Nothing is scaffolded: each branch arrives with its first accepted artifact. General Notion capability knowledge beyond formulas 2.0 -- database creation and editing, property types, relations and rollups, views, filters and sorts, page structure, common patterns, general migration, cleanup and validation practice -- is the largest identified gap, and none of it exists yet.
+28b. Establish where exact domain implementation is held per owner -- Greyed, Fina, Klo Professional, Klo Personal. **Two owner statements disagree:** the C-04 definition lists domain knowledge and project-specific workflows as suitable Hub `context/` content, while "everything in agents-hub is global" reads against holding one project's schemas there. Surfaced, not resolved by inference. No domain implementation content is in the Hub, so nothing is blocked today. D-69.
 28c. Rename the adapter domain to `adapters/` wherever the earlier name survives, when the first adapter is built. D-68 supersedes `runtime-adapters/`; D-13 and D-37 still refer to it by the old name, and those records are append-only history rather than defects.
 29a. Carry three orphaned source obligations to their owners when those definitions migrate. `DECISIONS.md` D-61. A fourth -- formula logic must be treated as a dedicated domain with its own verification model -- is **met by structure**, not owed: the `notion-operations` domain and its formula specialist exist, and that specialist's rules state what evidence counts for formula work. Recorded because the fifth audit found it softened into an attribution with nothing saying how it was met. D-62. They are: a formula must be validated after a schema change, and schema and formulas must be reviewed together when migrating older logic -- both owed to `notion-schema-relations-agent`; and a formula migration must validate actual behavior against current property types and output expectations -- owed to the orchestrator definition. Nothing in the Hub carries them today.
 29a-ii. Decide who owns the pre-routing obligation the source stated and no rule carries: define the required fields and produce a short decision brief before technical work begins. `rules/ENGINEER-OWNERSHIP.md` governs when to ask and states neither. Surfaced in `orchestration/routing.json` as a governance gap; recorded here because the surfaced gap is only visible to a reader of the governed tree, and open work is owned by this file. D-63.
@@ -369,9 +371,10 @@ unexercised. Live-Hub evidence cannot be accepted until
 
 ## Next action
 
-**Materialize `c384c60` into the live local Hub.** Step 2 is complete; `c384c60`
+**Materialize `3e35f9d` into the live local Hub.** Step 2 is complete; `3e35f9d`
 applies the C-04 resolution on top of it -- the canonical definition of `context/`,
-the global capability shape, and the `adapters/` rename. Same command as before, new
+the capability shape, and the `adapters/` rename -- with no `global/` folder, since
+the Hub is the global layer. Same command as before, new
 expected SHA; see Verification assignments. `1a91d32` was verified equal, so this is
 a one-commit gap.
 

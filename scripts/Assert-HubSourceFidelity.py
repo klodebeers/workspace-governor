@@ -166,7 +166,7 @@ def main(hub, src):
                 % (k, t_src[k], t_hub.get(k)))
 
     # ---- the consolidated context file lost nothing ------------------------
-    ctx = open(os.path.join(hub, "context/global/services/notion/NOTION-FORMULA-V2.md"), encoding="utf-8-sig").read()
+    ctx = open(os.path.join(hub, "context/NOTION-FORMULA-V2.md"), encoding="utf-8-sig").read()
     refs = S("agents/NOTION-SYSTEM-DEPENDENCIES.json")["validated_references"]
     lost = [u for u in refs if u not in ctx]
     if lost:

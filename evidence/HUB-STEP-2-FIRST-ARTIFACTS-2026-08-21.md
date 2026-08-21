@@ -1,7 +1,7 @@
 # Step 2 -- first accepted artifact per domain
 
 **Date:** 2026-08-21
-**Revision:** 5. Revision 1 described the artifacts as first written; two reviews
+**Revision:** 6. Revision 1 described the artifacts as first written; two reviews
 reworked them before anything was committed. Revision 2 described the committed
 state at `d1a8553`. Four further blind audits then found material defects in that
 committed state, which were fixed at `df33f07`. A fifth, final audit found eight
@@ -248,11 +248,12 @@ Applied at `c384c60`, on top of the completed step:
 - Two clauses from the resolution were missing from the Hub and are now readable
   there: a file under `context/` is not mandatory because it exists, and a runtime
   adapter may load or expose an artifact but must not redefine what it owns.
-- `NOTION-FORMULA-V2.md` moved to `context/global/services/notion/`. It is general
-  Notion platform behavior -- formula fundamentals and general limitations, not any
-  project's schema -- which the capability-versus-implementation rule places in
-  global context. References updated in the agent definition, the catalog and the
-  README; the move was checked by the reference sweep rather than assumed.
+- `NOTION-FORMULA-V2.md` was moved to `context/global/services/notion/` and then
+  **moved back**. The owner corrected the model: there is no `global/` folder, because
+  the Hub is itself the global layer. The file sits at `context/NOTION-FORMULA-V2.md`,
+  where the owner had confirmed it one message earlier. Recorded as an error of mine,
+  not a design change: a sample tree is not authority to relocate an accepted
+  artifact. `DECISIONS.md` D-69, `LEARNINGS.md` L-033.
 - No empty branches were scaffolded. Every other directory in the accepted global
   shape arrives with its first accepted artifact.
 - The adapter domain's accepted name is now `adapters/`, superseding

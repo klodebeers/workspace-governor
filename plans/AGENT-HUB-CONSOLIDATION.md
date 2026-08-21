@@ -182,24 +182,20 @@ explicitly assigned Hub owner.
 when explicitly routed or referenced by the Hub bootstrap, the orchestration layer,
 an agent definition, or a runtime adapter.
 
-**Scope separation.** Global context is the explicitly managed global location
-`~/.agents-hub/context/global/` -- user-level, and version-controlled with the Hub.
-It holds only what applies broadly across projects: personal response and coding
-preferences, the user's stack, preferred tools and package managers, general
-engineering habits, cross-project terminology, centrally managed organization-wide
-defaults, and references to global workflows. Repository-specific commands,
-architecture, domain knowledge, client information, project assumptions, project
-decisions and project-specific constraints must not go there.
+**Scope separation.** **The Hub is the global layer.** Everything under
+`.agents-hub/context/` already applies across projects, so there is no `global`
+subdirectory: it would be a redundant level inside a repository whose whole purpose
+is reusable cross-project source. Corrected by the taxonomy owner 2026-08-21;
+`DECISIONS.md` D-69.
 
-**Corrected 2026-08-21.** An earlier statement of this rule placed global context
-"outside the repository" in `~/.codex/` or `~/.claude/`. The corrected model keeps it
-inside the Hub at `context/global/`, which is the "another explicitly managed global
-location" the same rule allowed. `~/.codex/` and `~/.claude/` are runtime discovery
-locations that an adapter projects into -- consistent with runtime separation below,
-and it keeps global knowledge version-controlled instead of unmanaged on one machine.
+Suitable content is what applies broadly: personal response and coding preferences,
+the user's stack, preferred tools and package managers, general engineering habits,
+cross-project terminology, centrally managed organization-wide defaults, and
+references to global workflows.
 
-Project-specific knowledge stays in the Hub outside `context/global/`, or with
-another explicitly assigned project owner.
+`~/.codex/` and `~/.claude/` are runtime discovery locations that an adapter projects
+into. They are not a second home for canonical knowledge, and knowledge is not placed
+there to make it global -- it is already global by being in the Hub.
 
 **Runtime separation.** Codex, Claude Code and future runtimes may each use their own
 global and project instruction mechanisms. Those are adapters and discovery entry
@@ -213,16 +209,16 @@ historical records. Backoffice material does not become runtime context merely b
 being useful; it enters the live Hub only once accepted, classified, and assigned to
 a canonical Hub owner.
 
-### 6.2b Capability knowledge versus domain implementation
+### 6.2b Capability knowledge, and where domain implementation goes
 
-Directive-given 2026-08-21, corrected the same day. The key rule: **general reusable
-capability knowledge belongs in global context; exact domain implementation belongs
-in domain or project context.** `DECISIONS.md` D-67.
+Directive-given 2026-08-21, corrected twice the same day. The rule that survives
+both corrections: **`context/` holds general reusable capability knowledge.** Exact
+domain implementation is a different thing and does not belong beside it.
 
-Accepted global shape, from the corrected sample:
+Accepted shape, with the `global/` wrapper removed per D-69:
 
 ```text
-context/global/
+context/
 |-- user-preferences/
 |-- user-stack/
 |-- tooling/
@@ -241,18 +237,27 @@ context/global/
 For Notion, general reusable capability knowledge means database creation and
 editing, property types, relations and rollups, views, filters and sorts, formula
 fundamentals, page and database structure, common database patterns, and general
-migration, cleanup, validation, limitation and behavior knowledge. It goes under
-`context/global/services/notion/`.
+migration, cleanup, validation, limitation and behavior knowledge.
 
-Domain or project context means the exact implementation: named databases and their
-ids, exact properties and allowed values, relations between specific databases,
-project-specific formulas and views, domain workflow rules and domain terminology --
-for Greyed, Fina, Klo Professional, Klo Personal, or a specific dashboard schema. It
-is held per owner, outside `context/global/`.
+Exact domain implementation means named databases and their ids, exact properties and
+allowed values, relations between specific databases, project-specific formulas and
+views, domain workflow rules and domain terminology -- for Greyed, Fina, Klo
+Professional, Klo Personal, or a specific dashboard schema.
 
-**Empty branches are not created.** Each directory in the shape above comes into
-existence with its first accepted artifact, as everywhere else in this taxonomy. The
-shape records where content goes, not a skeleton to scaffold.
+**Open, and not resolved here.** Two owner statements pull in opposite directions on
+where that implementation lives. The C-04 definition lists "domain knowledge" and
+"project-specific workflows" as suitable Hub `context/` content and says
+project-specific knowledge stays in the Hub or with an explicitly assigned project
+owner. The correction says everything in the Hub is global, which reads against
+holding one project's schemas there. No domain implementation content exists in the
+Hub, so nothing is blocked; recorded as `STATE.md` open work 28b rather than settled
+by inference. `DECISIONS.md` D-69.
+
+**Empty branches are not created.** Each directory above comes into existence with
+its first accepted artifact. `NOTION-FORMULA-V2.md` sits at `context/` root, not in a
+`services/notion/` branch, because one file does not justify two passthrough
+directories -- the branch is created when the Notion capability content that fills it
+is accepted.
 
 ### 6.2c Adapter directory name -- superseded, surfaced
 

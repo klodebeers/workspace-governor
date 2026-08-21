@@ -1169,6 +1169,38 @@ adapter, and this is therefore a rename of an unbuilt domain. `CATALOG.md` state
 accepted names so the rename is visible where a reader looks for adapters, and the
 adapter projection that `agents/` now owes (D-29) will land under the new name.
 
+**D-69.** There is no `global/` folder in the Hub. The Hub is the global layer.
+Decided by: user, as taxonomy owner, 2026-08-21. Corrects D-67.
+
+Everything under `.agents-hub/context/` already applies across projects, so a
+`global/` subdirectory is a redundant level inside a repository whose stated purpose
+is reusable cross-project source. The `context/global/...` path created under D-67 is
+withdrawn; `NOTION-FORMULA-V2.md` returns to `context/NOTION-FORMULA-V2.md`, where the
+owner had already confirmed it was correctly placed.
+
+What survives from D-67: `context/` holds general reusable capability knowledge, and
+exact domain implementation is a different thing. The accepted substructure --
+`user-preferences/`, `user-stack/`, `tooling/{git,powershell,python,node,mcp}/`,
+`services/{notion,excel,dashboards}/`, `terminology/` -- stands with the `global/`
+wrapper removed, and every branch still arrives with its first accepted artifact.
+`~/.codex/` and `~/.claude/` are runtime discovery locations an adapter projects into,
+not a second home for canonical knowledge.
+
+**Recording the error, because it repeated.** I applied a sample tree as an
+instruction to relocate an accepted artifact, one message after the owner had
+confirmed that artifact's placement. I did the same thing in the same round with the
+`adapters/` rename, where it happened to be correct. A sample illustrating how
+content is organised is not authority to restructure live content: the classification
+model and the placement of an existing file are separate decisions, and only the
+second needs the owner's word. `LEARNINGS.md` L-033.
+
+**Left open, not resolved by inference.** Two owner statements disagree about where
+exact domain implementation lives. The C-04 definition lists domain knowledge and
+project-specific workflows as suitable Hub `context/` content; "everything in
+agents-hub is global" reads against holding one project's schemas there. No such
+content exists in the Hub, so nothing is blocked. Recorded as `STATE.md` open work
+28b.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.
