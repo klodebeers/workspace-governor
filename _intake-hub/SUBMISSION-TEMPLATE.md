@@ -31,8 +31,18 @@ even in a screenshot or a log.** Name the thing and where it lives instead.>
 
 ## Disposition — filled in by triage, not by the submitter
 
-**Status:** Submitted / Accepted / Declined / Deferred
+**Status:** Submitted / Accepted / Declined / Deferred / Partly accepted
 **Date triaged:**
 **Reasoning:**
 **Where the work is recorded:** <decision entry, open work item, or evidence file>
 **If deferred:** <what it is waiting for>
+
+**If declined or partly accepted — all five, per README § Declining properly:**
+
+1. **Declined exactly what:** <the whole request, or the specific part. If the problem is
+   real and only the proposed fix is declined, say that>
+2. **On what ground, by name:** <file and section, or the decision entry. Not "our
+   governance">
+3. **Checked what, where:** <files read, live state inspected>
+4. **Verified vs assumed:** <name any assumption the reasoning rests on>
+5. **What would change this answer:** <the concrete evidence or condition that reopens it>

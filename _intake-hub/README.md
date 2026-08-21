@@ -48,7 +48,7 @@ where your change would end up. That is the triage job, not yours.
 | **Submitted** | The file is here. Nothing has been assessed |
 | **Triaged** | Read, and either accepted for work, declined, or deferred with a reason. The outcome is written into your file, so the answer sits with the request |
 | **Accepted** | It becomes work in the project's records. If it changes something settled, that is recorded as a decision with its reasoning |
-| **Declined** | With a reason. A decline is not silence, and it is not final — new evidence reopens it |
+| **Declined** | With reasoning you can check and argue with. See below — a decline has a standard to meet, and it is never final |
 | **Deferred** | Sound, but waiting on something. The file says what it is waiting for |
 
 **No submission is applied to the Hub as written.** Anything entering the Hub has to be
@@ -57,6 +57,46 @@ what stops the Hub filling up with material nobody owns.
 
 **Nothing here expires or is deleted for being old.** A declined or deferred submission
 stays as the record of the request and the answer.
+
+## Declining properly
+
+**A decline has to be supported, not just stated.** You are entitled to see the
+reasoning and to disagree with it. A decline that cannot be argued with is a refusal
+wearing better grammar.
+
+Every decline names, in the submission file:
+
+1. **Exactly what is declined.** Often it should be part, not all. If the problem you
+   raised is real and only the proposed fix is wrong, that is **not a decline** — the
+   problem is accepted and the specific remedy is declined, and the file says so in
+   those words.
+2. **The ground, by name.** The specific rule, decision or piece of evidence — file and
+   section, not "this conflicts with our governance". If the ground is a settled
+   decision, it is named, because reopening conditions then apply and you are owed the
+   chance to meet one.
+3. **What was actually checked, and where.** Which files were read, which live state was
+   inspected. A decline resting on memory of a rule rather than on the rule as written
+   is not supported.
+4. **What was verified against what was assumed.** If part of the reasoning is an
+   assumption, it says so. An assumption presented as a finding is the thing that makes
+   a decline unarguable.
+5. **What would change the answer.** The concrete evidence, condition or decision that
+   would reopen it. "Come back if things change" is not that.
+
+**Never valid grounds for declining:**
+
+- It is difficult, large, or uncertain. Those are reasons to scope it, not to refuse it.
+- It would take investigation to answer. Doing the investigation is the job.
+- It conflicts with a preference nobody has written down. If the rule is real, it exists
+  somewhere and gets named; if it does not exist, this is a gap and the submission
+  probably found it.
+- It is inconvenient, or it arrived at a bad time. That is a **Deferred**, and the file
+  says what it is waiting for.
+- It is misrouted. That is not a decline either — say where it does belong.
+
+**If the reasoning turns out to be wrong, the decline was wrong.** Say so and reopen
+it. A decline is a judgement made on the evidence available, not a verdict defended
+afterwards.
 
 ## What this folder is not
 
@@ -80,7 +120,9 @@ requires. Then, per submission:
   the reopening conditions apply — name the specific condition met, or decline on that
   ground and say which decision covers it.
 - Record the disposition **in the submission file**, so the request and its answer stay
-  together. Anything that becomes a settled decision also goes to `DECISIONS.md`; the
+  together. A decline meets the standard in § Declining properly in full — all five
+  items, in the file. Weakest link to watch: citing a rule from memory rather than
+  reading it, which produces a decline that cannot survive being checked. Anything that becomes a settled decision also goes to `DECISIONS.md`; the
   submission is then evidence for it, not a second copy of it.
 - **Never move a submission into `.agents-hub`.** Content enters the Hub only after it
   is accepted, classified, and assigned to a Hub owner.

@@ -1538,6 +1538,39 @@ The README is written for submitters who do not know this project's vocabulary, 
 separate closing section for the agent triaging. `DECISIONS.md` D-72 and `LEARNINGS.md`
 L-036: a record the reader cannot parse is not precise.
 
+**D-82.** A decline must be supported, not merely stated. Decided by: user,
+2026-08-21. Standard written into `_intake-hub/README.md` § Declining properly and into
+the submission template.
+
+Every decline names, in the submission file: exactly what is declined; the ground **by
+name** -- file and section, or the decision entry, never "this conflicts with our
+governance"; what was actually checked and where; which parts of the reasoning were
+verified and which were assumed; and what concrete evidence or condition would reopen
+it.
+
+**The distinction that does the most work:** if the problem raised is real and only the
+proposed fix is wrong, that is **not a decline**. The problem is accepted and the
+specific remedy is declined, and the file says so in those words. Conflating the two
+rejects a valid finding because its author proposed the wrong repair -- which happened
+repeatedly in this project's own history, with the roles reversed.
+
+**Never valid grounds:** difficulty, size or uncertainty; needing investigation to
+answer; an unwritten preference -- if the rule is real it gets named, and if it does not
+exist the submission has found a gap; inconvenience or timing, which is a *Deferred*
+with the reason stated; and misrouting, which is answered by saying where it does
+belong.
+
+**And a decline is reversible.** It is a judgement on the evidence available, not a
+verdict to defend. If the reasoning turns out to be wrong, the decline was wrong -- say
+so and reopen it.
+
+**Why this belongs in the record rather than in habit.** The same requirements already
+apply to the agent's own escalations and blockers under
+`rules/ENGINEER-OWNERSHIP.md` and `rules/AUTONOMY-AND-PROTECTED-BOUNDARIES.md`:
+difficulty is never grounds, the reasoning is stated, the smallest unresolved item is
+named. This applies them outward. A standard the agent holds for its own reports and
+not for its answers to other people is not a standard.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.
