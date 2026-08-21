@@ -1789,6 +1789,107 @@ is that the gates are correct and their activation is unverified.
 because they leave a textual trace. Severity inflation and the disclaimer pattern
 (issues #3 and #4) leave none, and no hook will catch them.
 
+**D-91.** `PENDING.md` owns the terms of a deferral, not a list of items. Decided by:
+agent, correcting a conflict D-89 created and did not name.
+
+D-84 set `PENDING.md`'s boundary against `STATE.md` § Open work: an item belongs to one
+or the other, never both, and one that turns out to belong to a plan step moves to
+`STATE.md`. D-89 then replaced that register with the issue register **without naming
+D-84**, so a settled decision went on governing a register that no longer exists, and
+`PENDING.md` kept instructing a move to a section that had become a pointer. `AGENTS.md`
+makes `DECISIONS.md` govern what was settled, so the conflict was live rather than
+cosmetic.
+
+The boundary now: the issue register owns open items and their lifecycle; `PENDING.md`
+owns why a deferral waits, what it must not become, and what has to be true before it
+starts. Every item there also has an issue, and the issue is the item.
+
+**The same defect existed in three other places** and is fixed with it, because fixing
+one instance of a class and leaving its siblings is what the defect-class sweep exists
+to prevent: `PENDING-GLOBAL-PROMOTIONS.md` P-01 step 5 told a promoter to update a
+register that no longer exists; its P-04 gave gap G-3 a disposition contradicting issue
+#7's; and a **stop condition** in `STATE.md` gated the discovery tooling on "open work
+item 2", which the migration made unlocatable -- a binding condition whose precondition
+could no longer be read.
+
+**D-92.** The issue migration lost four items and misrendered three, found by an
+independent audit and not by me. Decided by: agent, on the audit's evidence.
+
+Confirmed against the source and fixed: **U-3, U-4 and U-5** from the ownership map's six
+unresolved questions were in no issue at all, and D-89 asserted the newly filed set
+covered "U-1 and U-6" without noticing the other four existed. **U-4 is a live defect in
+the Hub root router** -- it delegates a placement decision to a plan that declares itself
+not live governance. Old item **29f**'s substance was merged into issue #10 and
+disappeared: the accepted definition shape has no slot for a specialist's domain-focus
+block, and four of eleven source specialists carry one. Old item **25**'s constraint that
+the schema be written against **all thirteen source shapes** became "the next eleven".
+Plan **Step 10** and **Step 12** had no issue and no other owner, so the ownership rule
+made them formally untracked. Issue **#12** stated a dependency its source denies, and it
+was circular: #12 waited on #9 while #9's close condition was #12.
+
+**Two claims of mine were wrong, and one of the audit's was.** The migration evidence
+said "seven items became four issues" where six pairs make twelve items into six, and
+"forty lines apart" where the file shows nine. Against that, the audit reported
+`AGENTS.md` § Enforcement asserting "five checker defects" against a source saying eight
+and eleven -- the count is right and sourced, `LEARNINGS.md` L-026 names exactly five;
+the defect was the **citation**, and the paragraph now cites L-026 for the five and D-65
+for the rule. Rejecting a finding as stated while fixing what it actually found is what
+D-87 requires, and the ground was read at the time rather than recalled.
+
+**The lesson is where the failure sat.** The migration's own evidence file said, in
+writing, that no issue body had been diffed against its source item and that a
+misrendering would not be caught by anything in it. That caveat was correct and it was
+not enough: naming a gap is not the same as closing it, and the audit found exactly what
+the caveat had described.
+
+**D-93.** The content gates move to git hooks, because a command parser cannot be the
+carrier. Decided by: agent, on an independent audit that defeated the first design in
+eight ways.
+
+The gates shipped as a `PreToolUse` hook that parsed the shell command for `git commit`.
+Within minutes an audit committed a rewritten `DECISIONS.md` entry through `git -C .`,
+`/usr/bin/git`, `sh -c`, a shell variable, a repository alias, `commit-tree` plus
+`update-ref`, `filter-branch`, and a pathspec commit the index-only diff never saw --
+each with **exit 0 and empty output**. Worse, `subprocess` ran with `text=True`, so a
+single byte UTF-8 could not decode returned a non-zero code that every caller treated as
+"nothing to check": a `.ps1` carrying the exact cp1252 em dash `scripts/README.md`
+exists to prevent passed silently, and so did a real token sitting behind that byte.
+
+**The split now.** `.githooks/pre-commit` and `.githooks/commit-msg` own the content
+invariants, because git runs them after deciding what the commit contains, in every
+invocation form. `.claude/hooks/gate_commit.py` owns only what a git hook cannot see:
+`--no-verify`, plumbing that writes history without hooks, force-pushes, and a
+`core.hooksPath` that is not installed. That last one matters most -- a clone where
+nobody ran the setup cannot commit at all, rather than committing ungated, so
+"somebody remembered" stops being load-bearing.
+
+**A check that cannot run now fails.** Every skip path blocks: an unreadable diff, an
+unreachable Hub clone on a commit touching `scripts/` or `evidence/`, a missing message
+file, and a machine with no Python interpreter. The old `SKIPPED -- not a pass` notice
+went to stderr on exit 0, which the hooks reference sends to the debug log and nowhere
+else, so a skip was operationally a pass and invisibly so. `LEARNINGS.md` L-026 had
+already stated the rule -- "a check that cannot run must fail, never skip" -- and the
+first implementation broke it while quoting it.
+
+**Two design points that are decisions, not detail.** The message gate's phrase list is
+a **proxy** for D-53, which asks for a re-runnable artifact rather than for different
+wording; so the phrase passes when the message names one, and a commit can describe or
+disclaim the phrase instead of being unable to discuss its own gate. And the Hub check
+runs the **committed** copy of each script, because the working-tree copy can be edited
+to make a failing check pass while the commit keeps the defect.
+
+**On the claim that was made too early.** "31 cases, every gate exercised in both
+directions" was in `AGENTS.md`, this file at D-90, `STATE.md` and issue #5 within an hour
+of the gates existing. The suite did pass 31 of 31. The audit then mutated the source in
+25 places and **ten mutations survived undetected**, including deleting every
+governed-path prefix from the stop gate. Passing is not the same as proving, the two were
+conflated, and the suite now carries a `--mutations` mode that breaks each gate on
+purpose and fails if the cases do not notice -- 18 mutations, 17 caught, one no-op control
+correctly not flagged. It earned itself immediately: its first run exposed a real gap in
+the cases, not just in the code. Every encoding case added a new file, so a mutation
+reading `HEAD` instead of the index was invisible; a case editing an already-committed
+`.ps1` now covers it. That mode is the answer to "how would I know".
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

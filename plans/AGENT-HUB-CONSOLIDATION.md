@@ -91,7 +91,7 @@ section 3 cites.
 | [~] | 6 | Consolidate references and evidence without losing unique findings | Disposition settled by D-15; execution edits another repository and is sequenced separately. Not blocking |
 | [x] | 7 | Refactor structural domains and accept reusable artifacts | Done — `registry/`, `orchestration/`, `agents/`, `context/`, `templates/` with their first artifacts. Recorded at the time as "Step 2" |
 | [x] | 8 | Migrate accepted external source into the canonical Hub | Done for the six artifacts. **Eleven agent definitions remain**, gated by the agent-definition schema (D-47) and the handoff contract |
-| [ ] | 9 | Reconcile and implement thin runtime adapters | Not started. `adapters/` per D-68; the files to wire are `.claude/CLAUDE.md` and `.codex/AGENTS.md` (D-75). **Why not:** requires Step 3's owner map, and is wired on the local machine. `STATE.md` open work 29z |
+| [ ] | 9 | Reconcile and implement thin runtime adapters | Not started. `adapters/` per D-68; the files to wire are `.claude/CLAUDE.md` and `.codex/AGENTS.md` (D-75). **Why not:** requires Step 3's owner map, and is wired on the local machine. issue #9 |
 | [~] | 10 | Update routes, registries, continuity, and references atomically | Partly done — the `CATALOG.md` and `README.md` updates that accompanied Step 7. The remainder lands with each later migration |
 | [ ] | 11 | Fresh-agent bootstrap and runtime-activation verification | Assigned, not executed. **Why not:** needs a fresh session per runtime on the operator's machine, which no cloud session can start |
 | [ ] | 12 | Final audit, rollback readiness, and completion declaration | Not started. **Why not:** must not begin before Step 3 has an accepted owner map |
@@ -297,7 +297,7 @@ where that implementation lives. The C-04 definition lists "domain knowledge" an
 project-specific knowledge stays in the Hub or with an explicitly assigned project
 owner. The correction says everything in the Hub is global, which reads against
 holding one project's schemas there. No domain implementation content exists in the
-Hub, so nothing is blocked; recorded as `STATE.md` open work 28b rather than settled
+Hub, so nothing is blocked; recorded as issue #21 rather than settled
 by inference. `DECISIONS.md` D-69.
 
 **Empty branches are not created.** Each directory above comes into existence with
@@ -461,7 +461,7 @@ location, which is what makes the projection work: a file placed under `adapters
 would never be discovered by either runtime. `adapters/` per D-68 remains the home for
 adapter material that is not discovery-critical.
 
-Wired on the local machine, sequenced last. `STATE.md` open work 29z.
+Wired on the local machine, sequenced last. issue #9.
 
 **Step 10 -- routes, registries, continuity and references, atomically.** Partly done
 alongside Step 7; the remainder lands with each later migration.
@@ -502,7 +502,7 @@ its decision so the reasoning is one hop away, not restated.
 | D-t | **The domain-instantiation test.** Strip the domain nouns; if a sentence already in a `rules/` file remains it is a restatement, if it becomes vacuous it is an instantiation. `DECISIONS.md` D-78 | Belongs in the agent-definition schema so it is applied once rather than eleven times. Gates the remaining agent migrations under Step 8 |
 | D-u | **`context/` is defined; there is no `global/` folder.** The Hub is the global layer. `context/` owns scoped knowledge and supporting operating context and owns no authority. A file there is not mandatory by existing -- it loads only when routed. `DECISIONS.md` D-66, D-67, D-69; sections 6.2a and 6.2b | Closes conflict C-04. Section 6.2b's shape governs `context/` growth; branches arrive with their first accepted artifact |
 | D-v | **The adapter directory is `adapters/`**, with `claude/`, `codex/` and `generic/`, superseding `runtime-adapters/`. The two files to wire are `.claude/CLAUDE.md` and `.codex/AGENTS.md`, each the runtime's own discovery location. `DECISIONS.md` D-68, D-75 | Step 9. Nothing is built. **Verified constraint:** Claude Code discovers only `CLAUDE.md`, never `AGENTS.md`, so an adapter file inside `adapters/claude/` would never be found -- the projection must sit at a discovery location. `evidence/RUNTIME-CONVENTIONS-2026-08-20.md` addendum |
-| D-w | **The user-context SSOT naming model.** `.agents-hub/context/USER-SSOT.json` is the global shared asset; `Greyed/context/GREYED-SSOT.json` and `Fina/context/FINA-SSOT.json` are scope-specific and are not universal user profiles. None is a general governance owner. `DECISIONS.md` D-80 | Corrects delta D-d: it is not a pair. Placement is Step 5 and Step 10 work, recorded as `STATE.md` open work 29y, and **deliberately not a blocker** -- no step depends on the rename |
+| D-w | **The user-context SSOT naming model.** `.agents-hub/context/USER-SSOT.json` is the global shared asset; `Greyed/context/GREYED-SSOT.json` and `Fina/context/FINA-SSOT.json` are scope-specific and are not universal user profiles. None is a general governance owner. `DECISIONS.md` D-80 | Corrects delta D-d: it is not a pair. Placement is Step 5 and Step 10 work, recorded as issue #15, and **deliberately not a blocker** -- no step depends on the rename |
 | D-x | **Intake exists.** `_intake-hub/` in the backoffice is the single door for change requests to the Hub, with a decline standard and a keyword rule. `DECISIONS.md` D-81, D-82, D-83 | Nothing enters the Hub from it until accepted, classified, and assigned to a Hub owner -- this plan's standing rule, restated where it will be tested. Triage is not a plan step; the scheduled run is `PENDING.md` P-1, twice weekly (D-85) |
 | D-y | **Verification tooling now exists and is proven in both directions.** `scripts/Test-HubRegistrySchema.py` (32 assertions), `scripts/Assert-HubSourceFidelity.py` (21, the only one reading the source package), `scripts/Assert-ReferenceIntegrity.py` (58 tokens, URI semantics, catalog coverage). `DECISIONS.md` D-53, D-65 | Available as the verification method for every later step. Each was proven by building the defect it must catch; eleven defect trees from the audits are retained as regression cases |
 | D-z | **Blind adversarial subagent review is the independent pre-edit review** that Step 5 lists as a prerequisite. Reviewers get source, approved scope and result, and are denied the implementer's rationale. `DECISIONS.md` D-60 | Satisfies Step 5's second prerequisite as a mechanism. It has found material defects in three consecutive rounds, including on states two earlier reviews had passed |

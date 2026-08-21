@@ -3,16 +3,22 @@
 Deferred setup that is **not** sequenced by a plan — automation, scheduled runs,
 operational scaffolding. Recorded so it is not lost, and not started.
 
-**Boundary.** `STATE.md` § Open work owns everything inside the consolidation
-sequence. This file owns only work that no plan step covers. If an item here turns out
-to belong to a plan step, it moves to `STATE.md` and is struck through here — it is
-never listed in both.
+**Boundary, restated 2026-08-21.** The issue register owns open items and their
+lifecycle. This file owns only the **terms** of a deferral that no plan step sequences —
+why it waits, what it must not become, and what has to be true before it starts. Every
+item here also has an issue, and the issue is the item; if the two disagree, the issue
+governs its status and this file governs its terms.
+
+The earlier wording made `STATE.md` § Open work the owner and told an item to move there
+when it turned out to belong to a plan step. That register no longer exists. `DECISIONS.md`
+D-84 set that boundary and D-89 replaced the register without naming D-84 — recorded as a
+correction in D-91 rather than left as a silent conflict.
 
 ---
 
 ## P-1 — Scheduled run to check `_intake-hub/`
 
-**Status:** Pending. Not built.
+**Status:** Pending. Not built. **Issue #11** is the item; this section holds its terms.
 **Added:** 2026-08-21.
 **Cadence: twice a week.** Directive-given; not a starting point to tune upward.
 

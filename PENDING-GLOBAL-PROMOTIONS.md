@@ -54,7 +54,9 @@ local copy is a temporary binding, not its intended home.
    required.
 4. Archive the temporary `workspace-governor` rule and this promotion record with
    provenance. Do not hard-delete either.
-5. Update `STATE.md` so the promotion is no longer shown as pending.
+5. Close the promotion's issue in the register with its outcome, and update `STATE.md`
+   only if the promotion changes current state. Until 2026-08-21 this step named
+   `STATE.md` § Open work, which no longer exists.
 
 Steps 1 and 2 are the verification this rule itself governs: the sufficient
 result is that the rule is present under its canonical owner and reachable by
@@ -142,9 +144,23 @@ of conflict classes already owned. Three gaps remain:
 |---|---|---|---|
 | G-1 | Peer agent output conflict, outside any delegation hierarchy | Live | Section in `CONTEXT-AND-ORCHESTRATION.md` |
 | G-2 | Contradiction between requirements or constraints at the **same** authority level | Plausible now. **Narrowed, not closed,** by the Greyed-scoped user-context SSOT (staged as `USER-SSOT.json`, becoming `GREYED-SSOT.json` per D-80) § `conflict_handling`: convert disputes into written rules and escalation ladders, and prioritise irreversible or money-moving issues and external deadlines. That supplies a business prioritisation principle, scoped to Greyed and to the user's own disputes, and D-80 confirms a scoped SSOT is never a general governance owner. It does not establish a cross-agent owner for two contradicting instructions of equal standing. | Section in `AGENTS.md` § Normative Authority, routing to the SSOT principle for business prioritisation |
-| G-3 | Stakeholder-goal conflict under multiple principals | Latent | Defer; record only |
+| G-3 | Stakeholder-goal conflict under multiple principals | Latent | **Name the owner now, write the rule later** -- `rules/ENGINEER-OWNERSHIP.md` § Authority and Responsibility Contract. Naming it costs nothing and pre-empts a future new-rule-file proposal. Reconciled 2026-08-21: this row said "Defer; record only" while issue #7 assigned an owner, so one gap carried two dispositions |
 
 `CONFLICT-RESOLUTION.md` is **not** recommended. Each gap is the missing branch
 of a rule an existing owner already holds, and the hub root contract's Governance
 Owner Creation Standard forbids a new owner where a focused section serves
 cleanly.
+
+## Register note, 2026-08-21
+
+Every promotion here also has an issue: P-01 and P-03 are issue #17, P-02 is issue #15,
+P-04's gaps are rows in issue #7. **The issue is the item; this file holds the promotion
+terms.** The migration audit found two defects that this note closes -- step 5 of P-01's
+on-promotion list pointed at a register that no longer exists, and P-04 gave G-3 a
+disposition that contradicted issue #7's.
+
+P-02 was absent from `evidence/OPEN-WORK-MIGRATION-2026-08-21.md` in both directions --
+neither mapped nor listed as newly filed. Its destination, the canonical `.agents-hub`
+root alongside the root `AGENTS.md` contract, and its terms -- runtime adapters must
+expose it at session start, and promotion is verified before the local copy is retired --
+were carried by no issue until issue #15 was corrected.

@@ -38,7 +38,8 @@ agents-hub-two     = source material pending reconciliation
 
 `.agents-hub` is **canonical now**. It is **not final**: it is under active
 consolidation and is structurally incomplete where known gaps remain -- see
-`STATE.md` for the current gap list and `evidence/` for the findings behind it.
+the issue register for the current gap list -- issue #7 -- and `evidence/` for the
+findings behind it.
 Canonical status means governed agents and runtimes take their governance from
 it, not that its structure is settled.
 
@@ -79,5 +80,12 @@ and the legacy `agents-hub-one` leaf.
 | `plans/reference/` | Provenance copies of superseded plans. Never executable |
 | `scripts/` | Discovery and verification tooling |
 | `evidence/` | Dated evidence outputs |
+| `rules/` | Cross-agent rules held here until the canonical Hub owns them |
+| `.claude/` | Enforcement carriers: hooks and settings. `.claude/hooks/README.md` owns what is wired |
+| `_intake-hub/` | Requests for changes to `.agents-hub`, and their disposition |
+| `LEARNINGS.md` | Durable non-obvious findings. Non-authoritative |
+| `PENDING.md` | Terms of deferred setup that no plan step sequences |
+| `PENDING-GLOBAL-PROMOTIONS.md` | Rules owed to shared governance, and their promotion terms |
+| [GitHub Issues](https://github.com/klodebeers/workspace-governor/issues) | Open items and their lifecycle. Not a file, and the register for everything open |
 
 `AGENTS.md` § File ownership is authoritative on which file owns which concern.

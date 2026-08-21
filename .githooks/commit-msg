@@ -1,0 +1,11 @@
+#!/bin/sh
+# Commit-message gate. See .claude/hooks/README.md. Same interpreter search and
+# same fail-closed rule as pre-commit.
+ROOT=$(git rev-parse --show-toplevel) || exit 1
+SCRIPT="$ROOT/.claude/hooks/git_commit_msg.py"
+if command -v python3 >/dev/null 2>&1; then exec python3 "$SCRIPT" "$@"; fi
+if command -v python  >/dev/null 2>&1; then exec python  "$SCRIPT" "$@"; fi
+if command -v py      >/dev/null 2>&1; then exec py -3   "$SCRIPT" "$@"; fi
+echo "commit-msg gate: no Python interpreter found (tried python3, python, py)." >&2
+echo "The message check could not run, so this commit is refused." >&2
+exit 1

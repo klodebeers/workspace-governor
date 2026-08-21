@@ -147,7 +147,7 @@ One owner per concern. Do not duplicate content between these files.
 |---|---|
 | `README.md` | Purpose, scope, managed components, repository relationships |
 | `STATE.md` | Current verified state, phase, **position in a plan's step sequence**, blockers, verification assignments, next action, stop conditions. **Not** the open-item list -- that is the issue register. |
-| [GitHub Issues](https://github.com/klodebeers/workspace-governor/issues) | Open items and their lifecycle. One issue per item, carrying its dependencies and its close condition. No second copy of the list lives in a file. |
+| [GitHub Issues](https://github.com/klodebeers/workspace-governor/issues) | Open items and their lifecycle. One issue per item, carrying its dependencies and its close condition. No file holds a second copy of the list. **Two exemptions, and they are exemptions rather than exceptions to the principle:** `STATE.md` § Blockers and `STATE.md` § Verification assignments each hold items that are also issues, because a blocker is current state and an assignment carries an executor and a recheck trigger that an issue does not model. Where the two disagree the issue is the item and `STATE.md` is the state. |
 | `.claude/` | Enforcement carriers -- hooks and settings. Holds no rule of its own: every hook cites the rule it enforces, and where they disagree the rule governs and the hook is the defect. `.claude/hooks/README.md` owns what is wired and what is proven. |
 | `DECISIONS.md` | Settled decisions and their rationale. Append-only. |
 | `AGENTS.md` | Bootstrap order, persistence requirement, file ownership |
@@ -264,9 +264,11 @@ Three things follow, and they bind:
 1. **A gate has no bypass.** A gate with an escape hatch is a suggestion with extra
    steps. If a gate is wrong, fix the gate.
 2. **A gate is proven in both directions or it is worthless.** It must fail the defect
-   it was written to catch and pass clean input (`DECISIONS.md` D-65). Five checker
-   defects in this project each made a clean result meaningless, and every one was
-   found by testing the direction that had been skipped.
+   it was written to catch and pass clean input (`DECISIONS.md` D-65). `LEARNINGS.md`
+   L-026 names five checker defects in this project, each of which made a clean result
+   meaningless, and every one was found by testing the direction that had been skipped.
+   D-65 itself records eight demonstrations and eleven regression cases; the five are
+   L-026's, and this paragraph cited the wrong record for them until 2026-08-21.
 3. **A skipped check is never reported as a pass.** Where a check cannot run, it says
    so, and the claim it would have supported is not made.
 

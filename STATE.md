@@ -1,10 +1,12 @@
 # Workspace Governor State
 
 **Updated:** 2026-08-21
-**Phase:** Hub consolidation — the plan's Steps 1, 5, 7 and 8 are applied and
-verified in the canonical Hub; Step 4 is satisfied by substitution. Steps 2 and 3 are
-**not done and are prerequisites for that completed work** — see `DECISIONS.md` D-73
-for the label correction and the ordering cost.
+**Phase:** Hub consolidation — the plan's Steps 1, 2, 5, 7 and 8 are applied and
+verified; Step 4 is satisfied by substitution. **Step 3's map exists and its gate is not
+met.** Steps 2 and 3 were prerequisites for work already completed — see `DECISIONS.md`
+D-73 for the label correction and the ordering cost. Step 2 closed 2026-08-21; an earlier
+revision of this line still called it not done after the position table recorded it
+closed.
 **Authority:** Non-authoritative continuity record. Settled decisions live in `DECISIONS.md`.
 
 This file records current state only. It defines no rules. Replace stale
@@ -86,13 +88,13 @@ agents-hub-two     = source material pending reconciliation
 ```
 
 Canonical **now**; **not final**. Under active consolidation and structurally
-incomplete where known gaps remain -- gaps are listed under Blockers and Open
-work below. `README.md` owns the full relationship table. `DECISIONS.md` D-24
+incomplete where known gaps remain -- gaps are listed under Blockers below and in
+the issue register. `README.md` owns the full relationship table. `DECISIONS.md` D-24
 records the decision.
 
 ### Canonical Hub -- current verified state
 
-`klodebeers/.agents-hub` at **`3e35f9d`**, Step 1 restructuring applied and Step 2
+`klodebeers/.agents-hub` at **`c8444cb`**, Step 1 restructuring applied and Step 2
 first artifacts added, then corrected after four independent blind audits. Verified against the tree extracted from `origin/main`, not
 only the working copy: both checks pass there. Fifteen tracked files:
 
@@ -132,7 +134,8 @@ Settled outcomes: D-54 through D-61. Detail:
 
 The most serious finding was lost governance, not structure: consolidating the
 formula material dropped three source obligations and softened their modality. The
-obligations are recorded as owed under Open work rather than left absorbed. D-61.
+obligations are recorded as owed in the issue register rather than left absorbed --
+issue #22. D-61.
 
 A **fifth blind audit** then ran on the corrected state and returned eight findings
 that had to be resolved before the step could be declared complete: a fourth
@@ -278,31 +281,44 @@ pending verification is not a defect and is not re-flagged each session; see
 | Why no remote action can do it | The path is on the operator's Windows machine, unreachable from a cloud session (blocker B-5). No cloud-side change can move it |
 | Assigned executor | Klo, on the local Windows machine |
 | Method | The operator pulls in **GitHub Desktop**. Mechanism settled as git, not hand-copying, per D-41; a desktop client is git, so nothing about D-41 changes. Do not hand back terminal commands for this |
-| Verification | `git rev-parse HEAD` must return `3e35f9d3d56dcfae8a052d57f5ae31be2544a085`, and `git status --short` print nothing. Previous round, done: the reported HEAD was `1a91d32846fe298f1d18cdffe4219129b2f0f5f0`, an exact match. The operator's `git pull` transcript shows a **fast-forward** `c6c966b..1a91d32`, which is stronger evidence than the SHA alone: a fast-forward is only possible if the local clone carried no divergent commits, so nothing had been committed locally and lost. Its diffstat -- 9 files, 583 insertions, 3 deletions, 6 created -- matches `git diff --stat c6c966b..1a91d32` in the repository exactly. The `git status` half was not reported; a dirty tree there would be local drift rather than a materialization failure, and would show up as a mismatch at the next pull. Tree afterwards, this round: no file added or removed. `AGENTS.md`, `CATALOG.md`, `README.md`, `agents/notion-formula-logic.json` and `context/NOTION-FORMULA-V2.md` are modified; `context/NOTION-FORMULA-V2.md` stays at that path. `design-systems/` unchanged |
+| Verification | `git rev-parse HEAD` must return `c8444cb`, and `git status --short` print nothing. **Corrected 2026-08-21:** this row required `3e35f9d` while the Hub had advanced two commits past it, so an operator following it against a correctly synced clone would have reported drift that did not exist. Found by the migration audit. Previous round, done: the reported HEAD was `1a91d32846fe298f1d18cdffe4219129b2f0f5f0`, an exact match. The operator's `git pull` transcript shows a **fast-forward** `c6c966b..1a91d32`, which is stronger evidence than the SHA alone: a fast-forward is only possible if the local clone carried no divergent commits, so nothing had been committed locally and lost. Its diffstat -- 9 files, 583 insertions, 3 deletions, 6 created -- matches `git diff --stat c6c966b..1a91d32` in the repository exactly. The `git status` half was not reported; a dirty tree there would be local drift rather than a materialization failure, and would show up as a mismatch at the next pull. Tree afterwards, this round: no file added or removed. `AGENTS.md`, `CATALOG.md`, `README.md`, `agents/notion-formula-logic.json` and `context/NOTION-FORMULA-V2.md` are modified; `context/NOTION-FORMULA-V2.md` stays at that path. `design-systems/` unchanged |
 | Known wrinkle | The local clone's `origin` may still carry the pre-rename URL `.../agents-hub-one`. It resolves through GitHub's redirect, so `git pull` works; `git remote set-url origin https://github.com/klodebeers/.agents-hub` re-points it when convenient. A repository rename never renames a clone or rewrites its remote |
 | Recheck trigger | Raise it only when a specific task needs the folder to be current -- the fresh-session bootstrap test is the clear case, since a new agent reads these files off that disk and an old copy would give a wrong answer -- or when something shows the two have actually diverged |
 
-### Enforcement hooks fire in a live session -- ASSIGNED
+### Enforcement carriers -- two assignments, both on the operator's machine
 
-**What is proven here.** `.claude/hooks/` holds three hooks and a 31-case harness.
-Every gate is exercised in both directions -- it blocks the defect it was written to
-catch and passes clean input (`DECISIONS.md` D-65). `python3
-.claude/hooks/test_hooks.py` returns 0. That covers the scripts.
+**What is proven here.** `.claude/hooks/` and `.githooks/` hold the carriers and an
+87-case suite. The content gates are exercised through **real `git commit` calls** in
+throwaway repositories, so each case proves the gate as git actually invokes it --
+including the eight invocation forms that defeated the first version of these gates the
+same day (`evidence/HOOK-GATES-AUDIT-2026-08-21.md`). `--mutations` additionally breaks
+each gate on purpose and requires the suite to notice -- 18 mutations, 17 caught, one
+no-op control correctly not flagged. This exists because the first harness reported 31 of
+31 passing while ten deliberate breakages survived it undetected.
 
-**What this environment cannot prove.** That Claude Code actually loads
-`.claude/settings.json` and fires these hooks in a live session. The scripts were
-driven directly with synthetic hook JSON, which tests the scripts and not the wiring.
-Hook registration is read at session start, so the session that wrote them could not
-have had them active.
+**Assignment 1: do the two `.claude/` hooks fire in a live session?**
+*Executor:* the local operator, in a fresh session opened in this repository.
+*Method:* submit any prompt and confirm the position block appears; then attempt a
+commit that rewrites a line of `DECISIONS.md` and confirm it is refused.
+*Recheck trigger:* any change to `.claude/settings.json`, and any Claude Code version
+change touching hook configuration.
+**Correction 2026-08-21:** the earlier version of this assignment said the reason it
+could not be verified here was that "hook registration is read at session start". That
+reason was wrong -- the hooks reference says direct edits to settings files are normally
+picked up by a file watcher. The boundary stands, its stated reason did not, and it was
+the reason the verification was deferred rather than attempted.
 
-**Executor:** the local operator, in a fresh session opened in this repository.
-**Method:** submit any prompt and confirm the position block appears; attempt a commit
-that rewrites a line of `DECISIONS.md` and confirm it is refused.
-**Recheck trigger:** any change to `.claude/settings.json`, and any Claude Code version
-change that touches hook configuration.
-
-**A skip here is not a pass.** Until this runs, the correct statement is that the gates
-are correct and their activation is unverified.
+**Assignment 2: is a Python interpreter reachable from Git's shell on Windows?**
+*Executor:* the local operator.
+*Method:* in the repository, run `git config core.hooksPath .githooks`, then attempt a
+commit that rewrites a `DECISIONS.md` entry line. A refusal naming the append-only rule
+proves the interpreter search works; a refusal naming "no Python interpreter found"
+means the gates are failing closed and Python needs to be on PATH.
+*Why it is assigned rather than assumed:* every `scripts/` record shows that machine
+running Windows PowerShell 5.1, and `python3` is frequently not the name on PATH under
+Git for Windows. The shims try `python3`, `python`, then `py -3` and refuse the commit
+if none is found, so the failure direction is safe -- but whether the gates run at all
+there is unknown until this is done.
 
 ### Fresh-agent bootstrap and runtime activation
 
@@ -313,7 +329,7 @@ are correct and their activation is unverified.
 | Why no script can do it | Activation is a property of a new session, not of the filesystem. `Collect-LocalEvidence.ps1` collects configuration presence, which is explicitly **not** evidence of discovery, loading or enforcement |
 | Assigned executor | Klo, in a fresh session of each runtime |
 | Method | Start a new Claude Code session and a new Codex session in a governed directory. In each, ask the agent to state which instruction files it loaded and from where, without being told the answer. Record the reply verbatim |
-| Verification | The reply names the canonical Hub route. Silence, a guess, or a different file is a negative result and must be recorded as such. **Run it where work actually happens, not inside `.agents-hub`** -- nobody opens a session there, so a test run there would answer a question no one asks. The real question is whether a fresh session, started where the operator and the agent actually work, reaches the Hub's contract at all. Note when interpreting the result: Claude Code reads only `CLAUDE.md`, never `AGENTS.md`, so its answer depends on the local wiring (open work 29z); Codex reads `AGENTS.md` natively. `evidence/RUNTIME-CONVENTIONS-2026-08-20.md` addendum |
+| Verification | The reply names the canonical Hub route. Silence, a guess, or a different file is a negative result and must be recorded as such. **Run it where work actually happens, not inside `.agents-hub`** -- nobody opens a session there, so a test run there would answer a question no one asks. The real question is whether a fresh session, started where the operator and the agent actually work, reaches the Hub's contract at all. Note when interpreting the result: Claude Code reads only `CLAUDE.md`, never `AGENTS.md`, so its answer depends on the local wiring (issue #9); Codex reads `AGENTS.md` natively. `evidence/RUNTIME-CONVENTIONS-2026-08-20.md` addendum |
 | Recheck trigger | Any change to instruction placement, adapter projection, or the root bootstrap file |
 | Note | This was previously folded into blocker B-5, which is scoped to evidence **collection** from an unreachable machine. Bootstrap **testing** is a different obligation and would have been rediscovered at Step 11 |
 
@@ -393,19 +409,30 @@ migration does **not** verify are in
 items struck through in it, is in git at `b39a097`; nothing was deleted to make the
 mapping true.
 
-**Reserved for the user, and gating other work:** issue #1 (is `AGENT-SSOT.json` a
-governance owner or an asset), issue #8 item 2 (approval to modify live Hub
-governance), issue #21 (where exact domain implementation lives per owner), issue #35
-(the Workspace Orchestrator material).
+**Reserved for the user:** issue #1 (is `AGENT-SSOT.json` a governance owner or an
+asset) and issue #8 item 2 (approval to modify live Hub governance) -- these two gate
+other work. Issue #21 (where exact domain implementation lives per owner) and issue #35
+(the Workspace Orchestrator material) are also the user's to answer but **gate nothing
+today**; an earlier revision of this line said they gated other work, which contradicted
+both issues' own bodies.
 
 ## Next action
 
-**Propose the Step 5 edit set.** It is the one thing on the critical path that needs
-no decision from the user first: list exactly which files change and which recorded
-disposition each edit executes, excluding everything issue #1 blocks. Step 5's gate is
-written per edit set -- "no **included** governed issue or artifact has two active
-owners" -- so a set that excludes the blocked cluster satisfies the Step 3
-prerequisite. Issue #8 holds the prerequisite assessment.
+**Propose the edit set that applies Step 3's settled dispositions.** It is the one
+thing on the critical path that needs no decision from the user first: list exactly which
+files change and which recorded disposition each edit executes, excluding everything
+issue #1 blocks. The gate is written per edit set -- "no **included** governed issue or
+artifact has two active owners" -- so a set that excludes the blocked cluster satisfies
+the prerequisite. Issue #8 holds the assessment.
+
+**This work has no clean step number, and that is a defect in the plan, not a fact about
+the work.** The position table above records Steps 5, 7 and 8 as **Done**, while plan
+§ 10 is titled "What Step 5 needs before it starts" -- so the plan asserts both. Those
+steps are done *for their first pass*; applying Step 3's dispositions is a second
+refactoring pass the plan does not model. Naming it "Step 5" would take a completion gate
+that has already been passed and reuse it, which is the exact failure D-73 records. The
+work is therefore named by what it does. The plan defect is filed rather than resolved
+here, because the plan owns its own sequence.
 
 Then, in order: **approval** to modify live Hub governance for that set (user, issue
 #8), and a **blind pre-edit review** of it before any edit lands (D-60 -- reviewers
@@ -419,8 +446,12 @@ get source, approved scope and result, and are denied the implementer's rational
   phase proceeds without it.
 - **Issue #21.** Where exact domain implementation lives per owner. Nothing is blocked
   by it today -- no domain implementation content is in the Hub.
-- **Issue #35.** The Workspace Orchestrator material. Arriving from outside the
-  classified input set, so it needs classifying rather than slotting in.
+- **Issue #35.** The Workspace Orchestrator material. **Its only basis is a statement
+  made in session, and nothing in this repository records it** -- every one of the
+  eleven repository mentions of Workspace Orchestrator describes a future project
+  explicitly out of scope. Treated as unverified, per the rule against relying on
+  conversation history. If material does arrive it comes from outside the classified
+  input set and needs classifying rather than slotting in.
 
 **Ready and not blocked by any of the above:** issue #12, the fresh-agent bootstrap
 test -- the one open verification assignment, needing the local machine.
@@ -434,7 +465,7 @@ test -- the one open verification assignment, needing the local machine.
 - Do not activate a Codex adapter while B-3 is unresolved.
 - Do not fold existing Hub rules before the target tree and ownership map are accepted.
 - Do not reopen the 46-section directive structure (`DECISIONS.md` D-04).
-- Do not run the discovery tooling in `scripts/` until it is revised per open work item 2 **and** Hub consolidation is complete (`DECISIONS.md` D-05, D-06).
+- Do not run the discovery tooling in `scripts/` until it is revised **and** Hub consolidation is complete (`DECISIONS.md` D-05, D-06). The revision is done -- semantics verified across the full report and the `00_hubState` ordering defect fixed -- so what remains binding is the consolidation half and the unexecuted local Windows runtime test under Verification assignments. Until 2026-08-21 this condition cited "open work item 2", which the issue-register migration made unlocatable.
 - Do not adopt `agent-governance-toolkit` without provenance, licence, and generated-output review.
 - Do not adopt the third-party **rules scaffolder** without provenance, licence and generated-output review. Its generator-owned block is overwritten on rerun and must never own Hub governance. This is a **different artifact** from the `agent-governance-toolkit` fork; both stop conditions apply independently.
 - Do not migrate before refactoring passes source-preserving verification. Carried from the predecessor; it survived only implicitly inside the step ordering.
@@ -450,3 +481,4 @@ test -- the one open verification assignment, needing the local machine.
   does not satisfy the PowerShell runtime verification recorded above.
 
 Reinspect live sources before acting. This record is continuity evidence, not proof that anything remains unchanged.
+x

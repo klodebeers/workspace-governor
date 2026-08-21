@@ -35,7 +35,7 @@ even in a screenshot or a log.** Name the thing and where it lives instead.>
 **Status:** Submitted / Accepted / Declined / Deferred / Partly accepted
 **Date triaged:**
 **Reasoning:**
-**Where the work is recorded:** <decision entry, open work item, or evidence file>
+**Where the work is recorded:** <decision entry, register issue, or evidence file>
 **If deferred:** <what it is waiting for>
 
 **If declined or partly accepted — all five, per README § Declining properly:**
