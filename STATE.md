@@ -210,6 +210,11 @@ Step 1 is therefore complete: the target tree and item classification are in
 `evidence/HUB-TARGET-TREE-AND-CLASSIFICATION-2026-08-21.md`. **Applying it needs
 approval** per `plans/AGENT-HUB-CONSOLIDATION.md` § 6.7.
 
+**Intake exists.** `_intake-hub/` is the single door for change requests to
+`.agents-hub`, created 2026-08-21 (`DECISIONS.md` D-81). It holds requests and their
+dispositions, and no authority. Empty of submissions today; its `README.md` and
+`SUBMISSION-TEMPLATE.md` are the whole folder.
+
 ## Position in the plan sequence
 
 `plans/AGENT-HUB-CONSOLIDATION.md` section 3a owns the sequence and what each step

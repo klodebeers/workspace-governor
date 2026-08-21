@@ -1,0 +1,38 @@
+# <short subject>
+
+**Submitted by:**
+**Date:**
+**Affects:** <the part of the Hub you think this touches, or "not sure">
+
+## What you want changed
+
+<One or two sentences. What should be different afterwards.>
+
+## Why
+
+<What went wrong, or what is missing. If you hit this in real work, say what you were
+doing when you hit it — that is the most useful thing in this whole file.>
+
+## What you have already tried or checked
+
+<Optional. If you looked somewhere for an answer and it was not there, say where. That
+tells us whether this is a missing rule or a rule nobody can find.>
+
+## How you would know it was fixed
+
+<Optional but valuable. What would you be able to do afterwards that you cannot do now?>
+
+## Anything else
+
+<Links, file paths, prior discussion. **No secrets, credentials, tokens or keys — not
+even in a screenshot or a log.** Name the thing and where it lives instead.>
+
+---
+
+## Disposition — filled in by triage, not by the submitter
+
+**Status:** Submitted / Accepted / Declined / Deferred
+**Date triaged:**
+**Reasoning:**
+**Where the work is recorded:** <decision entry, open work item, or evidence file>
+**If deferred:** <what it is waiting for>

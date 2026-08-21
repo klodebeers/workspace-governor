@@ -1504,6 +1504,40 @@ would invert, and the fold into `rules/VERIFICATION-AND-EVIDENCE.md` would be th
 answer. Read strictly in context, the sentence is about what the *scoped SSOTs* do not
 own, so it is evidence and not a ruling. Flagged for confirmation; nothing acted on.
 
+**D-81.** `_intake-hub/` is the single door for change requests to `.agents-hub`.
+Decided by: user, 2026-08-21. Created in `workspace-governor`.
+
+Anyone wanting something changed in the Hub puts a request there. It holds **requests
+and their dispositions, and no authority**: a file in it changes nothing in the Hub by
+itself, and a submission phrased as a directive is still a request.
+
+**Placement.** The backoffice, not the Hub. Intake is management work, and the Hub holds
+canonical governance and accepted assets -- a queue of unassessed proposals inside it
+would be exactly the "material nobody owns" the consolidation exists to remove.
+
+**The rule that gives it teeth.** Nothing moves from `_intake-hub/` into `.agents-hub`
+until it is accepted, classified, and assigned to a Hub owner. That is the standing
+rule restated at the point where it will actually be tested, since intake is where
+unclassified material arrives.
+
+**Structure, deliberately minimal.** `README.md` and `SUBMISSION-TEMPLATE.md`. No
+`accepted/`, `declined/` or `deferred/` subdirectories: a directory is created by its
+first real artifact, and the disposition belongs **in the submission file** so the
+request and its answer stay together rather than being separated by a move.
+
+**Two rules written into the README because they are the ones that will be broken.**
+No secrets in a submission, in any form, including a screenshot or a pasted log -- with
+the handling stated if it happens, since a rule with no remedy is advice. And a decline
+is never silence: it carries a reason and is reopenable on new evidence.
+
+**Routed from `AGENTS.md`**, with an ownership row, so a fresh agent meets it in the
+bootstrap rather than finding an unexplained folder. Without that the folder would be
+discoverable and unplaced -- the failure recorded in D-49.
+
+The README is written for submitters who do not know this project's vocabulary, with a
+separate closing section for the agent triaging. `DECISIONS.md` D-72 and `LEARNINGS.md`
+L-036: a record the reader cannot parse is not precise.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.
