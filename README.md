@@ -24,7 +24,7 @@ Three architecture components. Only the first exists here.
 | Component | Role | Status |
 |---|---|---|
 | `workspace-governor` | Management and orchestration. This repository. | Active |
-| `.agents-hub` | Canonical desired state — shared governance, policies, skills, agent definitions, schemas, registries | **Does not yet exist.** To be produced by reconciling two source repositories |
+| `.agents-hub` | Canonical desired state — shared governance, agent definitions, registry, orchestration, scoped context, templates | **Canonical now, not final.** Under active consolidation; structurally incomplete where the plan records gaps. Steps 1, 2, 5, 7 and 8 of the sequence are applied. `STATE.md` owns the current commit and position |
 | `mcp-gateway` (repository) | Enforcement and access layer for Gateway-routed capabilities | Directive settled at `plans/MCP-GATEWAY.md`; not implemented |
 
 ## Authority relationship

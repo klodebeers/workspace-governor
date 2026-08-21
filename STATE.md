@@ -221,7 +221,7 @@ position is current state; two copies would drift.
 | 0 -- bootstrap and drift check | Done informally | No dated drift-check record produced. Low consequence: the baseline was re-inspected repeatedly in practice |
 | 1 -- accept target tree and classify | **Done** | D-35. All 46 inputs classified |
 | 2 -- provenance, sensitivity, external-source gates | **Done 2026-08-21** | Gate PASS. `agents-hub-two` cleared with evidence; `.remember` explicitly blocked and excluded with nothing depending on it, verified by search; predecessor backoffice cleared with no Hub exposure; `agent-governance-toolkit` outside the set. `evidence/PROVENANCE-AND-SENSITIVITY-GATES-2026-08-21.md` |
-| 3 -- semantic owner and dependency map | **In progress** | Independent analysis of the corpus running; the map is the deliverable |
+| 3 -- semantic owner and dependency map | **Map produced; gate NOT met** | 64 issues, 31 contested, 25 dispositions settled, 6 blocked. `evidence/AGENT-HUB-SEMANTIC-OWNERSHIP-MAP-2026-08-21.md`; D-77. **U-1 is a reserved user decision and gates about a third of the dispositions** |
 | 4 -- version preservation and rollback | **Satisfied by substitution** | Git is the mechanism, D-28 |
 | 5 -- refactor runtime-neutral core and root controls | **Done** | The root `AGENTS.md` move, retiring the Hub `STATE.md` and the placeholders, and the later `AGENTS.md` edits. Recorded at the time under the labels "Step 1" and "Step 2" |
 | 6 -- consolidate references and evidence | Partly done, partly deferred | D-15 settled the disposition; execution edits another repository |
@@ -419,12 +419,21 @@ cheap:
   account's repository, so the expected answer is unremarkable, but it needs evidence
   rather than an assumption.
 
-**Step 3 -- the semantic owner and dependency map.** The one with real value. An
-issue-to-owner matrix and an artifact-to-owner matrix covering what is now in the Hub
-and what is still to migrate. It closes `PENDING-GLOBAL-PROMOTIONS.md` P-01 and P-03,
-feeds the agent-definition schema (D-47), and is the artifact that stops the
-duplicate-ownership class recurring across the remaining ten agent definitions. Five
-audits found instances of that class one at a time; this is the cheaper way.
+**Step 3 -- done as far as analysis can take it.** The map exists; its gate does not
+pass. 64 governed issues, 31 with more than one active statement, 25 dispositions
+settled and 6 blocked. `evidence/AGENT-HUB-SEMANTIC-OWNERSHIP-MAP-2026-08-21.md`, D-77.
+
+**One decision is needed from the user, and it gates about a third of the rest.** U-1:
+is `AGENT-SSOT.json` a governance owner, or an asset consumed by owners? Three accepted
+records say asset -- D-25, plan delta D-d, and the Hub root's own Canonical Assets
+section, which states that assets hold no precedence tier. Two say owner --
+`PENDING-GLOBAL-PROMOTIONS.md` P-03 and plan § 6.4. D-09 already ruled the sibling file
+out on exactly this ground. Both readings are recorded; they cannot both hold, and the
+file is the user's own artifact.
+
+Applying the settled dispositions is Step 5 work -- editing governance owners -- and
+needs approval under plan § 6.7. Nothing was edited for Step 3 beyond two confirmed
+defects (D-79).
 
 Also ready, and not blocked by either:
 

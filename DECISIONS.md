@@ -1390,6 +1390,60 @@ predecessor backoffice, whose material went to `plans/reference/` in this reposi
 never to the Hub; and `agent-governance-toolkit`, which is not adopted and contributes
 nothing, though its MIT attribution terms become live if adoption is ever proposed.
 
+**D-77.** Step 3's map is produced. Its gate is **not met**, and cannot be met by
+analysis. Decided by: agent, on evidence.
+`evidence/AGENT-HUB-SEMANTIC-OWNERSHIP-MAP-2026-08-21.md`.
+
+Sixty-four governed issues identified across the corpus; **31 have more than one active
+statement**. The dispositions for 25 of them are settled in the map and need no
+decision. Six questions cannot be answered from the corpus, and the first gates roughly
+a third of the dispositions -- recorded as U-1 through U-6.
+
+Three obligations have **no statement anywhere in the Hub**, each verified absent by
+search rather than assumed: bounding a verification method (simplest reliable method,
+stopping condition, complexity circuit breaker); which source is authoritative for a
+question class; and the defect-class sweep. All three exist only in this repository's
+`rules/VERIFICATION-RESOLUTION.md`. So the Hub's verification owner currently tells an
+agent to verify without telling it when to stop or which source to trust.
+
+Thirteen gaps are named with an absorbing owner each, and **no new rule file is
+proposed for any of them** -- the root contract forbids a separate owner where a focused
+section serves. Two are worth naming here because they are structural rather than
+missing text: nothing owns where a surfaced governance gap is recorded, so a gap found
+outside this project has nowhere to go; and nothing resolves an asset's data
+contradicting a rule, because assets hold no precedence tier and so cannot be placed in
+the six-level order. The second is the hole behind D-64, which fixed one instance of
+that class rather than the class.
+
+**D-78.** The domain-instantiation test is adopted, and belongs in the
+agent-definition schema. Decided by: agent.
+
+To decide whether a domain rule inside an agent definition duplicates a `rules/`
+obligation or legitimately instantiates it: **strip the domain nouns; if a sentence
+already in a `rules/` file remains, it is a restatement; if the sentence becomes false
+or vacuous, it is an instantiation.**
+
+Applied to the one migrated definition: 6 of 8 rules are instantiation, 2 are
+restatement. This confirms D-51 item 2 as a class rather than a one-off judgement, and
+gives it a test anyone can apply. It belongs in the agent-definition schema work so it
+is applied once rather than eleven times -- and the ratio there will be far worse, since
+16 of the source package's 22 agent rule entries touch a concern a Hub rule owns.
+
+**D-79.** Two defects found by the Step 3 analysis were fixed on confirmation, both
+mine. Decided by: agent.
+
+The registry schema's only `$comment` described a constraint other than the one it
+annotates -- left over from an earlier version of the block -- so a reader checking why
+the constraint exists got an answer about something else. And this repository's
+`README.md` managed-components row still said `.agents-hub` "does not yet exist", six
+lines above the paragraph declaring it canonical: one file, two answers, in the file
+that owns managed components.
+
+Neither was findable by any check in place. No script compares a comment to the
+constraint beneath it, and no check reads a table cell against a paragraph in the same
+file. Recorded rather than quietly fixed because the gap is in the checking, not only in
+the files.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.
