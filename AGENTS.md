@@ -122,7 +122,7 @@ One owner per concern. Do not duplicate content between these files.
 | `plans/MCP-GATEWAY.md` | Gateway build and configuration requirements. Backoffice planning record, not governance. |
 | `plans/AGENT-HUB-CONSOLIDATION.md` | Sequence of Hub consolidation work, the step names, and what each step requires. **Not** where the work currently stands — that is `STATE.md`. Backoffice planning record, not governance. |
 | `AGENT-SSOT.json` | **Agent Hub asset.** Backoffice staging/provenance copy only, pending placement in `.agents-hub`. Not a live authority here. |
-| `USER-SSOT.json` | **Agent Hub asset, Greyed-scoped.** Backoffice staging/provenance copy only, pending placement in `.agents-hub`. Loaded only in Greyed context. Read-only absent explicit user instruction. |
+| `USER-SSOT.json` (as staged here) | **Agent Hub asset.** Its current content is Greyed-scoped and, under the naming model settled in `DECISIONS.md` D-80, is the future `GREYED-SSOT.json`. The name `USER-SSOT.json` is reserved for the global, shared user-context asset, which has no content yet. Backoffice staging/provenance copy only, pending placement. Loaded only where its scope applies. Read-only absent explicit user instruction. Not a governance owner. |
 | `rules/VERIFICATION-RESOLUTION.md` | How verification and investigation work is scoped, bounded and stopped |
 | `PENDING-GLOBAL-PROMOTIONS.md` | Rules held locally that are owed to shared governance, and their promotion terms |
 | `LEARNINGS.md` | Durable non-obvious findings that prevent rediscovery. Non-authoritative; carries its own retention and promotion rules. |
@@ -186,8 +186,12 @@ inside the Hub backoffice. The copies here are staging and provenance only. Once
 copy retained here is a backup or archive that must never act as a competing
 authority.
 
-`USER-SSOT.json` is Greyed-scoped: it is loaded and applied only when Greyed
-context is relevant. Company scope is a loading condition, not a reason to hold it
+The file staged here as `USER-SSOT.json` carries Greyed-scoped content and is the
+future `GREYED-SSOT.json` (`DECISIONS.md` D-80). It is loaded and applied only when
+Greyed context is relevant, and it is not a governance owner: general Hub governance,
+protected boundaries, verification policy and precedence stay with canonical `rules/`.
+Where it conflicts with a higher-authority Hub rule or a direct current user
+instruction, the higher authority governs. Company scope is a loading condition, not a reason to hold it
 in the backoffice. Three of its clauses shape ordinary work here whenever Greyed
 context applies, and are stated only there:
 

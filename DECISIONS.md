@@ -1444,6 +1444,66 @@ constraint beneath it, and no check reads a table cell against a paragraph in th
 file. Recorded rather than quietly fixed because the gap is in the checking, not only in
 the files.
 
+**D-80.** The user-context SSOT naming model and classification. Decided by: user,
+2026-08-21. Corrects the description in earlier records; does not rewrite them.
+
+**Final naming and placement:**
+
+| File | Scope |
+|---|---|
+| `.agents-hub/context/USER-SSOT.json` | The global, shared user-context asset |
+| `Greyed/context/GREYED-SSOT.json` | Greyed-specific, authoritative for that scope |
+| `Fina/context/FINA-SSOT.json` | Fina-specific, authoritative for that scope |
+
+**Classification.** A scope-specific file is **not** a universal user profile: do not
+read `GREYED-SSOT.json` or `FINA-SSOT.json` as describing the user generally. **None of
+the three is a general governance owner.** Each may hold scoped user authority,
+responsibilities, limitations, operating context, preferences, and agent-facing
+interpretation rules **for its own scope**. General Hub governance, protected
+boundaries, verification policy and precedence remain owned by canonical `rules/`.
+Where a scoped SSOT conflicts with a higher-authority Hub rule or a direct current user
+instruction, the higher authority governs.
+
+**Nothing was created, moved, renamed or rewritten.** The instruction was to record the
+decision without touching the files, and placement is not yet inside an approved
+implementation scope. Recorded as `STATE.md` open work 29y, folding into open work 4.
+**This decision is not a blocker for the consolidation**, by explicit instruction and in
+fact: no current step depends on the rename.
+
+**Records reconciled, history preserved.** Four live records described the file staged
+here as `USER-SSOT.json` as being *itself* Greyed-scoped, which under this model
+conflates the global name with the Greyed scope. Corrected in `AGENTS.md` (the file
+ownership table and § Standing rules), `STATE.md` (open work 4 and the stop condition),
+`plans/AGENT-HUB-CONSOLIDATION.md` (delta D-d and § 6.3), and
+`PENDING-GLOBAL-PROMOTIONS.md` (G-2). The correct statement in each: **the file staged
+here carries Greyed-scoped content and is the future `GREYED-SSOT.json`; the name
+`USER-SSOT.json` is reserved for the global asset, which has no content yet.**
+
+Earlier entries in this file -- D-09, D-21, D-23, D-25 -- are **not** rewritten. They
+were accurate when written, this file is append-only, and they are the provenance for
+how the naming evolved. A reader meeting one of them is directed here by this entry
+rather than by a silent edit.
+
+**What this settles for the Step 3 map, and what it does not.**
+
+It settles U-3's user-file half: a scoped SSOT may hold preferences and agent-facing
+interpretation rules *for its scope*, and is not the owner of a general format
+contract. So the Greyed communication preferences are legitimately scoped content, not a
+competing general owner. `DECISIONS.md` D-08's assignment of rendering to that file is
+therefore correct **within Greyed** and was never a general assignment.
+
+It does **not** settle U-1, and I am not treating it as doing so. U-1 asks whether
+`AGENT-SSOT.json` is a governance owner or an asset. This decision covers the three
+user-context files and does not name `AGENT-SSOT.json`.
+
+**One bearing worth flagging rather than acting on.** This decision states that
+"verification policy" is owned by canonical `rules/`. If that statement is general
+rather than scoped to the user-context files, it settles U-1's first row -- P-03's
+recommendation that `AGENT-SSOT.json` become the sole owner of verification scoping
+would invert, and the fold into `rules/VERIFICATION-AND-EVIDENCE.md` would be the
+answer. Read strictly in context, the sentence is about what the *scoped SSOTs* do not
+own, so it is evidence and not a ruling. Flagged for confirmation; nothing acted on.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

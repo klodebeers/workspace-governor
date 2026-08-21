@@ -110,7 +110,7 @@ Only these change. Everything else in section 3 stands.
 | D-a | **A second source repository exists.** v0.4.2 knew only the live Hub. `agents-hub-two` holds 27 files -- 15 agent definitions, `config/agent-registry.json`, schemas, prompts, templates -- and is source material pending reconciliation. | Step 1 classification must cover three inputs: the live `.agents-hub`, canonical `.agents-hub`, and `agents-hub-two`. Step 8 migration now has a real accepted-source candidate, where v0.4.2 anticipated possibly none. |
 | D-b | **The canonical Hub is now named and settled.** `.agents-hub` is canonical (`DECISIONS.md` D-24), superseding the two-repositories-both-claiming-identity condition. | Removes the identity question from Step 1. Step 1 decides structure, not which repository governs. |
 | D-c | **Hub root `AGENTS.md` is misplaced inside `rules/`.** Verified: `.agents-hub` has `rules/AGENTS.md` and no root `AGENTS.md`. | Add to Step 1 classification as a `Move`, executed in Step 5. Structural only, no content change. Deferred by instruction from the canonicalization step. |
-| D-d | **The SSOT pair must be placed in the Hub** with scope-based routing, `USER-SSOT.json` loaded only in Greyed context. | New work inside Step 5 and Step 10. Placement alone is insufficient: the Hub root router needs entries or the assets are unreachable. See `evidence/HUB-ASSET-PLACEMENT-CORRECTION-2026-08-20.md`. |
+| D-d | **The SSOT set must be placed with scope-based routing.** Corrected 2026-08-21 by `DECISIONS.md` D-80: it is not a pair. `.agents-hub/context/USER-SSOT.json` is the global shared user-context asset; `Greyed/context/GREYED-SSOT.json` and `Fina/context/FINA-SSOT.json` are scope-specific and are not universal user profiles. The file staged here as `USER-SSOT.json` carries Greyed content and becomes `GREYED-SSOT.json`. None is a general governance owner. | New work inside Step 5 and Step 10. Placement alone is insufficient: the Hub root router needs entries or the assets are unreachable. See `evidence/HUB-ASSET-PLACEMENT-CORRECTION-2026-08-20.md`. |
 | D-e | **Three conflict-resolution coverage gaps** are recorded: peer agent output conflict (live), same-level requirement contradiction (plausible), stakeholder-goal conflict (latent). | Step 3 semantic-owner work must close G-1 and G-2 as sections in existing owners. No new rule file. `PENDING-GLOBAL-PROMOTIONS.md` P-04. |
 | D-f | **Verification scoping is now a rule** and duplicates an SSOT section. | Step 3 must resolve the duplicate ownership. `PENDING-GLOBAL-PROMOTIONS.md` P-01, P-03. |
 | D-g | **Live-Hub evidence exists but is stale.** `BASELINE-AUDIT-2026-08-16.md` inventories the live `.agents-hub` as of 2026-08-16. It is 4 days old and says to re-inspect. | Step 1 does not start from zero. Use it as the prior baseline and produce a later dated audit citing it, per the supersession rule. Read-only tooling exists: `scripts/Invoke-HubInventory.ps1`. |
@@ -327,8 +327,9 @@ Binding on Step 1 and Step 3 classification.
 - **Context vs authorization.** Context may describe responsibility, scope or
   operating conditions. It never grants permission. Do not infer Gateway
   authorization from a statement such as "user manages X" without an explicit
-  policy granting the capability. This applies directly to `USER-SSOT.json`,
-  which describes broad operational ownership and grants nothing.
+  policy granting the capability. This applies directly to every scoped user-context
+  SSOT: each describes operational ownership within its scope and grants nothing
+  (`DECISIONS.md` D-80).
 - **Gateway separation.** `.agents-hub` holds canonical desired governance and
   configuration; `mcp-gateway` is executable enforcement; Gateway runtime state is
   operational, not Hub authority. Do not move Gateway source, logs, caches, tests,
