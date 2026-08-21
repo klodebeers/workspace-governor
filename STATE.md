@@ -148,17 +148,17 @@ blind reviewer correctly found the stop condition standing with nothing beside i
 recording that the gate had been opened.
 
 Three verification scripts hold the Step 2 claims, all re-runnable and each proven
-against injected defects: `scripts/Test-HubRegistrySchema.py` (28 assertions),
-`scripts/Assert-HubSourceFidelity.py` (19 assertions, the only one that reads the
-source package), `scripts/Assert-ReferenceIntegrity.py` (53 tokens, plus URI
-semantics and catalog coverage). The audit demonstrated blind spots in the first
-two of these and two logic bugs in the third; all are closed. The reference check
+against injected defects: `scripts/Test-HubRegistrySchema.py` (32 assertions),
+`scripts/Assert-HubSourceFidelity.py` (21 assertions, the only one that reads the
+source package), `scripts/Assert-ReferenceIntegrity.py` (58 tokens, plus URI
+semantics and catalog coverage). The audits demonstrated blind spots and false
+passes in all three; all are closed, and the eleven defect trees they built are
+retained as regression cases. The reference check
 refuses to run outside the Hub, where it produced 1022 false positives.
 
-**The live local Hub is behind again.** Klo materialized `c6c966b`; the repository
-is now at `1a91d32`. Under D-41 every Hub commit reopens the materialization item
-until `git rev-parse HEAD` matches on both sides. Same command, same verification,
-new expected SHA -- see Verification assignments.
+**The two representations are in sync.** `C:\Users\Chloe\.agents-hub` reports HEAD
+`1a91d32846fe298f1d18cdffe4219129b2f0f5f0`, matching the repository. Under D-41 the
+next Hub commit reopens this; nothing has landed since.
 
 ### Conflict C-05 -- closed 2026-08-21
 
@@ -221,18 +221,18 @@ with its assigned executor, rather than repeated as an open caveat. An assigned
 pending verification is not a defect and is not re-flagged each session; see
 `AGENTS.md` § Evidence standard.
 
-### Local Hub materialization -- PENDING
+### Local Hub materialization -- SATISFIED at `1a91d32`
 
 | Field | Value |
 |---|---|
-| Status | **PENDING again.** `c6c966b` materialized and confirmed by the operator 2026-08-21. Reopened by `d1a8553`, `df33f07` and `1a91d32`, exactly as D-41 says every Hub commit does |
-| Requirement | D-33: the repository and `C:\Users\Chloe\.agents-hub` are one logical Hub and must not drift. `c6c966b` was materialized 2026-08-21; the repository has since moved to `1a91d32` |
+| Status | **SATISFIED 2026-08-21.** The operator reported `git rev-parse HEAD` = `1a91d32846fe298f1d18cdffe4219129b2f0f5f0`, matching the canonical repository. `c6c966b` was materialized earlier the same day and reopened by `d1a8553`, `df33f07` and `1a91d32`; all three are now carried. The two representations are equal |
+| Requirement | D-33: the repository and `C:\Users\Chloe\.agents-hub` are one logical Hub and must not drift |
 | Why no remote action can do it | The path is on the operator's Windows machine, unreachable from a cloud session (blocker B-5). No cloud-side change can move it |
 | Assigned executor | Klo, on the local Windows machine |
 | Method | `cd C:\Users\Chloe\.agents-hub` then `git pull`. Mechanism settled as git, not hand-copying, per D-41 |
-| Verification | `git rev-parse HEAD` returns `1a91d32846fe298f1d18cdffe4219129b2f0f5f0`, and `git status` reports a clean tree. Tree afterwards adds `registry/`, `orchestration/`, `agents/`, `context/` and `templates/`; still no `STATE.md`, no `governance-templates/`, no `runtime-adapters/`; `design-systems/` unchanged |
+| Verification | **Done:** the reported HEAD is `1a91d32846fe298f1d18cdffe4219129b2f0f5f0`, an exact match. The `git status` half was not reported; a dirty tree there would be local drift rather than a materialization failure, and would show up as a mismatch at the next pull. Tree afterwards adds `registry/`, `orchestration/`, `agents/`, `context/` and `templates/`; still no `STATE.md`, no `governance-templates/`, no `runtime-adapters/`; `design-systems/` unchanged |
 | Known wrinkle | The local clone's `origin` may still carry the pre-rename URL `.../agents-hub-one`. It resolves through GitHub's redirect, so `git pull` works; `git remote set-url origin https://github.com/klodebeers/.agents-hub` re-points it when convenient. A repository rename never renames a clone or rewrites its remote |
-| Recheck trigger | Any later commit to the canonical Hub. Every Hub change reopens this until the two are equal |
+| Recheck trigger | Any later commit to the canonical Hub. Every Hub change reopens this until the two are equal. Nothing has landed since `1a91d32` |
 
 ### Fresh-agent bootstrap and runtime activation
 
@@ -354,47 +354,39 @@ unexercised. Live-Hub evidence cannot be accepted until
 
 ## Next action
 
-**Materialize `1a91d32` into the live local Hub.** `c6c966b` was materialized and
-confirmed 2026-08-21; Step 2 and its correction round have since moved the repository forward, and under D-41
-that reopens this until both sides report the same HEAD. Requires the local Windows
-machine, which no cloud session can reach.
+**Step 2 is complete and materialized.** Canonical Hub and local Hub both at
+`1a91d32`. Nothing in Step 2 is outstanding; what remains is recorded as deferred
+with named owners under Open work, not as unfinished work in this step.
 
-```powershell
-cd C:\Users\Chloe\.agents-hub
-git pull
-git rev-parse HEAD
-git status --short
-```
+Two things can start now, in either order:
 
-Verification: `git rev-parse HEAD` returns
-`1a91d32846fe298f1d18cdffe4219129b2f0f5f0` and `git status --short` prints nothing.
-Expected tree afterwards adds `registry/`, `orchestration/`, `agents/`, `context/`
-and `templates/`; `AGENTS.md` still at the root; still no `STATE.md`,
-`governance-templates/` or `runtime-adapters/`; `design-systems/` unchanged.
-
-Then, in either order:
-
-- **Fresh-agent bootstrap test.** Still open, still assigned, and now the most
-  informative it has been: the bootstrap file moved to the root in Step 1, and Step
-  2 added a bootstrap step that points an agent into `orchestration/routing.json`.
-  The test now measures both -- whether a new session finds the root contract, and
-  whether it follows `README.md` into the routing file. Method in Verification
+- **Fresh-agent bootstrap and runtime activation test.** The last open verification
+  assignment, and now the most informative it has been: the bootstrap file moved to
+  the root in Step 1, Step 2 added a `README.md` step pointing an agent into
+  `orchestration/routing.json`, and `AGENTS.md` gained a section naming the asset
+  domains. The test measures whether a fresh session finds the root contract, and
+  whether it follows the bootstrap into the routing file. Method in Verification
   assignments: ask a new session which instruction files it loaded and from where,
-  without supplying the answer.
-- **Step 3.** Semantic-owner work: resolve the duplicate ownership recorded in
-  P-01 and P-03, and close conflict-resolution gaps G-1 and G-2 as sections in
-  existing owners rather than new rule files.
-- **The agent-definition schema**, which gates every further agent migration
-  (D-47), written against all thirteen source shapes rather than the one migrated
-  definition.
+  without supplying the answer. Requires the local machine.
+- **The agent-definition schema**, written against all thirteen source shapes rather
+  than the one migrated definition. It gates every further agent migration (D-47),
+  and open work 29f records the unresolved shape question it has to answer: four of
+  the eleven source specialists carry a domain-focus block that is an internal issue
+  taxonomy, which fits neither the current definition shape nor the `context/` gloss.
+
+**Step 3** -- semantic-owner work resolving the duplicate ownership in P-01 and
+P-03, and closing conflict-resolution gaps G-1 and G-2 as sections in existing
+owners rather than new rule files -- is the next planned step and needs no local
+execution.
 
 Awaiting a decision from the taxonomy owner: **C-04**, whether domain knowledge may
-live in `context/`. Not blocking the items above; blocking a second context
+live in `context/`. Not blocking any of the above; blocking a second context
 artifact.
 
-Closed this round: Step 2 applied at `d1a8553`; the `c6c966b` materialization; the
-stale `CATALOG.md` placement reference. C-03 is closed on precedence and open on
-enforcement. C-04 is newly open.
+Closed this round: the `1a91d32` materialization, and with it the last item Step 2
+left pending. Step 2 applied at `d1a8553`, corrected at `df33f07` and `1a91d32`
+after five blind audits. C-03 is closed on precedence and open on enforcement.
+C-04 is open. C-05 was opened and closed by D-57.
 
 ## Stop conditions
 
