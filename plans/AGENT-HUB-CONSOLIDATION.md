@@ -4,11 +4,15 @@
 competing authority.
 **Plan owner:** `workspace-governor` (Agent Hub backoffice)
 **Target:** the single logical Agent Hub, in both its representations
-**Version:** 0.7.2
+**Version:** 0.8.0
 **Baseline date:** 2026-08-20. **Amended 2026-08-21:** § 6.5's resolved open
-question marked resolved, and its routing-artifact count corrected from five to
-four. Amendments are recorded inline where they occur; the plan is not rewritten to
-match executed work.
+question marked resolved and its routing-artifact count corrected from five to four;
+§ 3a added, naming the thirteen steps this plan previously carried by citation; § 6.2a
+to § 6.2c added for the `context/` definition, the capability shape and the adapter
+rename; § 7 rewritten to own per-step requirements after its position table moved to
+`STATE.md`; **§ 9 and § 10 appended** for the deltas established that day and what
+Step 5 needs. Amendments are recorded inline and appended, never renumbered, and the
+plan is not rewritten to match executed work.
 
 **One Hub, two representations.** The `.agents-hub` repository is the canonical
 source. `C:\Users\Chloe\.agents-hub` is its local materialized location for agent
@@ -471,3 +475,52 @@ v0.4.2 § 1; the exclusion was lost in version 0.6.0.
 
 Live stop conditions are owned by `STATE.md`. Read them before acting. This plan
 adds none.
+
+## 9. Deltas established 2026-08-21
+
+Appended, not renumbered. These are additions to what the plan carries: new
+constraints, new work, and corrections to earlier deltas. **Where the work stands is
+not here** — that is `STATE.md` § Position in the plan sequence (D-74). Each row names
+its decision so the reasoning is one hop away, not restated.
+
+| # | Delta | Effect on the sequence |
+|---|---|---|
+| D-n | **Step labels used in this project did not match this plan's sequence.** What was called "Step 2" was Step 7 plus Step 8; the restructuring called "Step 1" was Step 5. `DECISIONS.md` D-73 | Steps 7 and 8 ran before Steps 2 and 3, their prerequisites. Step 2 has since been closed (D-76) and Step 3's map produced (D-77). The executed work is verified and stands |
+| D-o | **This plan now lists its own steps** (section 3a) and states what each remaining step requires (section 7). It previously carried the sequence by citation, so it asserted a count without naming the steps. `DECISIONS.md` D-74 | Removes the cause of the label drift. Position moved out of this plan into `STATE.md`; the ownership split is recorded in `AGENTS.md` § File ownership |
+| D-p | **Step 2 is closed retrospectively, gate PASS.** `agents-hub-two` cleared with evidence; `design-systems\.remember` explicitly blocked and excluded with nothing depending on it, verified by search. `DECISIONS.md` D-76; `evidence/PROVENANCE-AND-SENSITIVITY-GATES-2026-08-21.md` | Step 8's stated prerequisite -- source rights, owner, destination known -- is now supported by evidence rather than assumption |
+| D-q | **Step 3's map exists; its gate is not met.** 64 governed issues, 31 contested, 25 dispositions settled, 6 blocked. `DECISIONS.md` D-77; `evidence/AGENT-HUB-SEMANTIC-OWNERSHIP-MAP-2026-08-21.md` | **Gates Step 5.** Step 5's prerequisite is Steps 1-4 complete *for the core edit set*, so Step 5 can proceed on an edit set that excludes what U-1 blocks. See section 10 |
+| D-r | **Three obligations have no Hub statement at all**, each verified absent by search: bounding a verification method; which source is authoritative for a question class; the defect-class sweep. All three exist only in `workspace-governor/rules/VERIFICATION-RESOLUTION.md` | New Step 5 work: fold them into `rules/VERIFICATION-AND-EVIDENCE.md` as sections. Partly settles P-01, whose "retired into it" wording must not be executed as deletion -- two of the three are unique in the whole corpus |
+| D-s | **Thirteen gaps named, each assigned to an existing owner as a section. No new rule file for any.** `DECISIONS.md` D-77 | Step 5 and Step 3 work. Two are structural rather than missing text: nothing owns where a surfaced governance gap is recorded, and nothing resolves an asset contradicting a rule -- assets hold no precedence tier, so they cannot be placed in the six-level order |
+| D-t | **The domain-instantiation test.** Strip the domain nouns; if a sentence already in a `rules/` file remains it is a restatement, if it becomes vacuous it is an instantiation. `DECISIONS.md` D-78 | Belongs in the agent-definition schema so it is applied once rather than eleven times. Gates the remaining agent migrations under Step 8 |
+| D-u | **`context/` is defined; there is no `global/` folder.** The Hub is the global layer. `context/` owns scoped knowledge and supporting operating context and owns no authority. A file there is not mandatory by existing -- it loads only when routed. `DECISIONS.md` D-66, D-67, D-69; sections 6.2a and 6.2b | Closes conflict C-04. Section 6.2b's shape governs `context/` growth; branches arrive with their first accepted artifact |
+| D-v | **The adapter directory is `adapters/`**, with `claude/`, `codex/` and `generic/`, superseding `runtime-adapters/`. The two files to wire are `.claude/CLAUDE.md` and `.codex/AGENTS.md`, each the runtime's own discovery location. `DECISIONS.md` D-68, D-75 | Step 9. Nothing is built. **Verified constraint:** Claude Code discovers only `CLAUDE.md`, never `AGENTS.md`, so an adapter file inside `adapters/claude/` would never be found -- the projection must sit at a discovery location. `evidence/RUNTIME-CONVENTIONS-2026-08-20.md` addendum |
+| D-w | **The user-context SSOT naming model.** `.agents-hub/context/USER-SSOT.json` is the global shared asset; `Greyed/context/GREYED-SSOT.json` and `Fina/context/FINA-SSOT.json` are scope-specific and are not universal user profiles. None is a general governance owner. `DECISIONS.md` D-80 | Corrects delta D-d: it is not a pair. Placement is Step 5 and Step 10 work, recorded as `STATE.md` open work 29y, and **deliberately not a blocker** -- no step depends on the rename |
+| D-x | **Intake exists.** `_intake-hub/` in the backoffice is the single door for change requests to the Hub, with a decline standard and a keyword rule. `DECISIONS.md` D-81, D-82, D-83 | Nothing enters the Hub from it until accepted, classified, and assigned to a Hub owner -- this plan's standing rule, restated where it will be tested. Triage is not a plan step; the scheduled run is `PENDING.md` P-1, twice weekly (D-85) |
+| D-y | **Verification tooling now exists and is proven in both directions.** `scripts/Test-HubRegistrySchema.py` (32 assertions), `scripts/Assert-HubSourceFidelity.py` (21, the only one reading the source package), `scripts/Assert-ReferenceIntegrity.py` (58 tokens, URI semantics, catalog coverage). `DECISIONS.md` D-53, D-65 | Available as the verification method for every later step. Each was proven by building the defect it must catch; eleven defect trees from the audits are retained as regression cases |
+| D-z | **Blind adversarial subagent review is the independent pre-edit review** that Step 5 lists as a prerequisite. Reviewers get source, approved scope and result, and are denied the implementer's rationale. `DECISIONS.md` D-60 | Satisfies Step 5's second prerequisite as a mechanism. It has found material defects in three consecutive rounds, including on states two earlier reviews had passed |
+
+## 10. What Step 5 needs before it starts
+
+Step 5's prerequisites, verbatim from the carried-forward source: *"Steps 1-4 complete
+for the core edit set; independent pre-edit review accepted for governance/architecture
+changes."*
+
+| Prerequisite | State |
+|---|---|
+| Step 1 complete | **Yes.** D-35, D-37 |
+| Step 2 complete | **Yes.** Gate PASS, D-76 |
+| Step 3 complete **for the edit set** | **Conditional.** The map exists; its gate fails only on issues blocked by U-1. An edit set that excludes those satisfies the prerequisite. The gate is written per edit set -- "no **included** governed issue or artifact has two active owners" |
+| Step 4 | **Satisfied by substitution.** Git is the mechanism, D-28. The pre-edit commit SHA is the snapshot |
+| Independent pre-edit review | **Mechanism accepted** (D-60). The review of the specific edit set has not run, and runs before edits, not after |
+| Approval to modify live Hub governance | **Not given.** `STATE.md` stop condition and section 6.7 both require it. This is the actual gate |
+
+**So three things are needed, in this order:**
+
+1. **A defined edit set**, excluding everything U-1 blocks. Proposed, not assumed --
+   the agent lists exactly which files change and which disposition each edit executes.
+2. **Approval** to modify live Hub governance for that set.
+3. **A blind pre-edit review** of the set, before any edit lands.
+
+**U-1 is not required to start Step 5.** It determines only whether the
+`AGENT-SSOT.json` cluster is in the edit set or excluded from it. Answering it enlarges
+the set; leaving it open does not block the rest.
