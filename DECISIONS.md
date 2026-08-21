@@ -1652,6 +1652,32 @@ anything urgent or operational. And it means a run may find a batch or nothing, 
 run must handle several submissions at once and must stay silent when it finds none: a
 twice-weekly "nothing to report" is precisely the message people stop reading.
 
+**D-86.** The plan carries a status checklist, and `STATE.md` remains the authority.
+Decided by: user, 2026-08-21. Amends the split in D-74.
+
+D-74 moved position out of the plan into `STATE.md` on the ground that two copies drift.
+The user has directed that the plan carry checkboxes so a reader can see what is done,
+what is not, and why not. That instruction governs.
+
+**The split is amended, not abandoned.** `plans/AGENT-HUB-CONSOLIDATION.md` section 3a
+carries one line of status per step, with the reason when a step is not done.
+`STATE.md` § Position in the plan sequence keeps the detail and remains authoritative.
+The rule when they disagree is written into the plan itself: **`STATE.md` governs and the
+plan's table is the stale one.**
+
+**Why the drift risk is worth accepting here.** D-73 exists because the plan could not
+answer "where are we" from its own text, and that produced step labels applied to the
+wrong steps and two prerequisite steps passed over. A stale checkbox is a smaller failure
+than an unreadable plan, and it is detectable — a checkbox that contradicts `STATE.md`
+is visible on inspection, whereas a missing answer is not.
+
+**Also recorded: this decision resolves a conflict I had left standing.** Section 9,
+appended earlier the same day, asserts step status in its rows -- "Step 2 is closed",
+"Step 3's map exists" -- under a heading that disclaims carrying position. I wrote the
+disclaimer and then carried position anyway, which is the duplication D-74 removed,
+re-created with a note on top. D-86 makes the arrangement deliberate and gives it a
+tiebreak, instead of leaving a contradiction covered by a disclaimer.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

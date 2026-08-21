@@ -80,21 +80,29 @@ learn what the steps were, which is how step labels drifted in practice
 prohibitions, verification methods and completion gates remain in the source, which
 section 3 cites.
 
-| Step | Name |
-|---|---|
-| 0 | Execution bootstrap and checkpoint validation |
-| 1 | Accept the final target tree and complete classification |
-| 2 | Resolve provenance, sensitivity, and external-source gates |
-| 3 | Establish the semantic owner and dependency map |
-| 4 | Prepare version preservation and rollback manifests |
-| 5 | Refactor the runtime-neutral core and root controls |
-| 6 | Consolidate references and evidence without losing unique findings |
-| 7 | Refactor structural domains and accept reusable artifacts |
-| 8 | Migrate accepted external source into the canonical Hub |
-| 9 | Reconcile and implement thin runtime adapters |
-| 10 | Update routes, registries, continuity, and references atomically |
-| 11 | Fresh-agent bootstrap and runtime-activation verification |
-| 12 | Final audit, rollback readiness, and completion declaration |
+| | Step | Name | Status, and why not |
+|---|---|---|---|
+| [x] | 0 | Execution bootstrap and checkpoint validation | Done informally. No dated drift-check record was produced; the baseline was re-inspected repeatedly in practice. Low consequence, not re-opened |
+| [x] | 1 | Accept the final target tree and complete classification | Done. All 46 inputs classified. D-35, D-37 |
+| [x] | 2 | Resolve provenance, sensitivity, and external-source gates | Done, retrospectively — it ran after its dependents. Gate PASS. D-76 |
+| [~] | 3 | Establish the semantic owner and dependency map | **Map produced, gate not met.** 64 issues, 31 contested, 25 dispositions settled, 6 blocked. The gate fails only on issues blocked by **U-1** — whether `AGENT-SSOT.json` is a governance owner or an asset — which is a reserved user decision. D-77 |
+| [x] | 4 | Prepare version preservation and rollback manifests | Satisfied by substitution: git is the mechanism, the pre-edit commit SHA is the snapshot. D-28 |
+| [x] | 5 | Refactor the runtime-neutral core and root controls | Done — the root `AGENTS.md` move, retiring the Hub `STATE.md` and the placeholders, and the later `AGENTS.md` edits. **Recorded at the time under the wrong labels**, "Step 1" and "Step 2". D-73 |
+| [~] | 6 | Consolidate references and evidence without losing unique findings | Disposition settled by D-15; execution edits another repository and is sequenced separately. Not blocking |
+| [x] | 7 | Refactor structural domains and accept reusable artifacts | Done — `registry/`, `orchestration/`, `agents/`, `context/`, `templates/` with their first artifacts. Recorded at the time as "Step 2" |
+| [x] | 8 | Migrate accepted external source into the canonical Hub | Done for the six artifacts. **Eleven agent definitions remain**, gated by the agent-definition schema (D-47) and the handoff contract |
+| [ ] | 9 | Reconcile and implement thin runtime adapters | Not started. `adapters/` per D-68; the files to wire are `.claude/CLAUDE.md` and `.codex/AGENTS.md` (D-75). **Why not:** requires Step 3's owner map, and is wired on the local machine. `STATE.md` open work 29z |
+| [~] | 10 | Update routes, registries, continuity, and references atomically | Partly done — the `CATALOG.md` and `README.md` updates that accompanied Step 7. The remainder lands with each later migration |
+| [ ] | 11 | Fresh-agent bootstrap and runtime-activation verification | Assigned, not executed. **Why not:** needs a fresh session per runtime on the operator's machine, which no cloud session can start |
+| [ ] | 12 | Final audit, rollback readiness, and completion declaration | Not started. **Why not:** must not begin before Step 3 has an accepted owner map |
+
+Legend: `[x]` done or satisfied by substitution · `[~]` partly done, or done with a
+stated gap · `[ ]` not started, with the reason named.
+
+**This checklist is a convenience, not the authority.** `STATE.md` § Position in the
+plan sequence owns where the work stands, and if the two ever disagree, **`STATE.md`
+governs and this table is the stale one.** Kept here by directive (`DECISIONS.md` D-86)
+because a plan you cannot read your position from is the defect that caused D-73.
 
 Required order: **target-tree decision, then refactoring, then migration, then
 runtime integration and verification.** Do not begin a later phase before the
