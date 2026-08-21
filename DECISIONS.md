@@ -1266,6 +1266,45 @@ load-bearing across several records, and its meaning was never checked against t
 person who had to read them. If a record cannot be read by the person it is written
 for, its precision is worth nothing. `LEARNINGS.md` L-036.
 
+**D-73.** The step labels used in this project did not match the plan's sequence.
+The mapping is recorded and the labels are corrected going forward. Decided by:
+agent, on inspection prompted by the user asking what the plan says is next.
+
+The authoritative sequence is the 13 steps carried forward in
+`plans/AGENT-HUB-CONSOLIDATION.md` section 3. "Step 2" was used here to mean *create
+each new domain with its first accepted artifact*. That is the plan's **Step 7**
+(refactor structural domains and accept reusable artifacts) together with **Step 8**
+(migrate accepted external source). The plan's actual Step 2 is provenance,
+sensitivity and external-source gating, and it was never done.
+
+Similarly, the restructuring recorded as part of "Step 1" -- moving `AGENTS.md` to the
+root, retiring the Hub `STATE.md` and the placeholders -- is the plan's **Step 5**.
+Step 1 prohibits moves, renames and deletions outright, so that work was never Step 1
+under any reading.
+
+**The executed work stands.** It is verified by three scripts and five independent
+audits, and nothing about it changes. What was wrong was the label, and labels matter
+here because each step carries prerequisites and a completion gate that the wrong
+label silently skips.
+
+**The ordering cost, recorded rather than glossed.** Steps 7 and 8 ran before Steps 2
+and 3, which are their stated prerequisites. Step 3 produces the semantic ownership
+map -- the artifact whose job is to decide duplicate ownership before anything is
+edited. It was skipped, and five audits then found duplicate-ownership defects in the
+Step 7 output: a route's `output` against a definition's `outputs`, the agent-to-domain
+mapping held in two files, one authorization boundary restated across several
+artifacts. Each was fixed when found. Finding them one at a time through adversarial
+review is the expensive path, and ten agent definitions remain to migrate.
+
+**Consequent next action:** the plan's Step 2, which has two open gates and is cheap,
+then Step 3. Detail in section 7 of the plan. `STATE.md` carries it as the next action.
+
+**How this went unnoticed.** The plan does not enumerate its own steps -- section 3
+carries them forward by reference to the predecessor document -- so every claim about
+"the next step" in this project was made from memory of a list held in another file.
+Section 7 now names the position explicitly, so the answer is readable in the plan
+rather than reconstructed. `LEARNINGS.md` L-037.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

@@ -1,9 +1,10 @@
 # Workspace Governor State
 
 **Updated:** 2026-08-21
-**Phase:** Hub consolidation — Steps 1 and 2 applied and verified in the canonical
-Hub. Step 3 not started. Reconciliation assessment complete for the inputs Steps 1
-and 2 required.
+**Phase:** Hub consolidation — the plan's Steps 1, 5, 7 and 8 are applied and
+verified in the canonical Hub; Step 4 is satisfied by substitution. Steps 2 and 3 are
+**not done and are prerequisites for that completed work** — see `DECISIONS.md` D-73
+for the label correction and the ordering cost.
 **Authority:** Non-authoritative continuity record. Settled decisions live in `DECISIONS.md`.
 
 This file records current state only. It defines no rules. Replace stale
@@ -372,41 +373,42 @@ unexercised. Live-Hub evidence cannot be accepted until
 
 ## Next action
 
-**Step 2 is complete, and the C-04 resolution is applied at `3e35f9d`** -- the
-canonical definition of `context/`, the capability shape, the `adapters/` rename, and
-no `global/` folder because the Hub is the global layer.
+**The plan's Step 2, then Step 3.** Both are prerequisites for work already
+completed, and the labels used here previously did not match the plan's sequence --
+what was called "Step 2" was the plan's Step 7 and Step 8. The mapping and the
+ordering cost are recorded in `DECISIONS.md` D-73 and in section 7 of the plan; the
+executed work is verified and stands.
 
-Keeping the local folder up to date is routine and is not an action to hand back:
-the operator pulls in GitHub Desktop as a matter of course (D-70, D-71, D-72). The
-current expected commit stays under Verification assignments, for the cases where a
-task actually needs that folder to be current.
+**Step 2 -- provenance, sensitivity and external-source gates.** Two open gates, both
+cheap:
 
-Two things can start now, in either order:
+- `design-systems\.remember` is already an isolated conflict under a standing stop
+  condition. Step 2's gate permits "explicitly blocked and excluded", so it closes by
+  being recorded as such -- no inspection, nothing touched.
+- `agents-hub-two` provenance, ownership and rights were never recorded, and its
+  content is already in the canonical Hub. Step 8 named this as a prerequisite. Same
+  account's repository, so the expected answer is unremarkable, but it needs evidence
+  rather than an assumption.
 
-- **Fresh-agent bootstrap and runtime activation test.** The last open verification
-  assignment, and now the most informative it has been: the bootstrap file moved to
-  the root in Step 1, Step 2 added a `README.md` step pointing an agent into
-  `orchestration/routing.json`, and `AGENTS.md` gained a section naming the asset
-  domains. The test measures whether a fresh session finds the root contract, and
-  whether it follows the bootstrap into the routing file. Method in Verification
-  assignments: ask a new session which instruction files it loaded and from where,
-  without supplying the answer. Requires the local machine.
-- **The agent-definition schema**, written against all thirteen source shapes rather
-  than the one migrated definition. It gates every further agent migration (D-47),
-  and open work 29f records the unresolved shape question it has to answer: four of
-  the eleven source specialists carry a domain-focus block that is an internal issue
-  taxonomy, which fits neither the current definition shape nor the `context/` gloss.
+**Step 3 -- the semantic owner and dependency map.** The one with real value. An
+issue-to-owner matrix and an artifact-to-owner matrix covering what is now in the Hub
+and what is still to migrate. It closes `PENDING-GLOBAL-PROMOTIONS.md` P-01 and P-03,
+feeds the agent-definition schema (D-47), and is the artifact that stops the
+duplicate-ownership class recurring across the remaining ten agent definitions. Five
+audits found instances of that class one at a time; this is the cheaper way.
 
-**Step 3** -- semantic-owner work resolving the duplicate ownership in P-01 and
-P-03, and closing conflict-resolution gaps G-1 and G-2 as sections in existing
-owners rather than new rule files -- is the next planned step and needs no local
-execution.
+Also ready, and not blocked by either:
 
-Closed this round: the `1a91d32` materialization, and with it the last item Step 2
-left pending. Step 2 applied at `d1a8553`, corrected at `df33f07` and `1a91d32`
-after five blind audits. C-03 is closed on precedence and open on enforcement.
-C-04 is closed by the taxonomy owner's definition, D-66, which also unblocks a
-second context artifact. C-05 was opened and closed by D-57.
+- **The fresh-agent bootstrap test** (the plan's Step 11), the one open verification
+  assignment. It needs the local machine and a fresh session in each runtime. Worth
+  doing before Step 9 adapters, since it measures whether the current bootstrap is
+  found at all.
+
+Not to be started before Step 3 has an accepted owner map: the plan's Step 9
+(adapters) and Step 12 (final audit).
+
+Awaiting a decision only on where exact domain implementation lives per owner -- open
+work 28b. Nothing is blocked by it today.
 
 ## Stop conditions
 

@@ -379,22 +379,67 @@ canonical governance.
 Do not finalize uncertain names or structures -- the exact `context/`
 substructure is now shaped by section 6.2b, and other structures -- until existing material has been compared.
 
-## 7. Immediate next action
+## 7. Position in the sequence, and the immediate next action
 
-Step 1. Its only remaining input is a current live-Hub inventory:
+**Corrected 2026-08-21.** This section previously said "Step 1", which had been true
+when written and was stale. Worse, the work executed since was labelled with step
+numbers that do not match this plan's own sequence. Both are fixed here.
 
-```powershell
-.\scripts\Assert-RememberPruning.ps1     # must report: Proof verdict: PASS
-.\scripts\Invoke-HubInventory.ps1        # must report: Completeness: COMPLETE
-```
+The authoritative sequence is the 13 steps carried forward in section 3, Step 0 to
+Step 12. What was actually executed maps onto it like this:
 
-Run from the `workspace-governor` repository root on the Windows machine. Both are
-read-only. Commit the emitted evidence, then execute Step 1 classification across
-the three inputs in D-a, starting from the v0.4.2 § 4.1 ledger and the
-2026-08-16 baseline rather than from zero.
+| Plan step | State | Notes |
+|---|---|---|
+| Step 0 -- bootstrap and drift check | Done informally | No dated drift-check record was produced. Low consequence: the baseline was re-inspected in practice, repeatedly |
+| Step 1 -- accept target tree and classify | **Done** | `DECISIONS.md` D-35. All 46 inputs classified |
+| Step 2 -- provenance, sensitivity, external-source gates | **NOT done** | See below. This is the immediate next action |
+| Step 3 -- semantic owner and dependency map | **NOT done** | No ownership-map artifact exists. See below |
+| Step 4 -- version preservation and rollback | **Satisfied by substitution** | Git is the mechanism, per D-28 |
+| Step 5 -- refactor runtime-neutral core and root controls | **Done** | The root `AGENTS.md` move, the retirement of Hub `STATE.md` and the placeholders, and the later `AGENTS.md` edits. Recorded at the time as part of "Step 1" and "Step 2" |
+| Step 6 -- consolidate references and evidence | Partly done, partly deferred | D-15 settled the disposition; execution edits another repository |
+| Step 7 -- refactor structural domains, accept reusable artifacts | **Done** | Creating `registry/`, `orchestration/`, `agents/`, `context/`, `templates/` with their first artifacts. Recorded at the time as "Step 2" |
+| Step 8 -- migrate accepted external source | **Done** | The `agents-hub-two` content in those artifacts. Also recorded as "Step 2" |
+| Step 9 -- thin runtime adapters | Not started | `adapters/`, per D-68 |
+| Step 10 -- update routes, registries, references atomically | Partly done | The `CATALOG.md` and `README.md` route updates that accompanied Step 7 |
+| Step 11 -- fresh-agent bootstrap and runtime-activation verification | Assigned, not executed | The one open verification assignment |
+| Step 12 -- final audit and completion declaration | Not started | |
 
-Do not refactor, migrate, create adapters, or activate runtime instructions during
-the tree-decision phase.
+**The label collision.** "Step 2" was used in this project for *"create each new
+domain with its first accepted artifact"*, which is this plan's Step 7 and Step 8.
+The plan's own Step 2 is provenance and sensitivity gating and was never done. Two
+meanings for one label. The executed work is verified and stands; only the labels
+were wrong. `DECISIONS.md` D-73.
+
+**Consequence, stated plainly.** Steps 7 and 8 ran before Steps 2 and 3, which are
+their prerequisites. That ordering was not free: Step 3 exists to decide duplicate
+ownership before editing, and five independent audits then found duplicate-ownership
+defects in the Step 7 output -- a route's `output` against a definition's `outputs`,
+the agent-to-domain mapping stored in two files, one authorization boundary restated
+in several artifacts. Those are exactly what a Step 3 map is for. Each was fixed on
+discovery, but discovering them one at a time by audit is the expensive path, and ten
+more agent definitions are still to migrate.
+
+### The immediate next action
+
+**Step 2, then Step 3.** Both are cheap relative to what they protect.
+
+Step 2 has two open gates and nothing else:
+
+1. **`design-systems\.remember`** -- already an isolated conflict with a standing stop
+   condition. Step 2's completion gate explicitly permits "explicitly blocked and
+   excluded", so this half is closable as it stands, by recording it as such.
+2. **`agents-hub-two` rights and ownership** -- content from that repository is already
+   migrated into the canonical Hub, and its provenance, ownership and rights were never
+   recorded. It is the same account's repository, so the expected answer is
+   unremarkable, but Step 8's prerequisite named it and no evidence exists. Record it.
+
+Step 3 is the one with real value: the issue-to-owner and artifact-to-owner matrices,
+covering the artifacts now in the Hub and the source artifacts still to migrate. It
+closes `PENDING-GLOBAL-PROMOTIONS.md` P-01 and P-03, feeds the agent-definition schema
+(D-47), and is the artifact that stops the duplication class recurring across the
+remaining migrations.
+
+Do not begin Step 9 or Step 12 before Step 3 has an accepted owner map.
 
 ## 7a. Scope exclusion carried forward
 
