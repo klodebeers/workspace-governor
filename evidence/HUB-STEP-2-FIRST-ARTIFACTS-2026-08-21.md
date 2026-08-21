@@ -1,19 +1,21 @@
 # Step 2 -- first accepted artifact per domain
 
 **Date:** 2026-08-21
-**Revision:** 2. Revision 1 described the artifacts as first written. Two
-independent adversarial reviews then found sixteen fidelity findings and thirteen
-governance findings; the artifacts were reworked before anything was committed, so
-revision 1 never described committed content. Revision 1 is superseded in place.
+**Revision:** 3. Revision 1 described the artifacts as first written; two reviews
+reworked them before anything was committed. Revision 2 described the committed
+state at `d1a8553`. Four further blind audits then found material defects in that
+committed state, which were fixed at `df33f07`. Both earlier revisions are
+superseded in place: revision 1 never described committed content, and revision 2
+described content that has since been corrected.
 **Scope:** Create `agents/`, `orchestration/`, `registry/`, `templates/` and
 `context/` in the canonical Hub, each with its first accepted artifact.
 **Authorisation:** User, 2026-08-21: "proceed with Step 2".
 **Source:** `agents-hub-two` @ `0a222df`. Classification carried from
 `evidence/AGENTS-HUB-TWO-RECONCILIATION-2026-08-20.md` revision 2 and
 `evidence/HUB-TARGET-TREE-AND-CLASSIFICATION-2026-08-21.md`.
-**Base commit:** `c6c966b`. **Result commit:** `d1a8553`, verified on the live
-remote and by extracting `origin/main` and re-running both checks against the
-extraction.
+**Base commit:** `c6c966b`. **Result commit:** `df33f07` (first applied at
+`d1a8553`), verified on the live remote and by extracting `origin/main` and
+re-running all three checks against the extraction.
 
 ## What "first accepted artifact" means here
 
@@ -105,44 +107,75 @@ approval is owned by `rules/AUTONOMY-AND-PROTECTED-BOUNDARIES.md`. `null` requir
 whoever fills the checklist to answer it. This is the one field where the template
 is no longer byte-identical to its source, and the reason is recorded.
 
-## Adversarial review -- findings accepted and rejected
+## Adversarial review -- two rounds
 
-Two independent reviews ran before commit: one on fidelity to the source, one on
-governance boundaries. Every finding was verified against source or rule text
-before being accepted or rejected. Both reviews were read-only.
+### Round 1, before the first commit
 
-### Accepted and fixed
+Two reviews, one on fidelity to source and one on governance boundaries. Twenty
+findings accepted and fixed, three rejected. Nothing from the pre-review draft
+reached the repository. Four of the accepted findings were provenance claims wrong
+in the same direction, overstating novelty: a domain-selection step called newly
+authored when the source states it in prose in three files; an entry-point count of
+three where eight locations declare it; a role sentence rewritten without marking
+it; and a source `must` reclassified as not an instruction.
 
-| # | Finding | Verification |
+### Round 2, on the committed state at `d1a8553`
+
+Four reviewers, each given the source package, the approved scope and the resulting
+implementation, and each **denied the implementer's rationale** -- no access to this
+file or to the Step 2 decision entries -- so no reviewer could be primed by it.
+Boundaries were chosen from the actual change: registry and schema; orchestration and
+routing; the agent, context and template transformations; and scope compliance plus
+the verification tooling. Reviewers were instructed to report findings only and not
+to implement an alternative architecture. Every finding was verified against source
+or rule text before being accepted or rejected. Mechanism now settled as
+`DECISIONS.md` D-60.
+
+**Accepted and fixed:**
+
+| Class | Finding | Verification |
 |---|---|---|
-| 1 | `authored_additions` claimed the source had no domain-selection step | False. `package-layout.json` notes[1], `docs/README.md` § Canonical entry points and § Typical usage step 2, and `prompts/general-coordinator.prompt.txt` all state it. Read directly |
-| 2 | Entry point "declared three times" undercounts | Eight locations, including `meta.notes` and `meta.note` in the two coordinators and `docs/README.md`, none of which revision 1 listed. All read directly. The count is now replaced by the enumerated list |
-| 3 | The registry claimed a per-domain orchestrator model while holding one orchestrator, in the `general` domain | Confirmed. `notion-operations` had no orchestrator. Fixed by `domain: "shared"` plus an explicit `folded_from` record |
-| 4 | `agents[0].responsibility` was an unmarked new sentence, and asserted ownership of a handoff contract the same migration declares unmigrated | Confirmed against `config/agent-registry.json non_notion_agents[0].role`. Now shorter, no handoff claim, and marked with `responsibility_source` |
-| 5 | `name` silently shortened from "General Coordinator / Orchestrator" | Confirmed. Correct under the fold, but unrecorded. Now recorded |
-| 6 | `workspace_root` dropped with no supersession record | Confirmed: the source has eight top-level keys and only four were accounted for. Now listed |
-| 7 | `docs/README.md` unaccounted for while the routing file claimed exhaustive supersession | Confirmed. Added |
-| 8 | The orchestrator was omitted from the context file's consumer list, and the source's `must_acknowledge` modality was lost | Confirmed: the block's key is literally `must_acknowledge`, placed on the coordinator. Orchestrator restored as a consumer, obligation stated as the source's |
-| 9 | "its own failure modes" appears in no source block, and a source `must` was reclassified as "not an instruction" | Confirmed. Reworded to attribute the statement to the source with its force intact |
-| 10 | A context bullet came from the agent's `rules`, not the four formula blocks, and duplicated a verification obligation | Confirmed. That bullet is removed: what counts as evidence is owned by `rules/VERIFICATION-AND-EVIDENCE.md` |
-| 11 | `validated_references` narrowed from subsystem scope to formula scope, unrecorded | Confirmed. The narrowing is now stated in the file, and all four URLs retained |
-| 12 | `meta.created` silently dropped; `purpose` reworded | Confirmed. Both restored from source |
-| 13 | "validated against 8 negative cases" had no artifact anyone could re-run | Confirmed -- agent confidence stated as verification. Now `scripts/Test-HubRegistrySchema.py` |
-| 14 | `not_yet_migrated` under-enumerated the deferred dependency-file content | Confirmed. `shared_dependencies`, `specialist_agents` and `planning_model.initial_assessment` added |
-| 15 | `pre_routing` restated the intake obligation more broadly than its owner | Confirmed. `rules/ENGINEER-OWNERSHIP.md` bounds asking to "when a missing decision would materially change the outcome, exceed granted authority, or require user or business judgment"; the carried text made a decision brief the default for any unclear request. The entry now records only the routing consequence and names the owner |
-| 16 | Migration narrative, retirement arguments and progress ledgers written into live artifacts | Confirmed against the directive: management, migration and consolidation-progress state do not belong in the live Hub, and § 6.8 requires no backoffice history in live authority. Reduced to short provenance identifiers in all six artifacts; narrative lives here |
-| 17 | `CATALOG.md` asserted session verification results as durable status, without the "runtime activation unverified" qualifier every other row carries, and made three claims untrue of the artifacts | Confirmed. Rewritten |
-| 18 | The `$schema` field was outside the reference sweep's scope, so "0 dangling" did not cover it | Confirmed -- the same defect class as D-39: a check whose scope was assumed. The sweep now covers `$schema` and `$id`, with URL and URN exemptions |
-| 19 | `context/` self-described as "Domain knowledge only" while the taxonomy says `context/` is "not knowledge or authorization" | Confirmed as a real contradiction. Reframed as operating context. **The underlying conflict is not resolved by that reframing** -- see § Open conflict |
-| 20 | Everything was uncommitted while the catalog described it as active canonical source | Confirmed at the time. Committed at `d1a8553` |
+| **Lost governance** | Consolidating the formula material dropped three source obligations and softened their modality: "the formula **must be validated after** the schema change"; "database schema and formulas **must be reviewed together** when migrating or repairing older logic"; and a coordinator-level `must_acknowledge` that any formula migration must validate actual behavior. None had a carrier | All three read directly from `NOTION-SCHEMA-RELATIONS-AGENT.json`, `NOTION-SYSTEM-DEPENDENCIES.json` and `NOTION-COORDINATOR-ORCHESTRATOR.json`. Confirmed. D-61; owed items recorded in `STATE.md` |
+| **Invented content** | "distinct from schema structure" appears in no source block; a source "**may** affect" had been strengthened to an unconditional "behaves differently"; a legacy-migration statement had been generalised into a platform fact | Confirmed against source. Modality is now carried, and the file says so |
+| **Narrowed scope** | The context file's consumer list named two specialists as though complete. Three further Notion specialists carry rules that depend on formula behavior | Confirmed by quotation from all three. Scope is now stated as a condition, not a list |
+| **Non-verbatim claim** | The pre-routing condition had been reworded from "Business request with unclear requirements" while claimed as carried verbatim | Found by the new source-fidelity script, not by reading. Now exact |
+| **Governance gap papered over** | The pre-routing entry claimed the source's intake obligation was "routed rather than restated" to `rules/ENGINEER-OWNERSHIP.md`. That owner governs *when to ask* and states no obligation to produce a decision brief or define required fields | Confirmed by reading the rule. The root contract requires surfacing a gap rather than inferring a parallel answer; the entry now surfaces it |
+| **Backoffice state in live authority** | Flagged by all four reviewers. Narrative rationale, retirement arguments, a `deferred` progress ledger, and a **required** `definition_status` field that made migration progress a mandatory part of canonical data | Confirmed against the directive and against the Hub catalog's own sentence saying migration state lives in the backoffice. Removed; `definition: null` already carries the fact |
+| **Derived and duplicated data** | `dependencies[].available` duplicated whether a path was null and would go stale silently. The agent definition carried `name`, `domain`, `role_class` and `canonical_status`, all registry-owned, while disclaiming ownership of them | Confirmed. Only the resolution key remains |
+| **Unenforceable primary key** | The schema accepted duplicate ids, demonstrated by appending a copy of an entry. An id must resolve to exactly one entry | Reproduced. JSON Schema cannot express it, so the script now does, plus name uniqueness and folded-id collision |
+| **Unresolvable folded id** | `notion-coordinator-orchestrator` appears twice in the source and resolved to nothing after the fold | Confirmed. Recorded in `folded_ids`; the schema permits it only on an orchestrator |
+| **No way to retire an identity** | `canonical_status` admitted only two flavours of "accepted", so withdrawing an identity meant deleting its record | Confirmed. Now `accepted` / `retired` |
+| **Root reachability** | `AGENTS.md` was unchanged, so an agent loading only the always-loaded root contract could not learn the asset domains exist. `README.md` alone left two entry surfaces with the discovery chain running the wrong way | Confirmed by reading `AGENTS.md`: no reference to `README.md` or `CATALOG.md`. A short section now names the asset domains and what weight they do not carry. The governance routing table is still four rule owners |
+| **Untrue index claims** | The template's stated purpose, its field count (7, not the contract's 6), a retirement asserted in the Hub that exists in no Hub artifact, "output shapes" for a directory holding no output template, plural "definitions" for one file, and the undisclosed fact that 10 of 11 route destinations have no definition | Each checked against the artifact. All corrected |
+| **Unrecorded decisions** | The synonym retirement and the third template identifier were recorded only in evidence and in the self-declared non-authoritative catalog, not in `DECISIONS.md` | Confirmed. D-58 |
+| **Unsuperseded decision conflict** | Flat `agents/` and a domain-tagged registry contradict D-14, which required subdivision and a domain-keyed registry and argued flat would keep general agents second-class; D-12's template placement likewise | Confirmed by reading both. D-57 supersedes the structural halves and explains why the asymmetry is nonetheless resolved |
+| **Unclassified content migrated** | `validated_references` was carried although the approved record left it unclassified | Confirmed. D-59 classifies it |
+| **Tooling: PASS for checks that never ran** | Deleting `orchestration/routing.json` still produced "RESULT: PASS ... and cross-artifact checks all behaved as required", because the skip branch added nothing to the failure list | Reproduced by the auditor. A missing required artifact is now a refusal, and no success line names a check that did not run |
+| **Tooling: false failure on correct content** | Negative-case fixtures were selected by `role_class`, so promoting the orchestrator to a migrated entry -- a state the schema permits -- made the harness report a defect in a correct registry | Reproduced. Fixtures are now selected by the property under test, and a missing fixture is a failure, not a crash |
+| **Tooling: overstated coverage** | The reference check claimed "every backtick path token"; markdown link targets were uncovered, and its own out-of-scope counter was incremented twice per token, printing double | Both reproduced. Link targets now covered, the counter fixed -- it now agrees with the auditor's hand count of 13 -- and the docstring states the real limits, including that a token containing a space is treated as prose |
+| **Tooling: an inverted check** | `$id` was resolved as a filesystem path. The correct absolute-URI form was skipped as uncheckable, and the defective relative form resolved cleanly -- rewarding the exact regression the schema rewrite removed | Reproduced. `$id` is now validated by URI semantics; an instance `$schema` may be a relative path and must resolve |
+| **Tooling: no source-fidelity check at all** | Neither script read the source package, so every load-bearing claim of the migration was asserted in prose and verified by nobody. A commit message also claimed routes were "generated from the source files" with no committed generator | Confirmed. `scripts/Assert-HubSourceFidelity.py` is new and reads both sides. The generation claim is withdrawn: fidelity is now *verified* by a committed script, which is the honest form |
+| **Tooling: no reverse coverage** | An unindexed artifact dropped into the tree passed both scripts, though catalog completeness is the Hub's discovery contract | Reproduced. The reference check now verifies that every artifact is indexed |
+| **Record defect** | `STATE.md` carried the approval stop condition with nothing recording that approval had been given | Confirmed. Recorded, and see the rejection below |
 
-### Rejected, with reasons
+**Rejected, with reasons** -- settled in `DECISIONS.md` D-55 so they are not reopened:
+that Step 2 lacked approval (it was given in session; the reviewer was blind to
+that by design, and the real defect was the missing record); that a negative scope
+disclaimer restates a routed rule (it denies answering a question rather than
+answering it, and the taxonomy requires the boundary); and that a statement about
+platform causality is sequencing content owned by `orchestration/` (it is a domain
+fact; the imperative form was removed so it cannot read as a rule).
 
-| Finding | Why rejected |
-|---|---|
-| The verification checklist template is a narrowed parallel answer to `rules/VERIFICATION-AND-EVIDENCE.md` § Proportionate Evidence Record | Two different artifacts. The rule's § Proportionate Evidence Record governs what an **evidence record** contains after a change; the template is a **pre-action checklist**, which the same rule's § Verification Standard asks for: "Define the evidence needed in proportion to risk before acting." No duplication. It did surface a real gap: no accepted evidence-record template exists, and the source's `execution_record_template` is the candidate. Recorded as open work, not fixed here. `CATALOG.md` now states the distinction so the checklist is not mistaken for the record |
-| The migrated agent's `rules.must_do` / `must_not_do` restate verification, assumption-recording and communication obligations owned by `rules/` | These are **domain instantiations**, which the reconciliation settled as legitimate and required: "Deleting those leaves the domain with no statement of what evidence counts." "Verify formula output against actual database data, not just syntax" states what evidence counts *for formulas*; the general obligation stays with its owner. Reopening this would reverse a settled finding without new evidence. The definition now names the boundary explicitly in its `authority` block |
-| "Validated after the schema change, not before" is sequencing content belonging in `orchestration/` | The taxonomy's "sequencing" concerns ordering of agents and steps, not a statement about platform causality. This is a domain fact: a formula that depends on a retyped property behaves differently after the change. Reworded to remove the imperative form so it cannot be read as a rule |
+Also rejected in round 1 and still settled, per D-51: that the verification
+checklist is a narrowed copy of the evidence record, and that domain instantiations
+inside a specialist definition are duplication.
+
+**One finding accepted as a condition rather than a reversal.** The approved
+reconciliation states that folding the coordinators "requires choosing or
+parameterising the handoff contract". The fold was applied and the contract
+deferred, so no consumer can resolve a handoff today. The fold's identity half is
+sound and stays; the unpaid prerequisite is recorded as `STATE.md` open work 29c and
+blocks further agent migration.
 
 ## Open conflict -- surfaced, not resolved
 
@@ -161,42 +194,31 @@ the hub root contract rather than resolved silently. The taxonomy owner decides.
 
 ## Verification performed
 
-Both checks are scripts in this repository, so the results are reproducible rather
-than asserted. Both were re-run against the tree extracted from `origin/main`, not
-only against the working copy.
+Three scripts, all re-runnable from this repository, all run against the tree
+extracted from `origin/main` rather than only against a working copy, and each
+proven against injected defects in both directions.
 
-`python3 scripts/Test-HubRegistrySchema.py <hub>`
+| Script | Assertions | Result | Proven by |
+|---|---|---|---|
+| `scripts/Test-HubRegistrySchema.py` | 28 | PASS | Duplicate id, a definition file contradicting its registry entry, a missing routing artifact, and a corrupted `entry_point`/`domain_selection` domain each produce FAIL with exit 1 |
+| `scripts/Assert-HubSourceFidelity.py` | 19 | PASS | A reworded route output, a softened agent rule, a changed template field, a removed citation and a removed platform capability produce five FAILs |
+| `scripts/Assert-ReferenceIntegrity.py` | 53 tokens, plus URI semantics and catalog coverage | PASS, 0 dangling | A dangling backtick path, a dangling markdown link target, a relative `$id` and an unindexed artifact are each detected |
 
-| Case | Required | Result |
-|---|---|---|
-| Schema is valid draft 2020-12 | valid | PASS |
-| Live instance validates | 0 errors | PASS |
-| Pending entry naming a definition | rejected | PASS |
-| Migrated entry with null definition | rejected | PASS |
-| Unknown top-level key -- the predecessor schema's real defect | rejected | PASS |
-| Unknown key inside an agent entry | rejected | PASS |
-| Non-kebab id | rejected | PASS |
-| `role_class` outside the classification | rejected | PASS |
-| Missing `provenance` | rejected | PASS |
-| Empty `agents` array | rejected | PASS |
-| A second orchestrator entry -- the model the predecessor schema forbade | **accepted** | PASS |
-| Every `route_to` resolves to a registry id | 0 unresolved | PASS |
-| Every route domain exists in the registry | 0 unknown | PASS |
-| No registry specialist is unroutable | empty | PASS |
-| `entry_point` resolves to a registry id | true | PASS |
+What the fidelity script checks, which nothing checked before: all 11 routes
+byte-identical to source in source order; the pre-routing condition exact; every
+source routing destination present; the five carried agent-definition fields
+identical; every registry identity string either the source string or marked as
+authored; every source agent id resolving as a live id or a recorded fold; the
+template field set unchanged and every value unchanged except one recorded
+exemption; every source citation and every named platform capability still present;
+the four source keys named in provenance; and no source governance block --
+`escalation_rules`, `communication_style`, `decision_rules`, `handoff_contract`,
+`core_responsibilities`, `dependency_chain` -- present in any Hub artifact.
 
-`python3 scripts/Assert-ReferenceIntegrity.py <hub>`
+`design-systems/` untouched throughout: zero lines in every staged diff, blob hash
+unchanged.
 
-| Check | Result |
-|---|---|
-| Every backtick path in every live Markdown file, plus every `$schema`, `$id`, `definition` and `path` field in every JSON file | **46 tokens checked, 0 dangling** |
-| Fabricated references detected before restore | 3 of 3 Markdown/JSON cases, then 0 after restore |
-| `design-systems/` untouched | 0 lines in the staged diff; blob hash unchanged |
-
-Route fidelity is not in either script: the routes are built from the source files
-at authoring time, so a divergence is impossible rather than untested.
-
-### The reference checker needed three model corrections
+### The reference checker needed four model corrections and two bug fixes
 
 Each produced a false positive that would have damaged correct content. Recorded
 because the checker is now durable tooling.
@@ -212,6 +234,20 @@ because the checker is now durable tooling.
 3. **A URN or URL in a path-valued JSON field is not a path.** The Markdown side
    already exempted them; the JSON walker did not, so the schema's own `$id` and
    meta-schema URL were reported as dangling.
+4. **But exempting them was the wrong fix for `$id`.** `$id` is a URI, not a path,
+   and it must be *absolute*. Exempting it meant the correct form was never checked
+   and a relative `$id` -- the predecessor schema's defect -- resolved as a path and
+   passed. It is now validated by URI semantics. An instance `$schema` is the
+   opposite case: a relative path there is legitimate and must resolve.
+
+Two outright bugs, both found by audit rather than by use: the out-of-scope counter
+was incremented twice per token, so the printed coverage figure was exactly double;
+and a capability check used case-sensitive patterns, so `Multi-line`, `Type-aware`
+and `Dot notation` read as absent from a file that stated all three. A third,
+found while writing this: a shell `grep '[^\x00-\x7F]'` used to check for non-ASCII
+matched every line, because GNU grep does not interpret `\x` escapes without `-P`.
+Each is the same lesson in a new place -- a check is not evidence until the check
+itself is checked.
 
 A fourth correction came from misusing the checker rather than from its model.
 Pointed at this backoffice it reported **1022 dangling references**, essentially
@@ -251,6 +287,15 @@ line now routes to `plans/AGENT-HUB-CONSOLIDATION.md`.
   Adapter material; they wait for Step 9. Revision 1 described them as loading
   instructions only, which understates their content.
 - **`design-systems/` untouched.** Still `Conflict`, still preserved.
+
+- **No carrier for three source obligations.** Recorded as owed in `STATE.md` open
+  work 29a, with their intended owners named. A record is not a carrier; the record
+  exists so the carrier is not forgotten. `DECISIONS.md` D-61.
+- **No handoff contract**, and the fold's stated prerequisite for it is unpaid.
+  Open work 29c; it blocks further agent migration.
+- **No answer for a domain-selected request that matches no trigger.** The gap is
+  inherited from the source and is now stated in the owning file rather than left to
+  be discovered at use. Open work 29e.
 
 ## Not verified
 

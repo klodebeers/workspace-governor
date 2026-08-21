@@ -4,15 +4,19 @@
 competing authority.
 **Plan owner:** `workspace-governor` (Agent Hub backoffice)
 **Target:** the single logical Agent Hub, in both its representations
-**Version:** 0.7.0
-**Baseline date:** 2026-08-20
+**Version:** 0.7.2
+**Baseline date:** 2026-08-20. **Amended 2026-08-21:** § 6.5's resolved open
+question marked resolved, and its routing-artifact count corrected from five to
+four. Amendments are recorded inline where they occur; the plan is not rewritten to
+match executed work.
 
 **One Hub, two representations.** The `.agents-hub` repository is the canonical
 source. `C:\Users\Chloe\.agents-hub` is its local materialized location for agent
 consumption. They are **the same logical Hub**, not two authorities, and must not
 drift independently. Any change lands in the repository and is materialized
 locally; a local-only edit is drift, not a decision.
-**Status:** Execution-ready for Step 1 onward; not started
+**Status:** Steps 1 and 2 applied and verified. Step 3 onward not started. Current
+state and blockers are owned by `STATE.md`, not by this file.
 
 ## 1. Authority boundary
 
@@ -206,10 +210,13 @@ useful specialist separation without reviewing content.
   `agents/AGENT-SYSTEM-DEPENDENCIES.json`,
   `agents/NOTION-SYSTEM-DEPENDENCIES.json`. Classify their routing, topology,
   dependency, handoff and sequencing content under `orchestration/`.
-- Routing logic is duplicated across five artifacts:
+- Routing logic is duplicated across **four** artifacts:
   `AGENT-COORDINATOR-ORCHESTRATOR.json`,
-  `NOTION-COORDINATOR-ORCHESTRATOR.json`, `AGENT-SYSTEM-DEPENDENCIES.json`,
-  `NOTION-SYSTEM-DEPENDENCIES.json`, `config/agent-registry.json`. Establish one
+  `NOTION-COORDINATOR-ORCHESTRATOR.json`,
+  `NOTION-SYSTEM-DEPENDENCIES.json`, `config/agent-registry.json`.
+  **Corrected 2026-08-21 from "five":** `AGENT-SYSTEM-DEPENDENCIES.json` has no
+  `routing_logic` key. Verified directly; the reconciliation record and D-37 both
+  said four, and this line disagreed with them. Establish one
   authoritative owner per routing or dependency concept; the others reference it.
 - ~~Open question for Step 1, decided from content: does the Notion coordinator
   become one general orchestrator plus domain-specific orchestration definitions,

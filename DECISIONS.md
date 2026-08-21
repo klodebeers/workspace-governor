@@ -913,6 +913,130 @@ JSON `$schema`, `$id`, `definition` and `path` field). Verification results belo
 in the backoffice record, not in the live catalog, and the catalog's own header says
 its presence proves nothing about verification.
 
+**D-54.** The Step 2 artifacts are corrected after four independent blind audits, at
+`df33f07` in the canonical Hub. Decided by: agent, on findings verified against
+source. Evidence: `evidence/HUB-STEP-2-FIRST-ARTIFACTS-2026-08-21.md` revision 3.
+
+Four reviewers audited the committed state against the source package and the
+approved scope with no access to the implementer's rationale. Their factual claims
+were checked against source before any change. The corrections are recorded in the
+evidence file; the settled positions they establish are D-55 through D-61.
+
+**D-55.** Three audit findings are rejected, with reasons settled so they are not
+reopened without new evidence. Decided by: agent.
+
+1. **"Step 2 had no recorded approval" is wrong on the facts.** The user authorised
+   it in session on 2026-08-21. The reviewer was blind to that by design. The
+   finding does identify a real record defect: `STATE.md` carried the approval stop
+   condition with nothing recording that approval had been given. Corrected there.
+2. **A negative scope disclaimer is not a restatement of a routed rule.** "This file
+   grants no capability" denies that the file answers a question; it does not answer
+   it. The accepted taxonomy requires exactly this boundary, and an artifact read in
+   isolation must carry it. Each disclaimer now names the owner, which is what the
+   root contract asks of a non-owning file.
+3. **A statement about platform causality is not sequencing content.** "A formula
+   that depends on a retyped property is in scope of that change" is a domain fact.
+   The taxonomy's `orchestration/` sequencing concerns the ordering of agents and
+   steps. The imperative form was removed so it cannot be read as a rule.
+
+**D-56.** The registry records identity, not migration progress or derived state.
+Decided by: agent.
+
+`canonical_status` is `accepted` or `retired`, not two flavours of accepted, so an
+identity can be withdrawn without deleting the record that it existed.
+`definition_status` is removed: `definition: null` already carries that fact, and a
+required field encoding migration progress made progress into canonical data.
+`dependencies[].available` is removed from the agent definition for the same reason.
+Discretionary `version` and `updated` fields are removed per D-28, which settles that
+git carries version identity.
+
+A folded source id is recorded in `folded_ids`, so a consumer resolving
+`notion-coordinator-orchestrator` resolves to the agent that absorbed it instead of
+failing. Uniqueness of ids and names, which JSON Schema cannot express, is enforced
+by `scripts/Test-HubRegistrySchema.py`.
+
+**D-57.** D-12 and D-14 are superseded in the parts that describe Hub structure.
+Decided by: agent, applying the directive taxonomy settled in D-27 and the target
+tree accepted in D-35.
+
+D-14 required `agents/` subdivided into `general/` and `notion/` and a
+"domain-keyed" registry, and argued that "a flat `agents/` would leave [the
+asymmetry] in place and keep general agents second-class". D-12 placed three
+Notion-specific templates "owner-local under `agents/notion/`".
+
+The accepted taxonomy has a flat `agents/`. The asymmetry D-14 targeted is real and
+is resolved differently: the source's two-list model, where general agents sat in a
+key named for what they are not, is replaced by one list with an explicit `domain`
+field, and the schema covers every key. General agents are not second-class under
+that model. D-14's diagnosis stands; its prescribed structure does not.
+
+Surfaced rather than silently replaced, because two blind reviewers independently
+found the contradiction and this repository requires a conflict to be reported.
+D-12's template-placement half is superseded with it; template placement follows the
+accepted tree.
+
+**D-58.** One identifier per artifact concept, and the retirement of the general
+verification-checklist synonyms is a decision, not only an observation. Decided by:
+agent.
+
+The source used `verification-checklist-template` and `verification_checklist_template`
+for one concept, and the reconciliation recorded that a consumer would need a mapping
+table. The canonical identifier is `verification-checklist`: lowercase kebab, no
+`-template` suffix, since the directory conveys the type. JSON path values use
+forward slashes; Markdown prose uses the Windows form already used throughout the
+Hub's documents.
+
+The general contract's `expected_output` and `human_action_required` are retired in
+favour of `expected_result` and `human_review_required`. The two contracts differed
+only in synonyms, and building a second variant for that would have created a
+needless divergence. This was recorded only in evidence and in the Hub catalog;
+recorded here now, because it is a settled decision and the catalog declares itself
+non-authoritative.
+
+**D-59.** `validated_references` is classified as domain operating context. Decided
+by: agent, closing reconciliation open item 4 for that half.
+
+The four cited Notion documentation URLs are platform references, not planning
+state, so they belong with the domain context rather than in `references/`, which the
+taxonomy narrows to supporting references and not backoffice history. They are held
+at subsystem scope in the source and are carried in full, including the views
+reference, so nothing is stranded while the domain has one context file. The
+`planning_model` half remains unclassified and is not migrated.
+
+**D-60.** Bounded, blind adversarial subagent review is the mechanism for the
+independent pre-edit review the plan requires. Decided by: user instruction
+2026-08-21, recorded here. Closes `STATE.md` open work item 21.
+
+Each reviewer is given the authoritative source, the approved scope and the
+resulting implementation, and is denied the implementer's own rationale, so it
+cannot prime the review. Reviewers report findings only and must not implement an
+alternative architecture. Every finding is verified against source by the
+implementer before it is accepted or rejected, and a rejection is recorded with its
+reason. Confirmed defects are fixed within the approved boundary, and sibling
+instances of the same class are swept without being enumerated by the user.
+
+Reviews are used where independent research, classification or verification
+materially reduces self-review risk -- not mechanically for simple operations. The
+practice has now found material defects in three successive rounds, including four
+provenance claims that overstated novelty and three source obligations dropped in a
+consolidation.
+
+**D-61.** An obligation orphaned by a consolidation is recorded as owed, never
+absorbed silently. Decided by: agent.
+
+Consolidating the quadruplicated formula material moved platform facts into
+`context/`, and three source obligations travelled with them and were dropped: a
+formula must be validated after a schema change; schema and formulas must be
+reviewed together when migrating older logic; and a coordinator must validate actual
+behavior on any formula migration. Two belong to `notion-schema-relations-agent` and
+one to the orchestrator, neither of which has an accepted definition.
+
+The context file now states that it does not absorb such obligations and that where
+the owning definition is not yet accepted, nothing there carries them. The
+obligations are listed in `STATE.md` open work so they land when their owners
+migrate. A record that an obligation was dropped is not a carrier for it; the record
+exists so the carrier is not forgotten.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

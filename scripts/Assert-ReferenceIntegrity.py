@@ -1,13 +1,21 @@
-"""Sweep every reference in a repository and report the ones that do not resolve.
+#!/usr/bin/env python3
+"""Check that references in the canonical Agent Hub resolve, and that its index
+covers the tree.
 
-Read-only. Modifies nothing. Exit 0 = no dangling reference.
+Read-only. Modifies nothing. Exit 0 only if every check ran and passed.
 
-    python3 Assert-ReferenceIntegrity.py <repo-root>
+    python3 Assert-ReferenceIntegrity.py <path-to-.agents-hub>
 
-Covers two token classes, because the first version of this check assumed its own
-scope and reported a clean result over half the references:
-  * every backtick path token in every live Markdown file;
-  * every path-valued field in every JSON file ($schema, $id, definition, path).
+Coverage, stated precisely because an earlier version overstated it:
+  * Markdown: backtick tokens that look like a repository path, AND link targets of
+    the form [text](target). A backtick token is treated as a path when it contains
+    a separator or ends in a known extension. Tokens containing a space are treated
+    as prose, not paths -- so `rules/DOES NOT EXIST.md` is NOT checked. That is a
+    real limit, not a claim of completeness.
+  * JSON: the values of "path" and "definition"; and "$schema" and "$id", which are
+    checked by URI semantics rather than as paths.
+  * Index: every tracked artifact appears in CATALOG.md, and every CATALOG.md path
+    exists.
 
 Three model corrections are baked in, each of which produced a false positive that
 would have damaged correct content if acted on:
@@ -17,100 +25,149 @@ would have damaged correct content if acted on:
   * a token is resolved against the referencing document first and the repository
     root second -- root-only resolution made valid sibling references look broken.
 
-Verify the checker before trusting a clean run: introduce one fabricated reference,
-confirm it is reported, then remove it.
+And one inversion, found by audit: $id is a URI, not a path. Resolving it as a path
+made the correct absolute form look uncheckable and the defective relative form look
+clean, rewarding the exact regression the schema rewrite removed.
 """
-import os, re, json, sys
-ROOT = (sys.argv[1] if len(sys.argv) > 1 else sys.exit(__doc__)).rstrip('/')
+import json
+import os
+import re
+import sys
 
-# Scope guard. This check is calibrated for the canonical Agent Hub: a
-# self-contained tree whose references are repository-internal paths. Pointed at
-# this backoffice it reported 1022 dangling references, essentially all false --
-# bare filenames in prose, git refs such as `origin/main`, `owner/repo` names, and
-# paths inside other repositories. A run like that is worse than no run, because
-# 1022 findings look like a result. The tool enforces its own scope rather than
-# relying on the operator to remember it. A backoffice profile does not exist yet.
-_MARKERS = ('AGENTS.md', 'CATALOG.md', 'rules')
-if not all(os.path.exists(os.path.join(ROOT, m)) for m in _MARKERS):
-    sys.exit("refusing to run: %s does not look like the canonical Agent Hub "
-             "(expected AGENTS.md, CATALOG.md and rules/ at its root). This check "
-             "is calibrated for that tree only; running it elsewhere produces "
-             "false positives, not findings." % ROOT)
 # Documented exceptions. A token that ASSERTS its own absence is not a broken reference.
 ALLOW = {
-    'design-systems\\.remember\\',   # present in the materialized Hub, absent from the repo; CATALOG instructs preservation
-    'policies\\', 'prompts\\', 'skills\\', 'tools\\', 'runbooks\\',   # candidate domains CATALOG states are intentionally absent
+    'design-systems\\.remember\\',   # present in the materialized Hub, not tracked here
+    'policies\\', 'prompts\\', 'skills\\', 'tools\\', 'runbooks\\',   # stated as intentionally absent
 }
-EXTERNAL = ('agents-hub-two/', 'workspace-governor/', 'mcp-gateway/')   # other repositories: out of this repo's resolution scope
-SKIP_DOCS = {'references/AGENTS-MD-LIVE-AUDIT-2026-08-16.md'}  # dated evidence: true when written
-TOKEN = re.compile(r'`([^`\n]+)`')
-dangling, absolute, checked, unreadable = [], 0, 0, []
+EXTERNAL = ('agents-hub-two/', 'workspace-governor/', 'mcp-gateway/')
+SKIP_DOCS = {'references/AGENTS-MD-LIVE-AUDIT-2026-08-16.md'}   # dated evidence: true when written
+BACKTICK = re.compile(r'`([^`\n]+)`')
+MDLINK = re.compile(r'\[[^\]\n]*\]\(([^)\s]+)\)')
+JSON_PATH_KEYS = {'path', 'definition'}
 
-def exists(tok, docdir):
+dangling, unreadable, uri_defects, index_defects = [], [], [], []
+absolute = 0
+checked = 0
+
+
+def looks_like_path(t):
+    """True = check it as a repository path. None = out of scope. False = not a path."""
+    if t in ALLOW:
+        return False
+    if re.match(r'^[A-Za-z]:[\\/]', t):
+        return None
+    if t.startswith(('http://', 'https://', 'urn:', 'mailto:', '#')):
+        return False
+    if t.replace('\\', '/').startswith(EXTERNAL):
+        return None
+    if ' ' in t.strip():
+        return False
+    return bool(re.search(r'[\\/]', t)) or bool(
+        re.match(r'^[A-Za-z0-9._-]+\.(md|json|ps1|py|txt|yaml|yml)$', t))
+
+
+def resolve(root, tok, docdir):
     p = tok.replace('\\', '/')
     isdir = p.endswith('/')
     p = p.rstrip('/')
-    for base in (docdir, ROOT):                 # doc-relative first, then repo root
+    for base in (docdir, root):
         cand = os.path.join(base, p)
-        if os.path.isdir(cand) if isdir else os.path.exists(cand):
+        if (os.path.isdir(cand) if isdir else os.path.exists(cand)):
             return True
     return False
 
-def looks_like_path(t):
-    if t in ALLOW: return False
-    if re.match(r'^[A-Za-z]:[\\/]', t): return None      # absolute: outside the repo
-    if t.startswith(('http://','https://','urn:')): return False
-    if t.startswith(EXTERNAL): return None                # another repository: out of scope, not a defect
-    if ' ' in t.strip(): return False
-    return bool(re.search(r'[\\/]', t)) or bool(re.match(r'^[A-Za-z0-9._-]+\.(md|json|ps1|py|txt)$', t))
 
-# markdown backtick tokens
-for dp, dns, fns in os.walk(ROOT):
-    if '.git' in dp.split(os.sep): continue
-    for fn in fns:
-        full = os.path.join(dp, fn)
-        rel = os.path.relpath(full, ROOT).replace(os.sep, '/')
-        if rel in SKIP_DOCS or not fn.endswith('.md'): continue
-        for tok in TOKEN.findall(open(full, encoding='utf-8').read()):
-            v = looks_like_path(tok)
-            if v is None:
-                globals().__setitem__('absolute', absolute + 1); absolute += 1; continue
-            if not v: continue
-            checked += 1
-            if not exists(tok, dp): dangling.append((rel, tok, 'md'))
-
-# JSON path-valued fields
-JSON_KEYS = {'definition', 'path', '$schema', '$id'}   # $schema/$id added: the first sweep assumed its own scope
-def walk(o, rel, full):
+def walk_json(root, obj, rel, full):
     global checked
-    if isinstance(o, dict):
-        for k, v in o.items():
-            if k in JSON_KEYS and isinstance(v, str) and v:
-                if looks_like_path(v) is not True:      # URL, URN, absolute path, or exempt
-                    walk(v, rel, full); continue
-                checked += 1
-                if not exists(v, os.path.dirname(full)): dangling.append((rel, v, 'json:'+k))
-            walk(v, rel, full)
-    elif isinstance(o, list):
-        for i in o: walk(i, rel, full)
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if isinstance(v, str) and v:
+                if k in JSON_PATH_KEYS:
+                    if looks_like_path(v) is True:
+                        checked += 1
+                        if not resolve(root, v, os.path.dirname(full)):
+                            dangling.append((rel, v, 'json:' + k))
+                elif k == '$id':
+                    # A schema identifier must be an absolute URI. A relative path
+                    # here is the predecessor schema's defect, so it must fail.
+                    if not re.match(r'^[a-z][a-z0-9+.-]*:', v):
+                        uri_defects.append((rel, v, '$id must be an absolute URI'))
+                elif k == '$schema':
+                    # An instance may point at its schema by relative path; that
+                    # path must resolve. An absolute URI is accepted as-is.
+                    if re.match(r'^[a-z][a-z0-9+.-]*:', v):
+                        pass
+                    else:
+                        checked += 1
+                        if not resolve(root, v, os.path.dirname(full)):
+                            dangling.append((rel, v, 'json:$schema'))
+            walk_json(root, v, rel, full)
+    elif isinstance(obj, list):
+        for i in obj:
+            walk_json(root, i, rel, full)
 
-for dp, dns, fns in os.walk(ROOT):
-    if '.git' in dp.split(os.sep): continue
-    for fn in fns:
-        if not fn.endswith('.json'): continue
-        full = os.path.join(dp, fn); rel = os.path.relpath(full, ROOT).replace(os.sep,'/')
-        # utf-8-sig, not utf-8: some JSON evidence in this project carries a BOM that
-        # a strict utf-8 read rejects. Unparseable files are reported, never skipped
-        # silently -- an unreadable file is an uncovered file, not a passing one.
-        try:
-            data = json.load(open(full, encoding='utf-8-sig'))
-        except Exception as exc:
-            unreadable.append((rel, str(exc).split('(')[0].strip()))
+
+def main(root):
+    global absolute, checked
+    for marker in ('AGENTS.md', 'CATALOG.md', 'rules'):
+        if not os.path.exists(os.path.join(root, marker)):
+            sys.exit("refusing to run: %s does not look like the canonical Agent Hub "
+                     "(expected AGENTS.md, CATALOG.md and rules/ at its root). This check "
+                     "is calibrated for that tree only; elsewhere it produces false "
+                     "positives, not findings." % root)
+
+    tracked = []
+    for dp, dns, fns in os.walk(root):
+        if '.git' in dp.split(os.sep):
             continue
-        walk(data, rel, full)
+        for fn in fns:
+            full = os.path.join(dp, fn)
+            rel = os.path.relpath(full, root).replace(os.sep, '/')
+            tracked.append(rel)
+            if fn.endswith('.md') and rel not in SKIP_DOCS:
+                text = open(full, encoding='utf-8').read()
+                for tok in BACKTICK.findall(text) + MDLINK.findall(text):
+                    v = looks_like_path(tok)
+                    if v is None:
+                        absolute += 1
+                        continue
+                    if not v:
+                        continue
+                    checked += 1
+                    if not resolve(root, tok, dp):
+                        dangling.append((rel, tok, 'md'))
+            if fn.endswith('.json'):
+                try:
+                    data = json.load(open(full, encoding='utf-8-sig'))
+                except Exception as exc:
+                    unreadable.append((rel, str(exc).split('(')[0].strip()))
+                    continue
+                walk_json(root, data, rel, full)
 
-print("tokens checked: %d | absolute (out of repo, skipped): %d | dangling: %d | unreadable JSON: %d"
-      % (checked, absolute, len(dangling), len(unreadable)))
-for d in dangling: print("  DANGLING", d)
-for u in unreadable: print("  UNREADABLE", u)
-sys.exit(1 if (dangling or unreadable) else 0)
+    # Index coverage: the catalog is the Hub's discovery contract.
+    catalog = open(os.path.join(root, 'CATALOG.md'), encoding='utf-8').read()
+    for rel in sorted(tracked):
+        if rel in ('CATALOG.md',):
+            continue
+        if rel.replace('/', '\\') not in catalog and rel not in catalog:
+            index_defects.append(rel)
+
+    print("tokens checked: %d | out of repo, skipped: %d | dangling: %d | "
+          "URI defects: %d | unreadable JSON: %d | artifacts missing from CATALOG.md: %d"
+          % (checked, absolute, len(dangling), len(uri_defects), len(unreadable),
+             len(index_defects)))
+    for d in dangling:
+        print("  DANGLING", d)
+    for u in uri_defects:
+        print("  URI", u)
+    for u in unreadable:
+        print("  UNREADABLE", u)
+    for i in index_defects:
+        print("  NOT IN CATALOG", i)
+    return 1 if (dangling or uri_defects or unreadable or index_defects) else 0
+
+
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        sys.exit(__doc__)
+    sys.exit(main(sys.argv[1]))
