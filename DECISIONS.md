@@ -1219,6 +1219,25 @@ This is a communication decision, not a governance one. If the SSOT communicatio
 owner is the durable home for it, it belongs there at SSOT placement (open work 4);
 recorded here meanwhile so it is not rediscovered.
 
+**D-71.** Two corrections to D-70. Decided by: user, 2026-08-21.
+
+**Mechanism: GitHub Desktop, not a terminal.** The operator pulls with the GitHub
+Desktop app. D-41 is unaffected -- a desktop client is git, so the ref-comparable
+materialization it requires still holds -- but the PowerShell command blocks handed
+back repeatedly were never the right instruction. Stop producing them for this.
+
+**Scope: while nothing is in flight, not unconditionally.** D-70 recorded the routine
+as standing. The user scoped it to the present situation, with no ongoing work. The
+practical difference: silence is right when the repository and the local copy are both
+idle, and a mismatch that would affect work actually in progress is still worth
+raising. Absence of a reminder is not an assertion that the two are equal at any given
+moment.
+
+Recorded because the overstatement was mine: an instruction given for now was written
+into the record as a permanent rule, which is the same class of error as treating a
+sample tree as a directory spec (D-69). A preference stated in the present tense is
+recorded with its scope, not generalised.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.
