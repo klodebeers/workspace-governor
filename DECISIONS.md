@@ -1718,6 +1718,77 @@ asserts it is met. Both are U-6 in the ownership map, open.
 conflicts were fixed, answering from memory would have reported eight; checking the files
 reported six, and found one contradiction that memory had no idea about.
 
+**D-89.** Open items live in GitHub Issues. Decided by: user, 2026-08-21 -- "all
+issues must be written in here: github.com/klodebeers/workspace-governor/issues".
+
+`STATE.md` § Open work was the register. It is now a pointer. Thirty-five issues were
+filed: every open item that stood in that section, plus eleven that had no register at
+all -- U-1 and U-6 from the ownership map, the severity-rating gap recorded only as a
+learning, the disclaimer pattern recorded only as instances, the missing enforcement
+carrier, the three owed obligations, the thirteen gaps, the intake run in `PENDING.md`,
+the bootstrap test in the verification assignments, the migration itself, and the
+Workspace Orchestrator material. `evidence/OPEN-WORK-MIGRATION-2026-08-21.md` holds the
+item-by-item mapping.
+
+**Why a pointer and not a copy.** Two registers for one concern is what the ownership
+table forbids, and the cost is already on record: position duplicated into the plan
+needed a tiebreak (D-86). The migration also found the same defect inside the old
+register -- item 26 and item 29c described the same missing handoff contract in
+different words, forty lines apart, both live. A list where one item can appear twice
+without either copy knowing is the thing being removed, not just relocated.
+
+**What an issue must carry:** what is open, why it matters, what it depends on, and the
+condition under which it closes. An issue with no close condition is a note. Closing one
+states which of three happened -- done and verified, superseded by a named decision, or
+not planned and why -- because a closed issue that says none of them is
+indistinguishable from an abandoned one.
+
+Struck-through items were not migrated. They are history and stay where they were
+written; the prior list is in git at `b39a097`. Nothing was deleted to make the mapping
+true.
+
+**D-90.** Enforcement carriers exist, and `.claude/` owns them. Decided by: user,
+2026-08-21 -- "coz you are missing the HOOKS! there's no HOOKS".
+
+**The diagnosis was right, and it was already on record twice.** C-03 and D-74 both say
+instruction placement enforces nothing on its own and a carrier -- managed setting or
+hook -- must be chosen per rule. Neither produced one. There was no `.claude/` directory
+in this repository at all, so every rule here was guidance, including the ones written
+specifically to stop a recurring failure.
+
+Three failure classes recurred despite being written down, and each is mechanically
+detectable:
+
+1. A step named from memory, under a label belonging to another step (D-73, D-74).
+   `UserPromptSubmit` now reads the position table out of `STATE.md` into context on
+   every prompt, so recollection is never the source.
+2. A fidelity claim with no committed check behind it (D-53), which then sat in an
+   evidence file both asserted and withdrawn (D-88). `PreToolUse` on `Bash` refuses a
+   commit message asserting that claim class.
+3. A session ending with a durable finding unwritten -- the persistence requirement.
+   `Stop` refuses while governed files are uncommitted, once per dirty set.
+
+The same gate also refuses a deletion in append-only `DECISIONS.md`, a credential in
+staged content, non-ASCII in a `.ps1`, and a plain force-push.
+
+**Three properties are part of the decision, not implementation detail.** A gate has no
+bypass -- a gate with an escape hatch is a suggestion with extra steps. A gate is proven
+in both directions or it is worthless: 31 cases, each gate blocking its defect and
+passing clean input, per D-65. And a skipped check is never reported as a pass; where a
+check cannot run it says `SKIPPED -- not a pass` and the claim it would have supported
+is not made.
+
+**Boundary, stated rather than glossed.** The scripts are proven. That Claude Code
+actually fires them is **not verified and cannot be verified from this environment** --
+hook registration is read at session start, so the session that wrote them could not
+have had them active. Assigned to the local operator with a method and a recheck
+trigger in `STATE.md` § Verification assignments. Until it runs, the correct statement
+is that the gates are correct and their activation is unverified.
+
+**What this does not fix.** Two of the three failure classes it targets were detectable
+because they leave a textual trace. Severity inflation and the disclaimer pattern
+(issues #3 and #4) leave none, and no hook will catch them.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

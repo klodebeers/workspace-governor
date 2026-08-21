@@ -1,0 +1,41 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/inject_plan_position.py\"",
+            "timeout": 20,
+            "statusMessage": "Reading position from STATE.md"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/gate_commit.py\"",
+            "timeout": 180,
+            "statusMessage": "Commit gates"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/gate_persistence.py\"",
+            "timeout": 60,
+            "statusMessage": "Persistence requirement"
+          }
+        ]
+      }
+    ]
+  }
+}

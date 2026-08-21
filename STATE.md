@@ -282,6 +282,28 @@ pending verification is not a defect and is not re-flagged each session; see
 | Known wrinkle | The local clone's `origin` may still carry the pre-rename URL `.../agents-hub-one`. It resolves through GitHub's redirect, so `git pull` works; `git remote set-url origin https://github.com/klodebeers/.agents-hub` re-points it when convenient. A repository rename never renames a clone or rewrites its remote |
 | Recheck trigger | Raise it only when a specific task needs the folder to be current -- the fresh-session bootstrap test is the clear case, since a new agent reads these files off that disk and an old copy would give a wrong answer -- or when something shows the two have actually diverged |
 
+### Enforcement hooks fire in a live session -- ASSIGNED
+
+**What is proven here.** `.claude/hooks/` holds three hooks and a 31-case harness.
+Every gate is exercised in both directions -- it blocks the defect it was written to
+catch and passes clean input (`DECISIONS.md` D-65). `python3
+.claude/hooks/test_hooks.py` returns 0. That covers the scripts.
+
+**What this environment cannot prove.** That Claude Code actually loads
+`.claude/settings.json` and fires these hooks in a live session. The scripts were
+driven directly with synthetic hook JSON, which tests the scripts and not the wiring.
+Hook registration is read at session start, so the session that wrote them could not
+have had them active.
+
+**Executor:** the local operator, in a fresh session opened in this repository.
+**Method:** submit any prompt and confirm the position block appears; attempt a commit
+that rewrites a line of `DECISIONS.md` and confirm it is refused.
+**Recheck trigger:** any change to `.claude/settings.json`, and any Claude Code version
+change that touches hook configuration.
+
+**A skip here is not a pass.** Until this runs, the correct statement is that the gates
+are correct and their activation is unverified.
+
 ### Fresh-agent bootstrap and runtime activation
 
 | Field | Value |
@@ -359,101 +381,52 @@ unexercised. Live-Hub evidence cannot be accepted until
 
 ## Open work
 
-1. ~~Inventory the live local Hub, then complete Step 1 of `plans/AGENT-HUB-CONSOLIDATION.md`.~~ **Closed 2026-08-21.** Inventory returned COMPLETE, all 46 inputs classified, target tree accepted, restructuring applied. `DECISIONS.md` D-35 and D-37.
-2. ~~Revise the Gateway discovery tooling so it does not presuppose `.agents-hub` exists.~~ **Closed** — semantics verified across the full report, and the `00_hubState` ordering defect fixed. Still unexecuted; awaits the local Windows runtime test recorded under Verification assignments.
-3. Execute plan Steps 3 onward. **Step 2 closed 2026-08-21** at `d1a8553`: five domains created with their first accepted artifacts, `change`, `reference-update` and `verify` all performed. `DECISIONS.md` D-43. The remaining artifact migration is item 29, gated by items 25 and 26.
-4. Place the SSOT pair in `.agents-hub` as Hub assets, then reduce the `workspace-governor` copies to backups/provenance. Both files are staged here and validated; placement is the remaining step. `AGENT-SSOT.json` v1.1, and the file staged as `USER-SSOT.json` v1.3, whose content is Greyed-scoped and which becomes `GREYED-SSOT.json` under the naming model in D-80. Placement targets: `.agents-hub/context/USER-SSOT.json` for the global asset, `Greyed/context/GREYED-SSOT.json` for the Greyed one. **No longer blocked** -- the rename landed 2026-08-20 and the Hub now has accepted asset domains, so placement and its router entry can proceed. See `evidence/HUB-ASSET-PLACEMENT-CORRECTION-2026-08-20.md`.
-5. Open B-3 as a separate scoped change once authorized.
-6. Determine placement of the three agent rulings recorded in `DECISIONS.md` under D-07 through D-09.
-7. Trim the duplicated live-state narrative in `workspace-governor-agents-hub-one/research/` per D-15. Edits another repository; sequenced separately.
-8. ~~Correct the case-insensitive variable collisions found in four scripts, two of them live defects in the assigned local commands.~~ **Closed** — fixed, and a static gate added to prevent the class. See `evidence/SCRIPT-STRUCTURE-DEFECTS-2026-08-20.md`.
-9. Promote the Verification Resolution Rule into the canonical `.agents-hub` once its structure and rule ownership are finalized. Held locally as an interim binding; terms and on-promotion steps in `PENDING-GLOBAL-PROMOTIONS.md` P-01. **The canonical-Hub blocker is gone** (B-4 closed); what remains is the ownership question in P-01 and P-03, which is Step 3 work -- item 12 and the P-03 duplicate ownership.
-10. Resolve the duplicate ownership between `AGENT-SSOT.json` and `rules/VERIFICATION-RESOLUTION.md` / `rules/ENGINEER-OWNERSHIP.md` at consolidation. Open governance conflict, surfaced not blended. `PENDING-GLOBAL-PROMOTIONS.md` P-03.
-11. ~~Correct `AGENTS.md` placement in the canonical Hub: root, not `rules/`.~~ **Closed 2026-08-21**, applied at `80dff05` with references updated in both directions.
-12. Close conflict-resolution gaps G-1 and G-2 as sections in existing owners at consolidation. G-3 deferred. `PENDING-GLOBAL-PROMOTIONS.md` P-04. No new rule file.
-13. Resolve C-03 as restated: Claude Code instruction placement enforces nothing on its own, so an enforcement carrier -- managed setting or hook -- must be chosen per rule. The earlier wording, "project instructions outrank global governance", conflated advisory instructions with enforced settings and is withdrawn. `evidence/RUNTIME-CONVENTIONS-2026-08-20.md`.
-14. ~~Adapt the predecessor `tasks/` audit prompts into coverage checklists for `scripts/Invoke-GatewayDiscovery.ps1`.~~ **Closed** -- item-level comparison done: `evidence/PREDECESSOR-AUDIT-SPEC-COVERAGE-2026-08-20.md`. Four inventory gaps identified and scoped as item 16. Spec 01 Phase 3 and spec 03 Parts B-D are classified **superseded for execution, provenance-only** -- the consolidation directive already supersedes any older instruction authorizing remediation, installation, deletion, restructuring or machine changes during reconciliation. Preserved historically; never handed to a local agent as live instructions.
-15. Carry G-01, G-04 and G-05 from the predecessor register: Hub reference/research overlap mapping (plan Step 6); human glossary placement; repository-delivery workflow artifact. None currently blocking.
+**Moved out of this file 2026-08-21.** Open items live in the issue register:
+`github.com/klodebeers/workspace-governor/issues`, one issue per item, each carrying
+its dependencies and the condition under which it closes. This file holds no copy of
+that list -- `AGENTS.md` § Issue register and § File ownership.
 
-16. Close the four discovery-tooling inventory gaps, read-only and additive. **Do not modify the tooling during this reconciliation phase.** Recorded for later implementation: probe `gh`, WSL, Windows Terminal and search utilities; cross-check command resolution with `where.exe` and record every hit so shadowing and multiple installations are detectable; read User and System PATH separately from the effective PATH; detect duplicate PATH entries. Deferred deliberately -- Gateway discovery is under a stop condition until consolidation completes, and the plan's process gate limits current work to reconciliation. `evidence/PREDECESSOR-AUDIT-SPEC-COVERAGE-2026-08-20.md`.
-17. Carry the predecessor spec-02 analysis fields into Step 1 and Step 3 of the consolidation: per-config-source scope, loading mechanism, precedence, and whether a file is actually active; plus intent-based semantic duplication, which `Invoke-GatewayDiscovery.ps1` section 11 cannot supply -- it groups byte-identical content only. Agent analysis, not scriptable.
+Thirty-five issues were filed, covering every open item that stood in this section plus
+eleven that had no register at all. The item-by-item mapping, the merges, and what the
+migration does **not** verify are in
+`evidence/OPEN-WORK-MIGRATION-2026-08-21.md`. The prior list, including the closed
+items struck through in it, is in git at `b39a097`; nothing was deleted to make the
+mapping true.
 
-18. Carry the predecessor's runtime-neutral project-continuity pattern into the plan. Required by `evidence/LEGACY-GOVERNANCE-MATERIAL-CONSOLIDATION-2026-08-17.md` item 5 and absent from every current record.
-19. Resolve the `CATALOG.md` collision: the live Codex global instruction file requires Hub `README.md` and `CATALOG.md`, while the accepted taxonomy makes `CATALOG.md` conditional. Plan delta D-l.
-20. ~~Resolve the unverified Codex precedence question.~~ **Closed 2026-08-21** by `DECISIONS.md` D-38: repository-level normally outranks machine-level, by concatenation order; within a level `AGENTS.override.md` replaces `AGENTS.md`.
-21. ~~Define who performs the independent pre-edit review that v0.4.2 Step 5 lists as a prerequisite, and how it is evidenced.~~ **Closed 2026-08-21** by `DECISIONS.md` D-60: bounded blind adversarial subagent review, reviewers denied the implementer's rationale, every finding verified against source before acceptance, rejections recorded with reasons.
-
-22. Package a validated governance workflow as a plugin only after it is stable and needs installable distribution. Settled but deferred per `DECISIONS.md` D-30 item 4. Skill first; packaging must not create a second authoritative copy.
-23. Scheduled audits remain separate deferred runtime automation. Settled but deferred per D-30 item 5.
-24. Decide the glossary's placement when a glossary artifact actually exists. It may explain canonical terms but never redefine them, and must not be placed in `rules/`. D-30 item 2; plan G-04.
-
-25. Author the agent-definition schema before migrating a second agent definition. Two incompatible source vocabularies, no source schema; it must be written against all thirteen source shapes, not the one migrated file. `DECISIONS.md` D-47.
-26. Reconcile the handoff contract and build its template. Declared five times with five different field sets in the source and having no file on disk. Blocks the remaining agent migrations, which all reference it.
-27. Decide whether an evidence-record template is accepted, and from what. No accepted artifact exists; the source's `execution_record_template` is the candidate and is missing a field its own contract requires. Surfaced by the Step 2 governance review; `DECISIONS.md` D-51 item 1.
-28. ~~Resolve C-04: whether domain knowledge may live in `context/`.~~ **Closed 2026-08-21** by the taxonomy owner. `DECISIONS.md` D-66; definition in `plans/AGENT-HUB-CONSOLIDATION.md` section 6.2a. A second context artifact is unblocked.
-28a. Populate `context/` as content is accepted, per the shape in plan section 6.2b, D-67 and D-69. Nothing is scaffolded: each branch arrives with its first accepted artifact. General Notion capability knowledge beyond formulas 2.0 -- database creation and editing, property types, relations and rollups, views, filters and sorts, page structure, common patterns, general migration, cleanup and validation practice -- is the largest identified gap, and none of it exists yet.
-28b. Establish where exact domain implementation is held per owner -- Greyed, Fina, Klo Professional, Klo Personal. **Two owner statements disagree:** the C-04 definition lists domain knowledge and project-specific workflows as suitable Hub `context/` content, while "everything in agents-hub is global" reads against holding one project's schemas there. Surfaced, not resolved by inference. No domain implementation content is in the Hub, so nothing is blocked today. D-69.
-28c. Rename the adapter domain to `adapters/` wherever the earlier name survives, when the first adapter is built. D-68 supersedes `runtime-adapters/`; D-13 and D-37 still refer to it by the old name, and those records are append-only history rather than defects.
-29a. Carry three orphaned source obligations to their owners when those definitions migrate. `DECISIONS.md` D-61. A fourth -- formula logic must be treated as a dedicated domain with its own verification model -- is **met by structure**, not owed: the `notion-operations` domain and its formula specialist exist, and that specialist's rules state what evidence counts for formula work. Recorded because the fifth audit found it softened into an attribution with nothing saying how it was met. D-62. They are: a formula must be validated after a schema change, and schema and formulas must be reviewed together when migrating older logic -- both owed to `notion-schema-relations-agent`; and a formula migration must validate actual behavior against current property types and output expectations -- owed to the orchestrator definition. Nothing in the Hub carries them today.
-29a-ii. Decide who owns the pre-routing obligation the source stated and no rule carries: define the required fields and produce a short decision brief before technical work begins. `rules/ENGINEER-OWNERSHIP.md` governs when to ask and states neither. Surfaced in `orchestration/routing.json` as a governance gap; recorded here because the surfaced gap is only visible to a reader of the governed tree, and open work is owned by this file. D-63.
-29b. Carry the source's third-party escalation destination -- escalate to the relevant team or owner if a database change affects a critical workflow -- or decide it is superseded by the escalation contract. It has no equivalent in the general coordinator and was identified as a cost of the fold; it is currently carried nowhere.
-29c. Decide the handoff contract before any further agent migration. The fold's stated prerequisite was to choose or parameterise it, and it was deferred. Every route ends in a handoff, so no consumer can resolve one today. A conforming shape exists in the source as `templates/task-brief-template.json`, which is the handoff artifact under a task-brief filename.
-29d. Carry or retire the two coordinators' `dependency_chain` arrays, which state that the templates precede the specialists. Neither carried, superseded nor previously recorded as deferred.
-29e. Record an answer for a request that selects a domain but matches no route trigger. The gap is inherited from the source and is now stated in `orchestration/routing.json`; it has no default.
-29f. Resolve the agent-definition shape question before migrating a second definition. The accepted shape has no slot for a specialist's domain-focus block, and four of the eleven source specialists carry one that is an internal issue taxonomy rather than platform behavior -- so it fits neither the current definition shape nor the `context/` gloss. Blocks item 25.
-29y. Rename and place the user-context SSOTs per D-80, when placement is inside an approved implementation scope: `.agents-hub/context/USER-SSOT.json` (global, shared -- no content yet), `Greyed/context/GREYED-SSOT.json` (the file currently staged here as `USER-SSOT.json`), `Fina/context/FINA-SSOT.json` (does not exist). **Not done now and deliberately not a blocker:** the naming and classification are settled; no file is created, moved, renamed or rewritten until placement is authorised. Folds into open work 4.
-
-29z. **Wiring, sequenced last, executed on the local machine.** Project the Hub's root contract into each runtime's discovery mechanism. **Confirmed from vendor documentation 2026-08-21:** Claude Code reads only `CLAUDE.md` and `CLAUDE.local.md` and does **not** read `AGENTS.md`. This costs nothing today -- nobody opens a session inside `.agents-hub` -- and matters when a runtime has to reach the Hub's contract directly. **The two files to wire are `.claude/CLAUDE.md` and `.codex/AGENTS.md`** (D-75). Each is its runtime's own discovery location, which is why they work where a file under `adapters/` would not. This is the plan's Step 9 and is deliberately last; the operator wires it locally. `evidence/RUNTIME-CONVENTIONS-2026-08-20.md` addendum.
-
-29. Migrate the remaining `agents-hub-two` artifacts under their recorded dispositions: 11 specialist definitions, the topology and sequence artifacts, `shared_dependencies` and `specialist_agents` maps, `planning_model`, the three unreconciled templates, and `docs/README.md`, whose recorded disposition is **Adapt** into the Hub `README.md` and which carries two further source obligations about workspace-relative paths. `docs/README.md` was absent from this list while the change edited its target. Gated by items 25 and 26.
+**Reserved for the user, and gating other work:** issue #1 (is `AGENT-SSOT.json` a
+governance owner or an asset), issue #8 item 2 (approval to modify live Hub
+governance), issue #21 (where exact domain implementation lives per owner), issue #35
+(the Workspace Orchestrator material).
 
 ## Next action
 
-**The plan's Step 2, then Step 3.** Both are prerequisites for work already
-completed, and the labels used here previously did not match the plan's sequence --
-what was called "Step 2" was the plan's Step 7 and Step 8. The mapping and the
-ordering cost are recorded in `DECISIONS.md` D-73 and in section 7 of the plan; the
-executed work is verified and stands.
+**Propose the Step 5 edit set.** It is the one thing on the critical path that needs
+no decision from the user first: list exactly which files change and which recorded
+disposition each edit executes, excluding everything issue #1 blocks. Step 5's gate is
+written per edit set -- "no **included** governed issue or artifact has two active
+owners" -- so a set that excludes the blocked cluster satisfies the Step 3
+prerequisite. Issue #8 holds the prerequisite assessment.
 
-**Step 2 -- provenance, sensitivity and external-source gates.** Two open gates, both
-cheap:
+Then, in order: **approval** to modify live Hub governance for that set (user, issue
+#8), and a **blind pre-edit review** of it before any edit lands (D-60 -- reviewers
+get source, approved scope and result, and are denied the implementer's rationale).
 
-- `design-systems\.remember` is already an isolated conflict under a standing stop
-  condition. Step 2's gate permits "explicitly blocked and excluded", so it closes by
-  being recorded as such -- no inspection, nothing touched.
-- `agents-hub-two` provenance, ownership and rights were never recorded, and its
-  content is already in the canonical Hub. Step 8 named this as a prerequisite. Same
-  account's repository, so the expected answer is unremarkable, but it needs evidence
-  rather than an assumption.
+**What is waiting on the user, and what each unblocks:**
 
-**Step 3 -- done as far as analysis can take it.** The map exists; its gate does not
-pass. 64 governed issues, 31 with more than one active statement, 25 dispositions
-settled and 6 blocked. `evidence/AGENT-HUB-SEMANTIC-OWNERSHIP-MAP-2026-08-21.md`, D-77.
+- **Issue #1, U-1.** Enlarges the Step 5 edit set to include the `AGENT-SSOT.json`
+  cluster, and settles issue #17's ownership question. It does **not** block Step 5.
+- **Issue #8, approval.** The actual gate on Step 5. Nothing in the plan's refactoring
+  phase proceeds without it.
+- **Issue #21.** Where exact domain implementation lives per owner. Nothing is blocked
+  by it today -- no domain implementation content is in the Hub.
+- **Issue #35.** The Workspace Orchestrator material. Arriving from outside the
+  classified input set, so it needs classifying rather than slotting in.
 
-**One decision is needed from the user, and it gates about a third of the rest.** U-1:
-is `AGENT-SSOT.json` a governance owner, or an asset consumed by owners? Three accepted
-records say asset -- D-25, plan delta D-d, and the Hub root's own Canonical Assets
-section, which states that assets hold no precedence tier. Two say owner --
-`PENDING-GLOBAL-PROMOTIONS.md` P-03 and plan § 6.4. D-09 already ruled the sibling file
-out on exactly this ground. Both readings are recorded; they cannot both hold, and the
-file is the user's own artifact.
+**Ready and not blocked by any of the above:** issue #12, the fresh-agent bootstrap
+test -- the one open verification assignment, needing the local machine.
 
-Applying the settled dispositions is Step 5 work -- editing governance owners -- and
-needs approval under plan § 6.7. Nothing was edited for Step 3 beyond two confirmed
-defects (D-79).
-
-Also ready, and not blocked by either:
-
-- **The fresh-agent bootstrap test** (the plan's Step 11), the one open verification
-  assignment. It needs the local machine and a fresh session in each runtime. Worth
-  doing before Step 9 adapters, since it measures whether the current bootstrap is
-  found at all.
-
-Not to be started before Step 3 has an accepted owner map: the plan's Step 9
+**Not to be started before Step 3 has an accepted owner map:** the plan's Step 9
 (adapters) and Step 12 (final audit).
-
-Awaiting a decision only on where exact domain implementation lives per owner -- open
-work 28b. Nothing is blocked by it today.
 
 ## Stop conditions
 

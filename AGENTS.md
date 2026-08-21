@@ -19,7 +19,9 @@ Read in this order before deciding or changing anything:
    to the applicable SSOT or rule by scope. See
    `evidence/HUB-ASSET-PLACEMENT-CORRECTION-2026-08-20.md`.
 1. `README.md` — purpose, scope, managed components, repository relationships.
-2. `STATE.md` — current verified state, phase, blockers, open work, next action.
+2. `STATE.md` — current verified state, phase, blockers, verification assignments,
+   next action, stop conditions. For what is *open*, read the issue register:
+   `github.com/klodebeers/workspace-governor/issues`. `STATE.md` holds no copy of it.
 3. `DECISIONS.md` — settled decisions. Treat each as settled within its recorded
    scope. Do not reopen or silently re-litigate one.
 4. `LEARNINGS.md` — scan for entries whose **trigger** matches the work in hand.
@@ -81,7 +83,8 @@ Write to the repository, in the same working session, whenever any of these occu
 | A decision is settled | `DECISIONS.md` — new entry with rationale and who decided it |
 | Verified state changes | `STATE.md` — replace the stale content |
 | A blocker appears, changes, or clears | `STATE.md` |
-| Work is completed or abandoned | `STATE.md` open work |
+| An open item is identified, or its scope changes | GitHub Issues -- the register |
+| Work is completed or abandoned | The issue it belongs to, closed with its outcome |
 | The next action changes | `STATE.md` |
 | Evidence is produced | `evidence/SUBJECT-yyyy-MM-dd.md` |
 
@@ -91,6 +94,25 @@ recording it has failed, regardless of what else it produced.
 Corollary: do not rely on conversation history as a source. If a claim is not in
 this repository or verifiable against a live source, treat it as unverified and say
 so rather than asserting it.
+
+## Issue register
+
+Open items live in **[GitHub Issues](https://github.com/klodebeers/workspace-governor/issues)**,
+one issue per item. An item that exists only in a session, a report, or a paragraph of
+`STATE.md` is not tracked.
+
+Each issue carries what a reader needs to act without reconstructing the context: what
+is open, why it matters, what it depends on, and **the condition under which it closes**.
+An issue with no close condition is a note, not an item.
+
+`STATE.md` does not hold a second copy of the list. Two registers for one concern is
+the defect the ownership table exists to prevent, and this repository has paid for it
+once already -- position was duplicated into a plan and needed a tiebreak
+(`DECISIONS.md` D-86).
+
+Closing an issue is a record, not a tidying action. State what happened: done and
+verified, superseded by a named decision, or not planned and why. A closed issue that
+does not say which is indistinguishable from an abandoned one.
 
 ## Reporting cadence
 
@@ -124,7 +146,9 @@ One owner per concern. Do not duplicate content between these files.
 | File | Sole owner of |
 |---|---|
 | `README.md` | Purpose, scope, managed components, repository relationships |
-| `STATE.md` | Current verified state, phase, **position in a plan's step sequence**, blockers, open work, next action |
+| `STATE.md` | Current verified state, phase, **position in a plan's step sequence**, blockers, verification assignments, next action, stop conditions. **Not** the open-item list -- that is the issue register. |
+| [GitHub Issues](https://github.com/klodebeers/workspace-governor/issues) | Open items and their lifecycle. One issue per item, carrying its dependencies and its close condition. No second copy of the list lives in a file. |
+| `.claude/` | Enforcement carriers -- hooks and settings. Holds no rule of its own: every hook cites the rule it enforces, and where they disagree the rule governs and the hook is the defect. `.claude/hooks/README.md` owns what is wired and what is proven. |
 | `DECISIONS.md` | Settled decisions and their rationale. Append-only. |
 | `AGENTS.md` | Bootstrap order, persistence requirement, file ownership |
 | `plans/MCP-GATEWAY.md` | Gateway build and configuration requirements. Backoffice planning record, not governance. |
@@ -133,7 +157,7 @@ One owner per concern. Do not duplicate content between these files.
 | `USER-SSOT.json` (as staged here) | **Agent Hub asset.** Its current content is Greyed-scoped and, under the naming model settled in `DECISIONS.md` D-80, is the future `GREYED-SSOT.json`. The name `USER-SSOT.json` is reserved for the global, shared user-context asset, which has no content yet. Backoffice staging/provenance copy only, pending placement. Loaded only where its scope applies. Read-only absent explicit user instruction. Not a governance owner. |
 | `rules/VERIFICATION-RESOLUTION.md` | How verification and investigation work is scoped, bounded and stopped |
 | `PENDING-GLOBAL-PROMOTIONS.md` | Rules held locally that are owed to shared governance, and their promotion terms |
-| `PENDING.md` | Deferred **operational setup not sequenced by a plan** -- automation, scheduled runs, scaffolding. Never work that a plan step covers; that is `STATE.md` § Open work. An item is never in both. |
+| `PENDING.md` | Deferred **operational setup not sequenced by a plan** -- automation, scheduled runs, scaffolding. Never work that a plan step covers; that is an issue in the register. An item is never in both. |
 | `LEARNINGS.md` | Durable non-obvious findings that prevent rediscovery. Non-authoritative; carries its own retention and promotion rules. |
 | `_intake-hub/` | Requests for changes to `.agents-hub`, and the disposition of each. Requests only -- never authority, never a change log. Its `README.md` owns how submission and triage work. |
 | `plans/reference/` | Provenance copies of predecessor and superseded material, with source hashes. Never executable, never an authority. |
@@ -224,6 +248,30 @@ is settled -- an explicit user instruction outranks the contract package -- but
 ownership is not: two files state the same obligation. Surfaced, not blended, per
 the hub root contract. See
 `evidence/GOVERNANCE-STRUCTURE-OBSERVATIONS-2026-08-20.md` § Observation 3.
+
+## Enforcement
+
+A rule in this file is read. It is not thereby enforced. `DECISIONS.md` C-03 and D-74
+both state the distinction: instruction placement enforces nothing on its own, and an
+enforcement carrier -- a managed setting or a hook -- has to be chosen per rule.
+
+`.claude/` holds the carriers. `.claude/hooks/README.md` owns the list of what is wired,
+what each hook refuses, and what has been proven in both directions. Read it before
+assuming a rule here is enforced, and before assuming one is not.
+
+Three things follow, and they bind:
+
+1. **A gate has no bypass.** A gate with an escape hatch is a suggestion with extra
+   steps. If a gate is wrong, fix the gate.
+2. **A gate is proven in both directions or it is worthless.** It must fail the defect
+   it was written to catch and pass clean input (`DECISIONS.md` D-65). Five checker
+   defects in this project each made a clean result meaningless, and every one was
+   found by testing the direction that had been skipped.
+3. **A skipped check is never reported as a pass.** Where a check cannot run, it says
+   so, and the claim it would have supported is not made.
+
+Absence of a carrier is not a reason to weaken a rule. It is the reason to say which
+rules currently rest on nothing.
 
 ## Stop conditions
 
