@@ -245,9 +245,15 @@ Code.
 ## Addendum 2026-08-21 -- Claude Code does not read `AGENTS.md`
 
 Verified from current Anthropic documentation (`code.claude.com/docs/en/memory`) via
-an independent documentation lookup. This is the single most consequential vendor
-constraint recorded here, because the canonical Hub's bootstrap file is named
-`AGENTS.md`.
+an independent documentation lookup.
+
+**Scoped correction, same day.** This addendum first called it "the single most
+consequential vendor constraint recorded here". That was overstated. It matters only
+where a Claude Code session is actually opened, and no one opens one inside
+`.agents-hub`: the agent works from `workspace-governor`, which is bootstrapped
+through its own `CLAUDE.md`, and reaches the Hub as a clone through file and git
+operations. The constraint is real and correctly documented below; its consequence is
+conditional on a session that is not currently started anywhere.
 
 | Question | Answer |
 |---|---|
@@ -261,17 +267,16 @@ constraint recorded here, because the canonical Hub's bootstrap file is named
 
 ### Consequence for the canonical Hub
 
-**The Hub's root contract does not load in Claude Code today.** `.agents-hub/` holds
-`AGENTS.md` and no `CLAUDE.md`, so a Claude Code session opened there receives none
-of it. Codex discovers `AGENTS.md` natively; Claude Code does not. This is exactly
-the adapter projection that delta D-k and D-29 require, and it is unbuilt.
+**Conditional, not current.** `.agents-hub/` holds `AGENTS.md` and no `CLAUDE.md`, so
+a Claude Code session opened *in that directory* would receive none of it. Codex
+discovers `AGENTS.md` natively; Claude Code does not.
 
-**It also predicts the outcome of the Step 11 fresh-agent test.** That test asks a
-fresh session which instruction files it loaded and from where. For Claude Code, run
-inside `.agents-hub` as it now stands, the expected answer is *none* -- and that is a
-correct negative result about the current state, not a failure of the test or of the
-Hub's content. Recording the prediction in advance so the result is not misread as
-something else, and so a negative is not treated as inconclusive.
+Nobody opens a session there today. The agent works from `workspace-governor` and
+operates on the Hub as a clone, so the Hub's root contract reaches it through this
+repository's bootstrap, not through the Hub's own. The gap therefore costs nothing at
+present and becomes real only when a session is opened in the Hub, or when the Hub's
+contract has to reach a runtime directly -- which is the Step 9 adapter question,
+sequenced last and executed on the local machine (`STATE.md` open work 29z).
 
 **Placement note for whoever builds it.** The accepted adapter location is
 `adapters/claude/` (D-68), but Claude Code only discovers `CLAUDE.md` at a directory
@@ -280,6 +285,13 @@ found. So the projection has to be a root `CLAUDE.md` -- the thinnest possible f
 being a single `@AGENTS.md` import, which duplicates no governance and states no rule.
 `adapters/claude/` remains the right home for anything larger that is not
 discovery-critical.
+
+**What this does not predict.** An earlier version of this addendum used the
+constraint to predict the outcome of the Step 11 fresh-agent test, assuming that test
+would be run inside `.agents-hub`. That assumption was wrong -- it is not where anyone
+works. What the test should establish is whether a fresh session, started where work
+actually happens, reaches the Hub's contract at all. That depends on the local wiring
+and is not answerable from this documentation.
 
 ### Not verified
 
