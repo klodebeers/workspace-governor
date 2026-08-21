@@ -1642,6 +1642,16 @@ first version); and what it does with a submission needing a reserved decision (
 say so, never guess). Deciding those before the run exists would be designing against an
 imagined implementation.
 
+**D-85.** The `_intake-hub/` scheduled run happens **twice a week**. Decided by: user,
+2026-08-21. Recorded in `PENDING.md` P-1.
+
+Recorded as the cadence rather than as a default to tune, and noted with the two things
+it decides once the run is built. It sets the expectation for submitters -- a request can
+sit for a few days, which is why the intake README already says intake is not for
+anything urgent or operational. And it means a run may find a batch or nothing, so the
+run must handle several submissions at once and must stay silent when it finds none: a
+twice-weekly "nothing to report" is precisely the message people stop reading.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

@@ -14,8 +14,16 @@ never listed in both.
 
 **Status:** Pending. Not built.
 **Added:** 2026-08-21.
+**Cadence: twice a week.** Directive-given; not a starting point to tune upward.
 
 Set up a scheduled run that checks `_intake-hub/` for new submissions and triages them.
+
+Twice a week is the schedule, and it shapes two things when this is built. It sets the
+expectation for submitters — a request can sit for a few days, which is why intake is
+not for anything urgent or operational, as `_intake-hub/README.md` already says. And it
+means each run may find several submissions or none, so the run must handle a batch and
+must stay silent on an empty one; a twice-weekly "nothing to report" is exactly the
+message people learn to skip.
 
 **The requirement that matters more than the schedule:** the agent that runs it must be
 **properly bootstrapped and must know this repository's rules** before it reads a single
