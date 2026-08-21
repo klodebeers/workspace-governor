@@ -1342,6 +1342,27 @@ description that drifts, which this project's one-owner rule forbids. It also ad
 a missing-documentation problem this repository does not have, and would not have
 touched the actual cause.
 
+**D-75.** The runtime wiring files are `.claude/CLAUDE.md` and `.codex/AGENTS.md`.
+Decided by: user, 2026-08-21.
+
+Each is the runtime's own discovery location, which is what makes the projection
+function. It also resolves the placement problem raised against D-68: an adapter file
+under `adapters/claude/` would never be found, because Claude Code discovers only
+`CLAUDE.md` at a directory root or in a parent, including `./.claude/CLAUDE.md`.
+
+**Relationship to D-68.** D-68 named `adapters/` with `claude/`, `codex/` and
+`generic/`. That stands for adapter material which is not discovery-critical. The two
+files above are the discovery entry points and sit in the runtime-native directories
+instead. Recorded as a placement split rather than a reversal.
+
+Wired on the local machine, sequenced last, as the plan's Step 9. `STATE.md` open work
+29z; plan section 7.
+
+**Not verified:** whether Codex auto-discovers `.codex/AGENTS.md` specifically. Earlier
+evidence here records `.codex` as a known Codex location and root and nested
+`AGENTS.md` as discovered, but not that exact path. Whoever wires it confirms it at
+that point; nothing here depends on it.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

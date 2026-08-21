@@ -439,9 +439,16 @@ the duplicate-ownership class to be found by audit instead.
 **Step 6 -- consolidate references and evidence.** Disposition settled by D-15;
 execution edits another repository and is sequenced separately.
 
-**Step 9 -- thin runtime adapters.** `adapters/` per D-68, with `claude/`, `codex/`
-and `generic/`. Requires Step 3's owner map, and each of `agents/`, `skills/`,
-`tools/` and `prompts/` needs a projection per delta D-k.
+**Step 9 -- thin runtime adapters.** Requires Step 3's owner map, and each of
+`agents/`, `skills/`, `tools/` and `prompts/` needs a projection per delta D-k.
+
+The two files to be wired are **`.claude/CLAUDE.md`** and **`.codex/AGENTS.md`**,
+directive-given 2026-08-21 (`DECISIONS.md` D-75). Each is its runtime's own discovery
+location, which is what makes the projection work: a file placed under `adapters/`
+would never be discovered by either runtime. `adapters/` per D-68 remains the home for
+adapter material that is not discovery-critical.
+
+Wired on the local machine, sequenced last. `STATE.md` open work 29z.
 
 **Step 10 -- routes, registries, continuity and references, atomically.** Partly done
 alongside Step 7; the remainder lands with each later migration.
