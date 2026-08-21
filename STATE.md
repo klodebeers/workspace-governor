@@ -158,11 +158,12 @@ passes in all three; all are closed, and the eleven defect trees they built are
 retained as regression cases. The reference check
 refuses to run outside the Hub, where it produced 1022 false positives.
 
-**The local Hub is one commit behind.** It was verified equal at `1a91d32` -- a
-fast-forward from `c6c966b` whose diffstat matched the repository exactly, which also
-proves the clone carried no divergent local commits. `c384c60` and `3e35f9d` have since applied the
-C-04 resolution and removed the `global/` layer, so under D-41 materialization is
-open again.
+**Materialization is carried by routine.** The operator pulls every change, so the
+local Hub tracks the repository without a per-commit handoff (D-70). It was last
+independently verified equal at `1a91d32` -- a fast-forward from `c6c966b` whose
+diffstat matched the repository exactly, which also proves the clone carried no
+divergent local commits. D-41's no-drift principle stands; only the reporting
+changed.
 
 ### Conflict C-05 -- closed 2026-08-21
 
@@ -235,18 +236,18 @@ with its assigned executor, rather than repeated as an open caveat. An assigned
 pending verification is not a defect and is not re-flagged each session; see
 `AGENTS.md` § Evidence standard.
 
-### Local Hub materialization -- PENDING at `3e35f9d`
+### Local Hub materialization -- ROUTINE
 
 | Field | Value |
 |---|---|
-| Status | **PENDING.** `1a91d32` was materialized and verified 2026-08-21 -- fast-forward from `c6c966b`, diffstat matched exactly. Reopened by `c384c60` and `3e35f9d`, which apply the C-04 resolution and then remove the `global/` layer. The operator reported `git rev-parse HEAD` = `1a91d32846fe298f1d18cdffe4219129b2f0f5f0` for the previous state. Earlier commits `c6c966b` through `1a91d32` are all carried locally; `c384c60` and `3e35f9d` are not |
+| Status | **ROUTINE, not an open item.** The operator pulls every change as a matter of course, so materialization is not reported or requested per commit (D-70). D-41's no-drift principle is unchanged; what changed is that it is carried by routine rather than by a reminder. Last independently verified equal at `1a91d32`: a fast-forward from `c6c966b` whose diffstat matched the repository exactly |
 | Requirement | D-33: the repository and `C:\Users\Chloe\.agents-hub` are one logical Hub and must not drift |
 | Why no remote action can do it | The path is on the operator's Windows machine, unreachable from a cloud session (blocker B-5). No cloud-side change can move it |
 | Assigned executor | Klo, on the local Windows machine |
 | Method | `cd C:\Users\Chloe\.agents-hub` then `git pull`. Mechanism settled as git, not hand-copying, per D-41 |
 | Verification | `git rev-parse HEAD` must return `3e35f9d3d56dcfae8a052d57f5ae31be2544a085`, and `git status --short` print nothing. Previous round, done: the reported HEAD was `1a91d32846fe298f1d18cdffe4219129b2f0f5f0`, an exact match. The operator's `git pull` transcript shows a **fast-forward** `c6c966b..1a91d32`, which is stronger evidence than the SHA alone: a fast-forward is only possible if the local clone carried no divergent commits, so nothing had been committed locally and lost. Its diffstat -- 9 files, 583 insertions, 3 deletions, 6 created -- matches `git diff --stat c6c966b..1a91d32` in the repository exactly. The `git status` half was not reported; a dirty tree there would be local drift rather than a materialization failure, and would show up as a mismatch at the next pull. Tree afterwards, this round: no file added or removed. `AGENTS.md`, `CATALOG.md`, `README.md`, `agents/notion-formula-logic.json` and `context/NOTION-FORMULA-V2.md` are modified; `context/NOTION-FORMULA-V2.md` stays at that path. `design-systems/` unchanged |
 | Known wrinkle | The local clone's `origin` may still carry the pre-rename URL `.../agents-hub-one`. It resolves through GitHub's redirect, so `git pull` works; `git remote set-url origin https://github.com/klodebeers/.agents-hub` re-points it when convenient. A repository rename never renames a clone or rewrites its remote |
-| Recheck trigger | Any later commit to the canonical Hub. Every Hub change reopens this until the two are equal |
+| Recheck trigger | An observed mismatch, not a commit. Raise it only if a reported HEAD, a failed pull, or a local edit indicates the two have actually diverged |
 
 ### Fresh-agent bootstrap and runtime activation
 
@@ -371,12 +372,13 @@ unexercised. Live-Hub evidence cannot be accepted until
 
 ## Next action
 
-**Materialize `3e35f9d` into the live local Hub.** Step 2 is complete; `3e35f9d`
-applies the C-04 resolution on top of it -- the canonical definition of `context/`,
-the capability shape, and the `adapters/` rename -- with no `global/` folder, since
-the Hub is the global layer. Same command as before, new
-expected SHA; see Verification assignments. `1a91d32` was verified equal, so this is
-a one-commit gap.
+**Step 2 is complete, and the C-04 resolution is applied at `3e35f9d`** -- the
+canonical definition of `context/`, the capability shape, the `adapters/` rename, and
+no `global/` folder because the Hub is the global layer.
+
+Local materialization is routine and is not an action to hand back: the operator
+pulls every change as a matter of course (D-70). The current expected HEAD is
+recorded under Verification assignments for use if a mismatch is ever observed.
 
 Two things can start now, in either order:
 

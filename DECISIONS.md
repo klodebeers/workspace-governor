@@ -1201,6 +1201,24 @@ agents-hub is global" reads against holding one project's schemas there. No such
 content exists in the Hub, so nothing is blocked. Recorded as `STATE.md` open work
 28b.
 
+**D-70.** Local Hub materialization is routine, not a reported action. Decided by:
+user, 2026-08-21: the operator always pulls the changes.
+
+D-41 settled that the repository and `C:\Users\Chloe\.agents-hub` are one logical
+Hub carried by git, and D-33 that they must not drift. Neither is weakened. What
+changes is the reporting: materialization stops being restated as a next action, and
+the pull command stops being handed back after every commit.
+
+Practical form. `STATE.md` records the current expected HEAD under Verification
+assignments so a mismatch can be checked against something. The recheck trigger is an
+observed mismatch -- a reported HEAD that differs, a failed pull, a local edit --
+rather than the existence of a new commit. Nothing is asked for unless the two have
+actually diverged.
+
+This is a communication decision, not a governance one. If the SSOT communication
+owner is the durable home for it, it belongs there at SSOT placement (open work 4);
+recorded here meanwhile so it is not rediscovered.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.
