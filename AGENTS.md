@@ -28,11 +28,29 @@ Read in this order before deciding or changing anything:
 5. The artefact relevant to the task — `plans/` for active planning directives,
    `scripts/` for tooling, `evidence/` for prior findings.
 
+**Never name a step, phase or position in a plan from memory.** If the work belongs to
+a sequenced plan, read that plan's step list and read `STATE.md` for where the work
+stands, in that order, before saying what is next. A step label is not a name: each
+step carries prerequisites and a completion gate, so the wrong label skips both
+without any error appearing. This failed once in exactly that way — work was executed
+under labels that belonged to other steps, and two prerequisite steps were passed over
+(`DECISIONS.md` D-73).
+
 ## Plan routing
 
-For Agent Hub consolidation work, read `plans/AGENT-HUB-CONSOLIDATION.md`.
+For Agent Hub consolidation work, read `plans/AGENT-HUB-CONSOLIDATION.md`. Its
+section 3a lists the thirteen steps by name and states the required phase order.
+**Where the work currently stands in that sequence is in `STATE.md`, not in the plan**
+— position is current state, and the plan owns only the sequence and what each step
+requires.
 
 For MCP Gateway work, read `plans/MCP-GATEWAY.md`.
+
+A plan that carries its sequence by citing another document is not usable for this:
+`AGENT-HUB-CONSOLIDATION.md` did that until 2026-08-21, so it stated that thirteen
+steps existed without naming them, and the names sat in a provenance copy marked never
+executable. If a plan cannot answer "which steps exist" from its own text, fix the plan
+before relying on it.
 
 These are **backoffice planning records only.** They sequence work; they are not
 live governance and must not become competing authority. The canonical Hub's root
@@ -98,11 +116,11 @@ One owner per concern. Do not duplicate content between these files.
 | File | Sole owner of |
 |---|---|
 | `README.md` | Purpose, scope, managed components, repository relationships |
-| `STATE.md` | Current verified state, phase, blockers, open work, next action |
+| `STATE.md` | Current verified state, phase, **position in a plan's step sequence**, blockers, open work, next action |
 | `DECISIONS.md` | Settled decisions and their rationale. Append-only. |
 | `AGENTS.md` | Bootstrap order, persistence requirement, file ownership |
 | `plans/MCP-GATEWAY.md` | Gateway build and configuration requirements. Backoffice planning record, not governance. |
-| `plans/AGENT-HUB-CONSOLIDATION.md` | Sequence of Hub consolidation work. Backoffice planning record, not governance. |
+| `plans/AGENT-HUB-CONSOLIDATION.md` | Sequence of Hub consolidation work, the step names, and what each step requires. **Not** where the work currently stands — that is `STATE.md`. Backoffice planning record, not governance. |
 | `AGENT-SSOT.json` | **Agent Hub asset.** Backoffice staging/provenance copy only, pending placement in `.agents-hub`. Not a live authority here. |
 | `USER-SSOT.json` | **Agent Hub asset, Greyed-scoped.** Backoffice staging/provenance copy only, pending placement in `.agents-hub`. Loaded only in Greyed context. Read-only absent explicit user instruction. |
 | `rules/VERIFICATION-RESOLUTION.md` | How verification and investigation work is scoped, bounded and stopped |

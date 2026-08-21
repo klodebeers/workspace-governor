@@ -1305,6 +1305,43 @@ carries them forward by reference to the predecessor document -- so every claim 
 Section 7 now names the position explicitly, so the answer is readable in the plan
 rather than reconstructed. `LEARNINGS.md` L-037.
 
+**D-74.** A plan owns its sequence and what each step requires. `STATE.md` owns where
+the work stands in that sequence. Decided by: agent, prompted by the user's diagnosis
+that the plan was not reachable from the bootstrap.
+
+Three structural fixes, none of them a promise to be more careful:
+
+1. **The plan now lists its own steps.** Section 3a names all thirteen. Until today
+   section 3 carried the sequence by citing its source, so the plan asserted that
+   thirteen steps existed without naming them, and the names lived only in a
+   provenance copy marked never executable. Reading the plan would not have prevented
+   D-73's label drift; the plan did not contain the answer.
+2. **`AGENTS.md` forbids naming a step from memory.** Bootstrap step 5 now states that
+   a step, phase or position claim requires reading the plan's step list and then
+   `STATE.md`, in that order, and says why: a step label carries prerequisites and a
+   completion gate, so a wrong label skips both with no error surfacing. Plan routing
+   adds that a plan which cites its sequence elsewhere is unusable for this and must be
+   fixed first.
+3. **Position moved out of the plan into `STATE.md`.** An earlier fix today put a
+   where-we-stand table in the plan, which is the wrong owner and would have drifted
+   against `STATE.md`. The file-ownership table now names the split explicitly:
+   `STATE.md` owns position; the plan owns the sequence and the per-step requirements.
+
+**What this does not do.** `CLAUDE.md` and its imports are guidance, not an enforcement
+mechanism -- C-03, unchanged. `CLAUDE.md` here is a one-line `@AGENTS.md` import, and
+that import does load: `AGENTS.md` is in context automatically every session, verified
+by observation. So the bootstrap was never absent. These fixes make the correct answer
+reachable in files that are always loaded; they do not mechanically prevent a claim made
+without reading them. Mechanical prevention would need a hook or a managed setting, and
+none is configured.
+
+**Considered and rejected: running `/init`.** It generates a `CLAUDE.md` describing the
+codebase. That would duplicate what `README.md` owns by the file-ownership table --
+purpose, scope, managed components, repository relationships -- creating a second
+description that drifts, which this project's one-owner rule forbids. It also addresses
+a missing-documentation problem this repository does not have, and would not have
+touched the actual cause.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

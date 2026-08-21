@@ -210,6 +210,33 @@ Step 1 is therefore complete: the target tree and item classification are in
 `evidence/HUB-TARGET-TREE-AND-CLASSIFICATION-2026-08-21.md`. **Applying it needs
 approval** per `plans/AGENT-HUB-CONSOLIDATION.md` § 6.7.
 
+## Position in the plan sequence
+
+`plans/AGENT-HUB-CONSOLIDATION.md` section 3a owns the sequence and what each step
+requires. This table owns where the work stands. It is here, not in the plan, because
+position is current state; two copies would drift.
+
+| Plan step | State | Notes |
+|---|---|---|
+| 0 -- bootstrap and drift check | Done informally | No dated drift-check record produced. Low consequence: the baseline was re-inspected repeatedly in practice |
+| 1 -- accept target tree and classify | **Done** | D-35. All 46 inputs classified |
+| 2 -- provenance, sensitivity, external-source gates | **NOT done** | Two open gates. Next action |
+| 3 -- semantic owner and dependency map | **NOT done** | No owner-map artifact exists. Next action after Step 2 |
+| 4 -- version preservation and rollback | **Satisfied by substitution** | Git is the mechanism, D-28 |
+| 5 -- refactor runtime-neutral core and root controls | **Done** | The root `AGENTS.md` move, retiring the Hub `STATE.md` and the placeholders, and the later `AGENTS.md` edits. Recorded at the time under the labels "Step 1" and "Step 2" |
+| 6 -- consolidate references and evidence | Partly done, partly deferred | D-15 settled the disposition; execution edits another repository |
+| 7 -- refactor structural domains, accept reusable artifacts | **Done** | `registry/`, `orchestration/`, `agents/`, `context/`, `templates/` with their first artifacts. Recorded at the time as "Step 2" |
+| 8 -- migrate accepted external source | **Done** | The `agents-hub-two` content in those artifacts. Also recorded as "Step 2" |
+| 9 -- thin runtime adapters | Not started | `adapters/` per D-68. Requires Step 3 |
+| 10 -- routes, registries, references, atomically | Partly done | The `CATALOG.md` and `README.md` updates that accompanied Step 7 |
+| 11 -- fresh-agent bootstrap and runtime-activation verification | Assigned, not executed | The one open verification assignment |
+| 12 -- final audit and completion declaration | Not started | Not before Step 3 |
+
+**The label collision, for anyone reading older records.** "Step 2" was used in this
+project to mean *create each new domain with its first accepted artifact*, which is the
+plan's Step 7 and Step 8. The plan's own Step 2 was never done. The executed work is
+verified and stands; the labels were wrong. `DECISIONS.md` D-73.
+
 ## Blockers
 
 Current phase is Hub consolidation. Blockers are grouped by the phase they bind.
