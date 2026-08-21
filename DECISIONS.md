@@ -1238,6 +1238,34 @@ into the record as a permanent rule, which is the same class of error as treatin
 sample tree as a directory spec (D-69). A preference stated in the present tense is
 recorded with its scope, not generalised.
 
+**D-72.** D-70 and D-71 restated in plain language, and the jargon retired. Decided
+by: agent, after the user said the earlier wording was not understandable.
+
+The situation, without the vocabulary: there are two copies of the Agent Hub. One is
+the GitHub repository. One is the folder `C:\Users\Chloe\.agents-hub` on the
+operator's PC. Only the repository can be changed from a cloud session. The folder
+catches up when the operator pulls in GitHub Desktop.
+
+**"Materialization" is retired as a term.** It meant nothing more than "the folder has
+caught up with the repository", and saying that costs no more words. Records that use
+it are not rewritten -- this file is append-only -- but nothing new uses it, and
+`STATE.md` now says it plainly.
+
+**"While nothing is in flight" is retired too, as over-specified.** The practical rule
+is one sentence: do not tell the operator to pull; raise the folder's state only when a
+specific task needs it current. The clear case is the fresh-session bootstrap test,
+where a new agent reads these files from that disk, so a stale copy produces a wrong
+answer about what the Hub contains.
+
+Nothing about D-33 or D-41 changes: the two copies are still one logical Hub carried by
+git, and divergence is still a defect. This is about how it is described and when it is
+mentioned.
+
+**The lesson, recorded because it is mine.** A term invented for convenience became
+load-bearing across several records, and its meaning was never checked against the
+person who had to read them. If a record cannot be read by the person it is written
+for, its precision is worth nothing. `LEARNINGS.md` L-036.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.
