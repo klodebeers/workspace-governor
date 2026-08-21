@@ -211,9 +211,10 @@ useful specialist separation without reviewing content.
   `NOTION-COORDINATOR-ORCHESTRATOR.json`, `AGENT-SYSTEM-DEPENDENCIES.json`,
   `NOTION-SYSTEM-DEPENDENCIES.json`, `config/agent-registry.json`. Establish one
   authoritative owner per routing or dependency concept; the others reference it.
-- Open question for Step 1, decided from content: does the Notion coordinator
+- ~~Open question for Step 1, decided from content: does the Notion coordinator
   become one general orchestrator plus domain-specific orchestration definitions,
-  or is it a genuinely separate agent?
+  or is it a genuinely separate agent?~~ **Resolved.** One orchestrator role; the
+  Notion coordinator is folded into it. `DECISIONS.md` D-45.
 
 ### 6.6 Required record per artifact
 

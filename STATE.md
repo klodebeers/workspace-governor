@@ -89,37 +89,63 @@ records the decision.
 
 ### Canonical Hub -- current verified state
 
-`klodebeers/.agents-hub` at **`c6c966b`**, Step 1 restructuring applied and all
-dangling references cleared. Verified against the extracted remote: 0 dangling
-references across the 8 live documents, dated evidence excluded. Nine tracked files:
+`klodebeers/.agents-hub` at **`d1a8553`**, Step 1 restructuring applied and Step 2
+first artifacts added. Verified against the tree extracted from `origin/main`, not
+only the working copy: both checks pass there. Fifteen tracked files:
 
 ```text
 AGENTS.md                                     root bootstrap, router, precedence
 CATALOG.md                                    inventory
-README.md                                     navigation
+README.md                                     navigation; bootstrap step 4 enters agent work
 rules/ENGINEER-OWNERSHIP.md                   ownership, intake, decision resolution
 rules/AUTONOMY-AND-PROTECTED-BOUNDARIES.md    autonomy, approval, boundaries
 rules/CONTEXT-AND-ORCHESTRATION.md            context, delegation, continuity
 rules/VERIFICATION-AND-EVIDENCE.md            done, testing, audit, evidence
+registry/agent-registry.json                  12 agent identities, 1 with a definition
+registry/agent-registry.schema.json           validates the registry; no runtime enforcement
+orchestration/routing.json                    entry point, domain selection, 11 routes
+agents/notion-formula-logic.json              first normalized agent definition
+context/NOTION-FORMULA-V2.md                  Notion formulas 2.0 operating context
+templates/verification-checklist.json         pre-action checklist shape
 references/AGENTS-MD-LIVE-AUDIT-2026-08-16.md retained dated audit
 design-systems/placeholder.md                 EXCLUDED, Conflict, untouched
 ```
 
-Retired: Hub `STATE.md`, and six placeholder files. `governance-templates/` and
-`runtime-adapters/` no longer exist in the repository; the latter returns at Step 9
-with its first accepted adapter. Detail in `DECISIONS.md` D-37.
+Not created, by decision: `policies/`, `prompts/`, `skills/`, `tools/`,
+`runbooks/`, `runtime-adapters/`. Each is created by its first accepted artifact.
+Detail in `DECISIONS.md` D-37 and D-43 through D-53.
 
-**The live local Hub has not been re-materialized.** The repository is ahead of
-`C:\Users\Chloe\.agents-hub`, which still carries the pre-restructuring layout
-including `rules/AGENTS.md` and `STATE.md`. Per D-33 the two are one logical Hub and
-must not drift, so materializing the change locally is the immediate next action.
+**Step 2 was reworked before commit** after two independent adversarial reviews.
+Twenty findings accepted and fixed, three rejected with recorded reasons, one
+governance conflict surfaced. Nothing from the pre-review draft reached the
+repository. `evidence/HUB-STEP-2-FIRST-ARTIFACTS-2026-08-21.md` revision 2.
 
-`C:\Users\Chloe\.agents-hub` is confirmed a **git working copy**, stated by the
-user 2026-08-21, and materialization by `git pull` is authorised on that basis.
-Hand-copying files is excluded: it would leave the local path without a comparable
-ref and make future drift undetectable. `DECISIONS.md` D-41. Execution requires the
-local machine and is therefore recorded under Verification assignments, not
-performed here -- blocker B-5.
+Two new verification scripts hold the Step 2 claims, so they are re-runnable rather
+than asserted: `scripts/Test-HubRegistrySchema.py` (schema validity, instance
+validation, 8 negative cases, 1 positive control, 4 cross-artifact consistency
+checks) and `scripts/Assert-ReferenceIntegrity.py` (every Markdown backtick path
+and every JSON `$schema`, `$id`, `definition` and `path` field). Both were run
+against the tree extracted from `origin/main`, not only the working copy. The
+reference check refuses to run outside the Hub: pointed at this backoffice it
+produced 1022 false positives, so it enforces its own calibration.
+
+**The live local Hub is behind again.** Klo materialized `c6c966b`; the repository
+is now at `d1a8553`. Under D-41 every Hub commit reopens the materialization item
+until `git rev-parse HEAD` matches on both sides. Same command, same verification,
+new expected SHA -- see Verification assignments.
+
+### Conflict C-04 -- open, surfaced not resolved
+
+The accepted taxonomy says `context/` holds "scoped operating context, **not
+knowledge or authorization**". The accepted Step-1 target tree says
+`context/ domain knowledge, e.g. the quadruplicated formula notes`. Two accepted
+records disagree about whether domain knowledge may live in `context/`, and
+`context/NOTION-FORMULA-V2.md` is exactly the case they disagree about.
+
+The artifact was reframed as operating context, which makes it defensible under
+either reading, and the authorization half is unambiguous -- it states that it
+grants nothing. That does not settle which reading governs, and the question
+returns when a second context artifact is proposed. The taxonomy owner decides.
 
 ### Step 1 gate -- satisfied
 
@@ -165,12 +191,12 @@ pending verification is not a defect and is not re-flagged each session; see
 
 | Field | Value |
 |---|---|
-| Status | **PENDING.** Authorised 2026-08-21; awaiting local execution |
-| Requirement | D-33: the repository and `C:\Users\Chloe\.agents-hub` are one logical Hub and must not drift. The repository carries the Step 1 layout at `c6c966b`; the local path does not |
+| Status | **PENDING again.** `c6c966b` materialized and confirmed by the operator 2026-08-21. Reopened by `d1a8553`, exactly as D-41 says every Hub commit does |
+| Requirement | D-33: the repository and `C:\Users\Chloe\.agents-hub` are one logical Hub and must not drift. `c6c966b` was materialized 2026-08-21; the repository has since moved to `d1a8553` |
 | Why no remote action can do it | The path is on the operator's Windows machine, unreachable from a cloud session (blocker B-5). No cloud-side change can move it |
 | Assigned executor | Klo, on the local Windows machine |
 | Method | `cd C:\Users\Chloe\.agents-hub` then `git pull`. Mechanism settled as git, not hand-copying, per D-41 |
-| Verification | `git rev-parse HEAD` returns `c6c966b3dfcc03a2f76c7f79330ae7797283df23`, and `git status` reports a clean tree. Tree afterwards: `AGENTS.md` at the root; no `STATE.md`; no `governance-templates/`; no `runtime-adapters/`; `design-systems/` unchanged |
+| Verification | `git rev-parse HEAD` returns `d1a8553a0d4e2b276e8af2c429cb7b9061dfac03`, and `git status` reports a clean tree. Tree afterwards adds `registry/`, `orchestration/`, `agents/`, `context/` and `templates/`; still no `STATE.md`, no `governance-templates/`, no `runtime-adapters/`; `design-systems/` unchanged |
 | Known wrinkle | The local clone's `origin` may still carry the pre-rename URL `.../agents-hub-one`. It resolves through GitHub's redirect, so `git pull` works; `git remote set-url origin https://github.com/klodebeers/.agents-hub` re-points it when convenient. A repository rename never renames a clone or rewrites its remote |
 | Recheck trigger | Any later commit to the canonical Hub. Every Hub change reopens this until the two are equal |
 
@@ -251,15 +277,15 @@ unexercised. Live-Hub evidence cannot be accepted until
 
 ## Open work
 
-1. Inventory the live local Hub, then complete Step 1 of `plans/AGENT-HUB-CONSOLIDATION.md`: accept the target tree and classify every item across the three inputs -- live `.agents-hub`, canonical `.agents-hub`, `agents-hub-two`. Start from the carried-forward v0.4.2 ledger and the 2026-08-16 baseline, not from zero.
+1. ~~Inventory the live local Hub, then complete Step 1 of `plans/AGENT-HUB-CONSOLIDATION.md`.~~ **Closed 2026-08-21.** Inventory returned COMPLETE, all 46 inputs classified, target tree accepted, restructuring applied. `DECISIONS.md` D-35 and D-37.
 2. ~~Revise the Gateway discovery tooling so it does not presuppose `.agents-hub` exists.~~ **Closed** — semantics verified across the full report, and the `00_hubState` ordering defect fixed. Still unexecuted; awaits the local Windows runtime test recorded under Verification assignments.
-3. Execute plan Steps 2 onward once the target tree is accepted. Assessment and classification are complete; `change`, `reference-update` and `verify` remain. See `evidence/HUB-RECONCILIATION-ASSESSMENT-2026-08-19.md`.
-4. Place the SSOT pair in `.agents-hub` as Hub assets, then reduce the `workspace-governor` copies to backups/provenance. Both files are staged here and validated; placement is the remaining step. `AGENT-SSOT.json` v1.1, `USER-SSOT.json` v1.3 (Greyed-scoped, scope-loaded). Blocked on the rename landing. See `evidence/HUB-ASSET-PLACEMENT-CORRECTION-2026-08-20.md`.
+3. Execute plan Steps 3 onward. **Step 2 closed 2026-08-21** at `d1a8553`: five domains created with their first accepted artifacts, `change`, `reference-update` and `verify` all performed. `DECISIONS.md` D-43. The remaining artifact migration is item 29, gated by items 25 and 26.
+4. Place the SSOT pair in `.agents-hub` as Hub assets, then reduce the `workspace-governor` copies to backups/provenance. Both files are staged here and validated; placement is the remaining step. `AGENT-SSOT.json` v1.1, `USER-SSOT.json` v1.3 (Greyed-scoped, scope-loaded). **No longer blocked** -- the rename landed 2026-08-20 and the Hub now has accepted asset domains, so placement and its router entry can proceed. See `evidence/HUB-ASSET-PLACEMENT-CORRECTION-2026-08-20.md`.
 5. Open B-3 as a separate scoped change once authorized.
 6. Determine placement of the three agent rulings recorded in `DECISIONS.md` under D-07 through D-09.
 7. Trim the duplicated live-state narrative in `workspace-governor-agents-hub-one/research/` per D-15. Edits another repository; sequenced separately.
 8. ~~Correct the case-insensitive variable collisions found in four scripts, two of them live defects in the assigned local commands.~~ **Closed** — fixed, and a static gate added to prevent the class. See `evidence/SCRIPT-STRUCTURE-DEFECTS-2026-08-20.md`.
-9. Promote the Verification Resolution Rule into the canonical `.agents-hub` once its structure and rule ownership are finalized. Held locally as an interim binding; terms and on-promotion steps in `PENDING-GLOBAL-PROMOTIONS.md` P-01. Blocked by the same absence of a canonical Hub as B-4.
+9. Promote the Verification Resolution Rule into the canonical `.agents-hub` once its structure and rule ownership are finalized. Held locally as an interim binding; terms and on-promotion steps in `PENDING-GLOBAL-PROMOTIONS.md` P-01. **The canonical-Hub blocker is gone** (B-4 closed); what remains is the ownership question in P-01 and P-03, which is Step 3 work -- item 12 and the P-03 duplicate ownership.
 10. Resolve the duplicate ownership between `AGENT-SSOT.json` and `rules/VERIFICATION-RESOLUTION.md` / `rules/ENGINEER-OWNERSHIP.md` at consolidation. Open governance conflict, surfaced not blended. `PENDING-GLOBAL-PROMOTIONS.md` P-03.
 11. ~~Correct `AGENTS.md` placement in the canonical Hub: root, not `rules/`.~~ **Closed 2026-08-21**, applied at `80dff05` with references updated in both directions.
 12. Close conflict-resolution gaps G-1 and G-2 as sections in existing owners at consolidation. G-3 deferred. `PENDING-GLOBAL-PROMOTIONS.md` P-04. No new rule file.
@@ -279,13 +305,18 @@ unexercised. Live-Hub evidence cannot be accepted until
 23. Scheduled audits remain separate deferred runtime automation. Settled but deferred per D-30 item 5.
 24. Decide the glossary's placement when a glossary artifact actually exists. It may explain canonical terms but never redefine them, and must not be placed in `rules/`. D-30 item 2; plan G-04.
 
+25. Author the agent-definition schema before migrating a second agent definition. Two incompatible source vocabularies, no source schema; it must be written against all thirteen source shapes, not the one migrated file. `DECISIONS.md` D-47.
+26. Reconcile the handoff contract and build its template. Declared five times with five different field sets in the source and having no file on disk. Blocks the remaining agent migrations, which all reference it.
+27. Decide whether an evidence-record template is accepted, and from what. No accepted artifact exists; the source's `execution_record_template` is the candidate and is missing a field its own contract requires. Surfaced by the Step 2 governance review; `DECISIONS.md` D-51 item 1.
+28. Resolve C-04: whether domain knowledge may live in `context/`. Two accepted records disagree. Surfaced, not resolved. Blocks a second context artifact.
+29. Migrate the remaining `agents-hub-two` artifacts under their recorded dispositions: 11 specialist definitions, the topology and sequence artifacts, `shared_dependencies` and `specialist_agents` maps, `planning_model`, and the three unreconciled templates. Gated by items 25 and 26.
+
 ## Next action
 
-**Materialize `c6c966b` into the live local Hub.** Authorised; awaiting execution
-on the local Windows machine, which no cloud session can reach. The canonical
-repository and `C:\Users\Chloe\.agents-hub` are one logical Hub under D-33 and must
-not drift independently. The repository now carries the Step 1 layout; the local
-path does not.
+**Materialize `d1a8553` into the live local Hub.** `c6c966b` was materialized and
+confirmed 2026-08-21; Step 2 has since moved the repository forward, and under D-41
+that reopens this until both sides report the same HEAD. Requires the local Windows
+machine, which no cloud session can reach.
 
 ```powershell
 cd C:\Users\Chloe\.agents-hub
@@ -294,33 +325,35 @@ git rev-parse HEAD
 git status --short
 ```
 
-The path is confirmed a git working copy, so `git pull` is the mechanism and
-hand-copying is excluded (D-41).
-
 Verification: `git rev-parse HEAD` returns
-`c6c966b3dfcc03a2f76c7f79330ae7797283df23` and `git status --short` prints nothing.
-Expected tree afterwards: `AGENTS.md` at the root, no `STATE.md`, no
-`governance-templates/`, no `runtime-adapters/`, `design-systems/` unchanged.
-
-If `origin` still points at `agents-hub-one`, the pull still works through GitHub's
-redirect; `git remote set-url origin https://github.com/klodebeers/.agents-hub`
-tidies it. Full detail under Verification assignments § Local Hub materialization.
+`d1a8553a0d4e2b276e8af2c429cb7b9061dfac03` and `git status --short` prints nothing.
+Expected tree afterwards adds `registry/`, `orchestration/`, `agents/`, `context/`
+and `templates/`; `AGENTS.md` still at the root; still no `STATE.md`,
+`governance-templates/` or `runtime-adapters/`; `design-systems/` unchanged.
 
 Then, in either order:
 
-- **Fresh-agent bootstrap test.** Still open, still assigned, and now more
-  informative: the bootstrap file has moved, so the test measures whether the new
-  root location is actually discovered. Method in Verification assignments -- ask a
-  new session which instruction files it loaded and from where, without supplying
-  the answer.
-- **Step 2 change work.** Creating `agents/`, `orchestration/`, `registry/`,
-  `templates/` and `context/`, each with its first accepted artifact. Deliberately
-  excluded from the Step 1 approval because each requires an Adapt transformation of
-  `agents-hub-two` content. Requires approval before it touches the Hub.
+- **Fresh-agent bootstrap test.** Still open, still assigned, and now the most
+  informative it has been: the bootstrap file moved to the root in Step 1, and Step
+  2 added a bootstrap step that points an agent into `orchestration/routing.json`.
+  The test now measures both -- whether a new session finds the root contract, and
+  whether it follows `README.md` into the routing file. Method in Verification
+  assignments: ask a new session which instruction files it loaded and from where,
+  without supplying the answer.
+- **Step 3.** Semantic-owner work: resolve the duplicate ownership recorded in
+  P-01 and P-03, and close conflict-resolution gaps G-1 and G-2 as sections in
+  existing owners rather than new rule files.
+- **The agent-definition schema**, which gates every further agent migration
+  (D-47), written against all thirteen source shapes rather than the one migrated
+  definition.
 
-Closed this round: B-6, the PowerShell runtime verification, the GitHub rename, and
-the Codex and Claude Code precedence questions. C-03 is closed on precedence and
-open on enforcement.
+Awaiting a decision from the taxonomy owner: **C-04**, whether domain knowledge may
+live in `context/`. Not blocking the items above; blocking a second context
+artifact.
+
+Closed this round: Step 2 applied at `d1a8553`; the `c6c966b` materialization; the
+stale `CATALOG.md` placement reference. C-03 is closed on precedence and open on
+enforcement. C-04 is newly open.
 
 ## Stop conditions
 

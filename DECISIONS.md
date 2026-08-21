@@ -770,6 +770,149 @@ Recorded as an appended correction because `DECISIONS.md` is append-only; the st
 bullet is left in place rather than edited. Same class as D-32, which corrected D-30
 the same way.
 
+**D-43.** Step 2 is applied. Five Hub domains created with six artifacts, at
+`d1a8553` in the canonical Hub. Decided by: user authorisation 2026-08-21
+("proceed with Step 2"); executed by agent.
+
+`registry/agent-registry.json`, `registry/agent-registry.schema.json`,
+`orchestration/routing.json`, `agents/notion-formula-logic.json`,
+`context/NOTION-FORMULA-V2.md`, `templates/verification-checklist.json`. A
+directory is created by its first real artifact, so Step 2 is six artifacts, not
+the 27-file source package. The remaining source artifacts keep their recorded
+dispositions. Evidence:
+`evidence/HUB-STEP-2-FIRST-ARTIFACTS-2026-08-21.md` revision 2.
+
+**D-44.** The Hub has one domain-neutral entry point, and domain selection is a
+step after entry rather than a choice of door. Decided by: agent.
+
+The source declared its entry point in eight disagreeing locations, and the only
+machine-readable one named the Notion coordinator as the sole entry -- so a general
+request reached the Notion domain and then met a registry with no routing rules for
+any general specialist. `orchestration/routing.json` is the single owner of the
+entry point, the pre-routing condition, domain selection and every route; the eight
+source locations are listed there as superseded.
+
+Domain selection is **carried, not invented**: the source stated the step in prose
+in `package-layout.json`, `docs/README.md` and
+`prompts/general-coordinator.prompt.txt`. What is new is the machine-readable
+condition and its placement after a single entry point. An earlier draft claimed
+the source had no such step; that claim was false and was corrected before commit.
+
+Where two copies of the same routes disagreed in wording, the coordinator's copy
+was taken and the other superseded -- chosen, not blended into a third phrasing
+neither source states. The routes are generated from the source files at authoring
+time, so fidelity is structural rather than asserted.
+
+**D-45.** The Notion coordinator identity is folded into the orchestrator entry,
+whose domain is `shared`. Decided by: agent, applying the reconciliation's settled
+Finding 6.
+
+It is the same orchestrator role instantiated for a domain, not a distinct agent.
+The registry therefore holds twelve identities, and the fold is recorded on the
+entry that absorbs it rather than left implicit. `shared` means one orchestrator
+serves every domain after domain selection; without it, the `notion-operations`
+domain had no orchestrator to receive routed work while the schema described a
+per-domain model.
+
+**D-46.** A reference to something that does not exist yet is recorded as `null`
+with a status, never as the path it will eventually have. Decided by: agent.
+
+Eleven of twelve registry entries have no normalized definition. They carry
+`definition: null` and `definition_status: pending`, and the schema enforces the
+pairing in both directions. Writing the eventual paths would have manufactured
+eleven dangling references -- the class D-39 exists to prevent. The same rule
+applies to the migrated definition's template dependencies.
+
+**D-47.** An agent-definition schema is owed and deliberately not written in Step 2.
+Decided by: agent.
+
+The source used two incompatible vocabularies for the same concepts and had no
+schema for either. The one migrated definition fixes the vocabulary. Authoring a
+schema from a single migrated file would encode one shape as though it were
+thirteen, so the schema is required before a second definition migrates and must be
+written against all thirteen source shapes.
+
+**D-48.** `policies/` is not created for the registry schema. Decided by: agent.
+
+The schema is machine-verifiable, which is what `policies/` holds, but nothing
+enforces it in any runtime; placing it there would assert an enforcement boundary
+that does not exist. It sits in `registry/`, which the accepted target tree already
+specified as holding the registry plus its schema. `policies/` is created by its
+first artifact that something actually enforces.
+
+**D-49.** New Hub asset domains are indexed in `CATALOG.md`, are **not** added to
+the root `AGENTS.md` routing table, and are given normative placement by a
+`README.md` bootstrap step. Decided by: agent.
+
+The root routing table maps governed conditions to governance owners, and the root
+contract states it "does not govern ordinary non-governance artifacts or Hub domain
+placement". The six Step 2 artifacts are canonical source data; listing them as
+routed owners would present each as a rule owner.
+
+Catalog presence alone was **not sufficient**, and an earlier draft treated it as
+if it were. `CATALOG.md` declares itself non-authoritative and proving nothing, and
+the root contract tells an agent to load only routed owners -- so nothing instructed
+an agent to enter work through the routing file, and an artifact declaring itself
+"the single entry point" was self-appointed. `README.md`, which owns bootstrap
+navigation, now carries step 4: enter agent work through `orchestration/routing.json`
+and resolve identity through `registry/agent-registry.json`, neither being a
+governance owner and neither granting permission. Precedence is untouched.
+
+This is D-d's lesson applied, in both halves: placement without a route leaves an
+asset unreachable, and the route must be both the right kind and normatively real.
+
+**D-50.** A canonical template does not ship a default answer to a question another
+owner governs. Decided by: agent.
+
+`templates/verification-checklist.json` carried `human_review_required: false` from
+its source. Whether human approval is required is owned by
+`rules/AUTONOMY-AND-PROTECTED-BOUNDARIES.md`, so a template shipping `false`
+supplies a no-approval-needed default outside that owner. The value is `null`,
+which requires whoever fills the checklist to answer it. This is the only field
+where the template diverges from its source.
+
+**D-51.** Two adversarial review findings are rejected, and the reasons are settled
+so they are not reopened without new evidence. Decided by: agent.
+
+1. **The verification checklist is not a narrowed copy of the evidence record.**
+   `rules/VERIFICATION-AND-EVIDENCE.md` § Proportionate Evidence Record governs what
+   an evidence record contains after a change; the template is a pre-action
+   checklist, which the same rule's § Verification Standard asks for. Two artifacts,
+   no duplication. The review did surface a real gap: **no accepted evidence-record
+   template exists**, and the source's `execution_record_template` is the candidate.
+   Recorded as open work. `CATALOG.md` states the distinction so the checklist is
+   not mistaken for the record.
+2. **Domain instantiations inside a specialist definition are legitimate and
+   required.** The reconciliation settled this: deleting them "leaves the domain
+   with no statement of what evidence counts". "Verify formula output against actual
+   database data, not just syntax" states what evidence counts *for formulas*; the
+   general obligation stays with its owner. The definition names the boundary in its
+   `authority` block. Reopening this would reverse a settled finding without new
+   evidence, which `rules/ENGINEER-OWNERSHIP.md` forbids.
+
+**D-52.** Migration narrative, retirement arguments and progress ledgers do not go
+into live Hub artifacts. Decided by: agent, applying the directive.
+
+Management, migration and consolidation-progress state are not Hub material, and
+§ 6.8 requires no backoffice history in live authority. An earlier draft of all six
+artifacts carried retirement narratives, rename maps, "why this file exists"
+sections, a schema description that argued with its predecessor, and
+not-yet-migrated ledgers. Live artifacts now carry short provenance identifiers and
+a superseded-source list; the reasoning lives in the backoffice evidence record.
+
+**D-53.** A durable verification claim must have a re-runnable artifact behind it.
+Decided by: agent.
+
+An earlier draft stated "validated against 8 negative cases" in the Hub catalog
+with nothing in any repository that could reproduce it -- agent confidence presented
+as verification, which the evidence standard forbids. Two scripts now hold the
+claims: `scripts/Test-HubRegistrySchema.py` (schema validity, instance validation,
+eight negative cases, one positive control, four cross-artifact consistency checks)
+and `scripts/Assert-ReferenceIntegrity.py` (every Markdown backtick path and every
+JSON `$schema`, `$id`, `definition` and `path` field). Verification results belong
+in the backoffice record, not in the live catalog, and the catalog's own header says
+its presence proves nothing about verification.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.
