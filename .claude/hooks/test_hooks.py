@@ -35,6 +35,8 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 GITHOOKS = os.environ.get('WG_GITHOOKS_DIR') or os.path.join(REPO, '.githooks')
 GATE_COMMIT = os.path.join(HOOKS, 'gate_commit.py')
 GATE_STOP = os.path.join(HOOKS, 'gate_persistence.py')
+GATE_DELEGATION = os.path.join(HOOKS, 'gate_delegation.py')
+INJECT_DELEGATION = os.path.join(HOOKS, 'inject_delegation_check.py')
 INJECT = os.path.join(HOOKS, 'inject_plan_position.py')
 NO_HUB = os.path.join(tempfile.gettempdir(), 'wg-no-such-hub')
 
@@ -90,6 +92,8 @@ def make_repo(path, with_gates=True):
                             '| Plan step | State |\n|---|---|\n| 1 | Done |\n\n'
                             '## Next action\n\nDo the next thing.\n')
     write(path, 'AGENTS.md', '# Agents\n')
+    write(path, 'rules/VERIFICATION-RESOLUTION.md',
+          '# Verification Resolution Rule\n\n## Performer selection\n')
     if with_gates:
         os.makedirs(os.path.join(path, '.claude', 'hooks'), exist_ok=True)
         for name in ('wg_gates.py', 'git_pre_commit.py', 'git_commit_msg.py'):
@@ -545,6 +549,123 @@ def case_inject(tmp):
 
 
 # --------------------------------------------------------------------------
+# Delegation: a claim of independent review needs an independent performer
+# --------------------------------------------------------------------------
+
+CLAIM = 'Two adversarial auditors reviewed this independently.'
+DISCLAIMED = 'No independent review ran; I checked my own work.'
+
+
+def transcript(root, name, delegates):
+    """Write a synthetic transcript with `delegates` delegate spawns."""
+    path = os.path.join(root, name)
+    with open(path, 'w', encoding='utf-8') as handle:
+        handle.write(json.dumps({'type': 'assistant', 'message': {
+            'content': [{'type': 'text', 'text': 'working'}]}}) + '\n')
+        for _ in range(delegates):
+            handle.write(json.dumps({'type': 'assistant', 'message': {
+                'content': [{'type': 'tool_use', 'name': 'Agent',
+                             'input': {}}]}}) + '\n')
+    return path
+
+
+def stop_payload(root, message, transcript_path, session='d1'):
+    return {'hook_event_name': 'Stop', 'cwd': root, 'session_id': session,
+            'transcript_path': transcript_path,
+            'last_assistant_message': message}
+
+
+def case_delegation(tmp):
+    root = make_repo(os.path.join(tmp, 'delegation'))
+    none = transcript(root, 'none.jsonl', 0)
+    one = transcript(root, 'one.jsonl', 1)
+
+    code, _, err = run_hook(GATE_DELEGATION, stop_payload(root, CLAIM, none))
+    check('delegation gate refuses a review claim with no delegate', code, 2, err)
+    check_in('the refusal cites the performer rule', 'Performer selection', err)
+
+    check('delegation gate allows the same claim with a delegate',
+          run_hook(GATE_DELEGATION, stop_payload(root, CLAIM, one, 'd2'))[0], 0)
+
+    check('delegation gate ignores a message making no such claim',
+          run_hook(GATE_DELEGATION,
+                   stop_payload(root, 'I fixed the parser and pushed.', none,
+                                'd3'))[0], 0)
+
+    check('delegation gate allows an honest self-review statement',
+          run_hook(GATE_DELEGATION, stop_payload(root, DISCLAIMED, none, 'd4'))[0], 0)
+
+    for phrasing in ('An independent audit confirmed it.',
+                     'I adversarially verified the fix.',
+                     'This got a blind review before landing.',
+                     'It was reviewed independently.'):
+        code, _, _ = run_hook(GATE_DELEGATION,
+                              stop_payload(root, phrasing, none, 'd-' + phrasing[:6]))
+        check('delegation gate catches %r' % phrasing[:28], code, 2)
+
+    # A claim it cannot check must fail, not pass -- LEARNINGS.md L-026.
+    code, _, err = run_hook(GATE_DELEGATION,
+                            stop_payload(root, CLAIM,
+                                         os.path.join(root, 'missing.jsonl'), 'd5'))
+    check('an unreadable transcript fails rather than passing', code, 2, err)
+    check_in('it says the check could not run', 'COULD NOT RUN', err)
+
+    # Raised once per message, and again when the message changes.
+    payload = stop_payload(root, CLAIM, none, 'd6')
+    check('delegation gate raises a claim once',
+          run_hook(GATE_DELEGATION, payload)[0], 2)
+    check('delegation gate does not repeat the same claim',
+          run_hook(GATE_DELEGATION, payload)[0], 0)
+    check('delegation gate raises again on a different claim',
+          run_hook(GATE_DELEGATION,
+                   stop_payload(root, 'An independent audit says otherwise.',
+                                none, 'd6'))[0], 2)
+
+    nogates = make_repo(os.path.join(tmp, 'delegation-other'), with_gates=False)
+    os.remove(os.path.join(nogates, 'rules', 'VERIFICATION-RESOLUTION.md'))
+    check('delegation gate leaves a repository without the rule alone',
+          run_hook(GATE_DELEGATION, stop_payload(nogates, CLAIM, none, 'd7'))[0], 0)
+
+
+def case_delegation_injection(tmp):
+    root = make_repo(os.path.join(tmp, 'delegation-inject'))
+
+    def ask(prompt):
+        return run_hook(INJECT_DELEGATION,
+                        {'hook_event_name': 'UserPromptSubmit', 'cwd': root,
+                         'user_prompt': prompt})
+
+    for prompt in ('review the change before I merge it',
+                   'audit what you just wrote',
+                   'can you verify this is right',
+                   'double-check the migration',
+                   'prove the gate works'):
+        code, out, _ = ask(prompt)
+        check('injection fires on %r' % prompt[:26], code, 0)
+        check_in('and carries the criteria for %r' % prompt[:18],
+                 'PERFORMER CHECK', out)
+
+    for prompt in ('add a function that parses the header',
+                   'what is the current plan position'):
+        code, out, _ = ask(prompt)
+        ok = code == 0 and out.strip() == ''
+        RESULTS.append((ok, 'injection stays quiet on %r' % prompt[:26]))
+        print('%s  injection stays quiet on %r'
+              % ('PASS' if ok else 'FAIL', prompt[:26]))
+
+    nogates = make_repo(os.path.join(tmp, 'delegation-inject-other'),
+                        with_gates=False)
+    os.remove(os.path.join(nogates, 'rules', 'VERIFICATION-RESOLUTION.md'))
+    code, out, _ = run_hook(INJECT_DELEGATION,
+                            {'hook_event_name': 'UserPromptSubmit',
+                             'cwd': nogates, 'user_prompt': 'review this'})
+    ok = code == 0 and out.strip() == ''
+    RESULTS.append((ok, 'injection is silent where the rule is not held'))
+    print('%s  injection is silent where the rule is not held'
+          % ('PASS' if ok else 'FAIL'))
+
+
+# --------------------------------------------------------------------------
 # Mutation proof: break each gate and require the suite to notice
 # --------------------------------------------------------------------------
 
@@ -588,6 +709,20 @@ MUTATIONS = (
      'injector emits header rows as data'),
     ('inject_plan_position.py', "if len(step_lines) > 3:", "if False:",
      'injector truncates the tail instead of the table'),
+    ('gate_delegation.py', "CLAIM_PATTERNS = (", "CLAIM_PATTERNS = () or (",
+     'CONTROL: a no-op edit to the claim list must NOT be flagged', 'survives'),
+    ('gate_delegation.py', "    for pattern in CLAIM_PATTERNS:\n        found = re.search(pattern, message, re.I)",
+     "    for pattern in ():\n        found = re.search(pattern, message, re.I)",
+     'delegation gate stops recognising a claim'),
+    ('gate_delegation.py', "    for pattern in DISCLAIMER_PATTERNS:", "    for pattern in ():",
+     'delegation gate refuses an honest self-review statement'),
+    ('gate_delegation.py', "    if delegates > 0:", "    if delegates >= 0:",
+     'delegation gate treats zero delegates as enough'),
+    ('gate_delegation.py', "    if delegates is None:", "    if False:",
+     'delegation gate passes a claim it could not check'),
+    ('inject_delegation_check.py', "    if not any(re.search(t, prompt, re.I) for t in TRIGGERS):",
+     "    if True:",
+     'delegation criteria never injected'),
 )
 
 
@@ -641,6 +776,8 @@ def main():
         case_guard(tmp)
         case_persistence(tmp)
         case_inject(tmp)
+        case_delegation(tmp)
+        case_delegation_injection(tmp)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

@@ -31,6 +31,8 @@ A parser guessing what git will do cannot be the carrier. So:
 | **PreToolUse guard** | `.claude/hooks/gate_commit.py` | Only what a git hook cannot see: `--no-verify`, plumbing that writes history without hooks, force-pushes, and an uninstalled `core.hooksPath`. |
 | **Stop gate** | `.claude/hooks/gate_persistence.py` | The persistence requirement at the end of a session. |
 | **Prompt injection** | `.claude/hooks/inject_plan_position.py` | Puts the authoritative plan position into context every prompt. |
+| **Delegation gate** | `.claude/hooks/gate_delegation.py` | Refuses a stop when the session claims an independent review, audit or adversarial check and no delegate ran. |
+| **Performer injection** | `.claude/hooks/inject_delegation_check.py` | Puts the required-delegation criteria into context when a prompt is about review, audit or verification. |
 
 The two layers compose: the git hooks cannot be reached around except by the four cases
 the guard refuses, and the guard refuses a commit while `core.hooksPath` is unset, so a
@@ -66,6 +68,24 @@ a gate nobody installed reports no findings, which reads exactly like a clean re
    `evidence/`. The **committed** copy of each script runs, not the working-tree copy,
    which could otherwise be edited to make a failing check pass.
 
+## What the delegation gate refuses, and what it cannot
+
+It enforces `rules/VERIFICATION-RESOLUTION.md` § Performer selection: a claim that work
+was independently reviewed, audited or adversarially checked requires an independent
+performer in the record. The gate reads the transcript for a delegate spawn and refuses
+the stop when the claim has none.
+
+Three things it deliberately does not do. It does **not** judge whether delegation was
+warranted -- that is judgement, and a gate has none. It does **not** refuse an honest
+statement that you checked your own work; saying so plainly is what the rule asks for
+when nothing was delegated, and the disclaimer forms are matched first for exactly that
+reason. And it does **not** catch work that should have been delegated and was not: no
+documented hook fires on that, so the gate catches the *claim*, not the omission. That
+gap is real and is stated in the rule as well as here.
+
+A claim it cannot check -- an unreadable or missing transcript -- **fails**, like every
+other check that cannot run.
+
 ## What it means that a check cannot run
 
 `LEARNINGS.md` L-026: "A check that cannot run must fail, never skip." Earlier these
@@ -80,14 +100,14 @@ Windows and `python3` is frequently not the name on PATH there.
 
 ## Verification status
 
-`python3 .claude/hooks/test_hooks.py` -- **87 cases, all passing** as of 2026-08-21.
+`python3 .claude/hooks/test_hooks.py` -- **115 cases, all passing** as of 2026-08-21.
 The content gates are exercised through **real `git commit` calls** in throwaway
 repositories, so a case proves the gate as git actually invokes it, including the eight
 forms that defeated the first version.
 
 `python3 .claude/hooks/test_hooks.py --mutations` additionally breaks each gate on
-purpose and requires the suite to notice: **18 mutations, 17 caught, and the one that
-survives is a no-op control that must not be flagged.** Two rounds were needed -- the
+purpose and requires the suite to notice: **24 mutations, 22 caught, and the two that
+survive are no-op controls that must not be flagged.** Two rounds were needed -- the
 first run left two survivors, one of which was a real gap (every encoding case added a
 new file, so reading `HEAD` instead of the index was undetectable) and is now covered by
 a case that edits a file already committed. This exists because the first harness reported

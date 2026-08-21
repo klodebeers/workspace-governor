@@ -52,6 +52,96 @@ re-derived wrongly, each time. Neither this rule nor `AGENT-SSOT.json`
 Where a class is absent from this table, apply step 2 and add the class once
 resolved.
 
+## Performer selection
+
+Verification has a third dimension, and it was unstated until now. Depth is
+proportionate to risk. Source is fixed by the question. **Performer is fixed by whose
+work is being judged.**
+
+An agent reviewing its own work has already reached the conclusion under review. It can
+re-read, re-run and re-check, and it will do all of that from inside the reasoning that
+produced the result. That is not independence, and no amount of care substitutes for it.
+
+### When delegation is required
+
+Hand the work to a separate agent, and do not do it inline, when **either** holds:
+
+1. **The work is a review, audit, or adversarial check of something this session
+   produced.** This includes: reviewing a change before declaring it complete; auditing
+   a record this session wrote; and confirming that a defect this session fixed is
+   actually fixed. The delegate is given the authoritative source, the approved scope,
+   and the resulting implementation, and is **denied the implementer's rationale** --
+   `DECISIONS.md` D-60 owns that mechanism.
+
+2. **A clean result from a check this session authored would be the basis for a
+   completion claim.** The author of a check is the worst judge of whether it checks
+   anything. `DECISIONS.md` D-65 requires a check to fail on a built instance of its
+   defect; an independent performer is what makes that requirement more than a habit.
+
+### When delegation is a judgement call, not an obligation
+
+These are ordinary engineering decisions and the agent owns them
+(`rules/ENGINEER-OWNERSHIP.md`). They are recorded here so the choice is informed, not
+so it becomes a rule:
+
+- Breadth that exceeds one context -- sweeping many files or naming conventions when
+  only the conclusion is needed.
+- Independent pieces that touch different files and can run at once.
+- Work whose output is high-volume and will not be referenced again.
+
+And delegation is the **wrong** shape for sequential work, edits to the same file, work
+with many dependencies, or a single fact whose location is already known.
+
+### What delegation never does
+
+- **It does not transfer the obligation.** The parent keeps the goal, the scope, the
+  authority, the integration and the final verification. A delegate's report is a
+  routing aid, and every finding it returns is verified against the source before it is
+  accepted or rejected.
+- **It does not launder a refusal.** Work that this session's permissions or a settled
+  decision forbid is not handed to another agent to perform. That is the decision being
+  evaded, not delegated.
+- **It does not create independence retroactively.** A delegate that is told the
+  conclusion, or asked to confirm rather than to find, has produced a rubber stamp. Such
+  a review is not one, and reporting it as one is a false claim about method.
+
+### Reporting
+
+**A claim that work was independently reviewed, audited, or adversarially checked
+requires an independent performer in the record.** If no separate agent performed it,
+the claim is that the author checked their own work -- which is worth stating plainly
+and is a different claim.
+
+Rejecting a delegate's finding carries the same standard as declining any submission:
+name what is rejected, and the ground, **read at the time rather than recalled**
+(`DECISIONS.md` D-82, D-87).
+
+### One runtime hazard the rule has to survive
+
+A delegation whose result the parent waits on can complete and return nothing. Where
+agent teams are enabled, a **named** delegate launches as a teammate, and a teammate's
+completion notice does not carry its output; the vendor documentation states that an
+orchestration flow waiting on delegate results can stall. Team enablement can come from
+a settings layer this project does not control. So a parent must confirm that a result
+actually arrived, and must never read silence as agreement.
+`evidence/RUNTIME-DELEGATION-MECHANICS-2026-08-21.md` holds the mechanics.
+
+### Carrier
+
+Two carriers are wired in `.claude/`, and neither can judge whether delegation was
+warranted -- that is judgement, and a gate does not have it. What they do:
+
+- A `Stop` gate reads the session transcript. If the session claims an independent
+  review, audit or adversarial check and **no delegate ran**, it refuses the stop and
+  says so. That catches the false claim, which is the part that is mechanically visible.
+- A `UserPromptSubmit` hook puts the required-delegation criteria into context when the
+  prompt is about reviewing, auditing or verifying, so the decision is made in front of
+  the rule rather than from memory of it.
+
+No documented hook fires on work being done inline that should have been delegated, so
+the omission itself has no gate. `.claude/hooks/README.md` owns what is wired and what
+is proven; this section owns the rule.
+
 ## Defect class
 
 A confirmed defect is treated as an **instance of a class**, never as a lone fact.
@@ -82,7 +172,7 @@ reason. A check that always reports a known false failure stops being read.
 
 ## Core standard
 
-> Choose the simplest reliable method that is proportionate to the risk and sufficient for the next decision, **against the source that actually holds the answer**. Prefer existing capabilities and perform checks in the environment containing the evidence. Escalate only when the current method cannot answer the question reliably. Stop once the required decision is adequately supported.
+> Choose the simplest reliable method that is proportionate to the risk and sufficient for the next decision, **against the source that actually holds the answer**, and **performed by someone other than the author when the work under review is the author's own**. Prefer existing capabilities and perform checks in the environment containing the evidence. Escalate only when the current method cannot answer the question reliably. Stop once the required decision is adequately supported.
 
 ## Anti-patterns
 
@@ -93,7 +183,10 @@ Do not:
 - continue verification after the decision is already supported;
 - transfer technical investigation to a human when a capable agent or runtime can perform it;
 - create a second verification system merely to prove the first without reconsidering the original task;
-- treat complexity, token use, elapsed effort, or additional tooling as evidence of quality.
+- treat complexity, token use, elapsed effort, or additional tooling as evidence of quality;
+- review your own work and report it as an independent review;
+- brief a delegate with the conclusion you want confirmed, which converts a review into a rubber stamp;
+- ask another agent or session to perform work your own permissions or a settled decision forbid.
 
 Unnecessary complexity, unnecessary human intervention, and verification effort disproportionate to the decision are engineering defects. This rule is not permission to under-verify high-risk work.
 

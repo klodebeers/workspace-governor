@@ -1890,6 +1890,68 @@ the cases, not just in the code. Every encoding case added a new file, so a muta
 reading `HEAD` instead of the index was invisible; a case editing an already-committed
 `.ps1` now covers it. That mode is the answer to "how would I know".
 
+**D-94.** The delegation rule is written, and its owner is
+`rules/VERIFICATION-RESOLUTION.md` § Performer selection. Decided by: user, who directed
+that it be written now; the siting and the threshold are the agent's.
+
+**What the rule says, in one line.** Depth is proportionate to risk, source is fixed by
+the question, and **performer is fixed by whose work is being judged.** An agent
+reviewing its own work has already reached the conclusion under review; it can re-read
+and re-run, and it will do all of that from inside the reasoning that produced the
+result.
+
+**Delegation is required in exactly two cases**, and the narrowness is deliberate:
+reviewing, auditing or adversarially checking something this session produced; and
+relying on a clean result from a check this session authored to support a completion
+claim. Everything else about delegation -- breadth sweeps, parallel independent pieces,
+isolating high-volume output -- stays an ordinary engineering decision the agent owns
+(`rules/ENGINEER-OWNERSHIP.md`), and is recorded as guidance so the choice is informed
+rather than obligatory.
+
+**Why not a new rules file.** The gap analysis warns against one, and "who performs the
+work, and when it must not be the author" is the same concern as how verification is
+bounded and which source is authoritative. It sits beside § Authority selection as a
+third dimension of the same decision. The promotion obligation travels with the file it
+was written into: P-01, addendum recorded.
+
+**The vendor's rationale is not this rule's rationale, and the rule says so.** Every
+documented criterion for delegating is about context economy or capability restriction --
+verbose output, tool restrictions, latency, token cost. **None is about correctness or
+independence.** The docs support the *mechanism*: a fresh context window, no inherited
+conversation history, a separate prompt cache, and "input isolation" as their own phrase
+for what a fork deliberately drops. That the isolation yields independent judgement is an
+inference. Recorded as an inference in
+`evidence/RUNTIME-DELEGATION-MECHANICS-2026-08-21.md`, and this rule rests on it without
+claiming the docs said it.
+
+**A counter-pressure kept in the rule rather than dropped.** Every custom subagent loads
+the full CLAUDE.md hierarchy, so a delegate is **not** independent of this repository's
+governance -- it arrives carrying it. Independence is from the parent's conversation, not
+its rules. That is what makes a blind review possible at all: the delegate is bound by
+the same standards while being denied the reasoning.
+
+**Two carriers, and what neither can do.** A `Stop` gate refuses a stop when the session
+claims an independent review, audit or adversarial check and **no delegate ran** -- the
+false claim is mechanically visible, and it is worse than no review at all because it is
+a false statement about method. A `UserPromptSubmit` hook injects the two required-
+delegation conditions when a prompt is about review, audit or verification, so the choice
+is made in front of the rule rather than from a recollection of it.
+
+**Neither catches the omission.** No documented hook fires on work being done inline that
+should have been delegated; there is no negative trigger. The gate catches the claim, not
+the failure to delegate. Stated in the rule, in `.claude/hooks/README.md` and here,
+because a gap named in one place and implied to be covered in another is how "enforced"
+stops meaning anything.
+
+**An honest self-review is never refused.** The disclaimer forms are matched before the
+claim forms, so "I checked my own work" and "no independent review ran" pass. That is the
+point: the rule wants the accurate claim, not the flattering one, and a gate that punished
+candour would buy silence instead of delegation.
+
+**Proven in both directions**, per D-65: 115 cases, and the mutation mode carries six new
+rows for these two carriers -- including one that makes the gate refuse an honest
+self-review, and one that makes it pass a claim it could not check. Both are caught.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

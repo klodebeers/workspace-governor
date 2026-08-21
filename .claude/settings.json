@@ -8,6 +8,12 @@
             "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/inject_plan_position.py\"",
             "timeout": 20,
             "statusMessage": "Reading position from STATE.md"
+          },
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/inject_delegation_check.py\"",
+            "timeout": 20,
+            "statusMessage": "Performer check"
           }
         ]
       }
@@ -33,6 +39,12 @@
             "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/gate_persistence.py\"",
             "timeout": 60,
             "statusMessage": "Persistence requirement"
+          },
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/gate_delegation.py\"",
+            "timeout": 60,
+            "statusMessage": "Independent-review claim"
           }
         ]
       }

@@ -164,3 +164,22 @@ neither mapped nor listed as newly filed. Its destination, the canonical `.agent
 root alongside the root `AGENTS.md` contract, and its terms -- runtime adapters must
 expose it at session start, and promotion is verified before the local copy is retired --
 were carried by no issue until issue #15 was corrected.
+
+## P-01 addendum, 2026-08-21 -- Performer selection
+
+`rules/VERIFICATION-RESOLUTION.md` gained a § Performer selection: when verification,
+review or audit work must be performed by an agent other than the author, what
+delegation never does, and the reporting standard for a claim of independent review. It
+is part of P-01 and promotes with it, under the same terms.
+
+**Why it matters that this one is cross-agent rather than local.** The rule exists
+because an agent reviewing its own work has already reached the conclusion under review.
+That is a property of agents, not of this repository, and every agent the Hub routes has
+it. Holding the rule here means an agent that loads only the Hub root contract cannot
+reach it -- which is the same defect as G-6 and G-7 in issue #6, in a new instance.
+
+Its two carriers are `workspace-governor`-local because of how the runtime works, not
+by choice: hooks live in a `.claude/` directory, and the Hub is not a directory anyone opens
+a session in. On promotion, the rule moves and the carriers stay -- which means the
+promoted rule is read-only-enforced in every other repository until each one carries its
+own. Say so at promotion rather than implying the gate travels with the text.

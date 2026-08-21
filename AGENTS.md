@@ -205,7 +205,8 @@ investigation are not grounds for transfer.
 `rules/VERIFICATION-RESOLUTION.md` is **binding** for all verification and
 investigation work in this repository. Read it before choosing a verification
 method, not after. It governs how the decision is bounded, where the evidence is
-gathered, how much evidence is enough, and when to stop.
+gathered, how much evidence is enough, **who performs it**, and when to stop.
+Its § Performer selection is the one to read before reviewing your own work.
 
 It is not a `workspace-governor` policy. It is a cross-agent rule held here
 temporarily because the canonical `.agents-hub` does not yet exist to own it. Its
