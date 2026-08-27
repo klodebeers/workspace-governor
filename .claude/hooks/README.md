@@ -134,14 +134,16 @@ Windows and `python3` is frequently not the name on PATH there.
 
 ## Verification status
 
-`python3 .claude/hooks/test_hooks.py` -- **115 cases, all passing** as of 2026-08-21.
+`python3 .claude/hooks/test_hooks.py` -- **142 cases, all passing** as of 2026-08-27.
 The content gates are exercised through **real `git commit` calls** in throwaway
 repositories, so a case proves the gate as git actually invokes it, including the eight
 forms that defeated the first version.
 
 `python3 .claude/hooks/test_hooks.py --mutations` additionally breaks each gate on
-purpose and requires the suite to notice: **24 mutations, 22 caught, and the two that
-survive are no-op controls that must not be flagged.** Two rounds were needed -- the
+purpose and requires the suite to notice: **28 mutations, 0 behaving wrongly, as of
+`3be99ca`** -- four of them controls that must survive, each carrying the reason it
+cannot be discriminated. **The carrier changed after that run and a re-run is owed;
+until it lands this section states a result that is not current.** Two rounds were needed -- the
 first run left two survivors, one of which was a real gap (every encoding case added a
 new file, so reading `HEAD` instead of the index was undetectable) and is now covered by
 a case that edits a file already committed. This exists because the first harness reported
@@ -152,7 +154,7 @@ block on failure. A suite that passes when the code is broken is not evidence, a
 
 **Not verified, and not verifiable from the environment these were written in:**
 
-- That Claude Code fires the two `.claude/` hooks in a live session. The scripts are
+- That Claude Code fires the `.claude/` hooks in a live session. The scripts are
   driven directly with synthetic hook JSON, which tests the scripts and not the wiring.
   An earlier version of this file gave the reason as "hook registration is read at
   session start" -- **that reason was wrong**: the hooks reference says direct edits to

@@ -42,7 +42,10 @@ import io
 import json
 import os
 import re
+import shutil
+import tempfile
 import subprocess
+import sys
 
 APPEND_ONLY = ('DECISIONS.md',)
 ENTRY_MARKERS = (b'**D-', b'**C-')
@@ -255,38 +258,99 @@ def check_hub_scripts(root, diff_args, findings):
 def check_rule_triggers(root, diff_args, findings):
     """Refuse a commit that leaves the rule-trigger table unresolvable.
 
-    Run unconditionally rather than only when the table is in the diff: an
-    entry breaks when the OWNING file is renamed or its heading is reworded,
-    which touches neither the table nor this gate's own file. That is the
-    silent case -- inject_rules.py would emit NOT READ from then on, and a
-    table of NOT READ notices reads exactly like a table that is working.
+    Reads the STAGED tree, not the worktree. The first version resolved paths
+    off disk, so an ordinary split commit -- reword a heading in the owning
+    file, update the table, stage only the file -- passed a gate that was
+    looking at a self-consistent worktree, and HEAD ended up carrying the new
+    heading with the old table. The mirror case was as bad: an unstaged edit
+    blocked an unrelated commit.
+
+    Runs unconditionally rather than diff-scoped, because an entry breaks when
+    the OWNING file changes, which touches neither the table nor this file.
     """
-    del diff_args                      # a broken heading is not diff-scoped
-    table = os.path.join(root, '.claude', 'hooks', 'rule-triggers.json')
-    if not os.path.isfile(table):
-        return                         # not every clone wires the injector
-    checker = os.path.join(root, 'scripts', 'Assert-RuleTriggerFidelity.py')
-    if not os.path.isfile(checker):
-        findings.append(Finding(
-            'CHECK COULD NOT RUN',
-            'rule-triggers.json is present but scripts/Assert-RuleTriggerFidelity.py '
-            'is missing, so its entries could not be checked. L-026: a check that '
-            'cannot run fails rather than skipping.'))
+    prefix = ':' if diff_args == ['--cached'] else 'HEAD:'
+    table_rel = os.path.join('.claude', 'hooks', 'rule-triggers.json').replace(
+        os.sep, '/')
+    code, raw, _ = git_bytes(root, ['show', prefix + table_rel])
+    if code != 0:
+        # No table. That is only acceptable if nothing wires the injector --
+        # otherwise deleting one committed file silently disables every rule,
+        # with no signal at the gate and none in the hook. A gate has no bypass
+        # (AGENTS.md Enforcement 1).
+        hooked, _hraw, _ = git_bytes(
+            root, ['show', prefix + '.claude/hooks/inject_rules.py'])
+        cfg, cfgraw, _ = git_bytes(
+            root, ['show', prefix + '.claude/settings.json'])
+        wired = (hooked == 0) or (cfg == 0 and b'inject_rules.py' in cfgraw)
+        if wired:
+            findings.append(Finding(
+                'RULE TABLE IS GONE BUT THE INJECTOR IS STILL WIRED',
+                'no %s in the commit, yet inject_rules.py or its settings entry '
+                'is still present. Every rule would stop being injected with no '
+                'signal on either side. Remove the carrier too, or restore the '
+                'table.' % table_rel))
         return
     try:
-        spec = importlib.util.spec_from_file_location('_rtf', checker)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        with io.open(table, encoding='utf-8') as handle:
-            parsed = json.load(handle)
-        broken = module.audit(root, parsed)
-    except BaseException as exc:      # SystemExit is not an Exception, and an
-                                      # imported module is free to raise one
+        parsed = json.loads(raw.decode('utf-8'))
+    except Exception as exc:
+        findings.append(Finding(
+            'RULE TABLE IS UNREADABLE',
+            '%s does not parse as JSON in this commit: %s' % (table_rel, exc)))
+        return
+    checker_rel = 'scripts/Assert-RuleTriggerFidelity.py'
+    ccode, _craw, _ = git_bytes(root, ['show', prefix + checker_rel])
+    if ccode != 0:
         findings.append(Finding(
             'CHECK COULD NOT RUN',
-            'the rule-trigger check raised %r, so the table was not verified. '
-            'L-026: a check that cannot run fails rather than skipping.' % (exc,)))
+            'the table is committed but %s is not, so its entries could not be '
+            'checked. L-026: a check that cannot run fails rather than skipping.'
+            % checker_rel))
         return
+    work = tempfile.mkdtemp(prefix='wg-rule-staged-')
+    try:
+        wanted = {table_rel}
+        for entry in (parsed.get('entries') or []):
+            if isinstance(entry, dict) and isinstance(entry.get('file'), str):
+                wanted.add(entry['file'])
+        for rel in wanted:
+            fcode, fraw, _ = git_bytes(root, ['show', prefix + rel])
+            if fcode != 0:
+                continue           # audit() reports it as missing, with the id
+            dest = os.path.join(work, rel.replace('/', os.sep))
+            if not os.path.abspath(dest).startswith(os.path.abspath(work) + os.sep):
+                continue           # audit() reports the escape with the id
+            try:
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                with open(dest, 'wb') as handle:
+                    handle.write(fraw)
+            except OSError:
+                continue
+        checker = os.path.join(root, checker_rel)
+        # Import without writing bytecode. exec_module otherwise drops
+        # __pycache__/ beside the checker AND beside inject_rules.py, inside
+        # the repository being committed to -- so a later `git add -A` stages
+        # .pyc files. This repo's .gitignore hides that; a clone without the
+        # entry would commit them, and the gate would be the thing that put
+        # them there.
+        previous = sys.dont_write_bytecode
+        sys.dont_write_bytecode = True
+        try:
+            spec = importlib.util.spec_from_file_location('_rtf', checker)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            broken = module.audit(work, parsed)
+        except BaseException as exc:   # SystemExit is not an Exception, and an
+                                       # imported module is free to raise one
+            findings.append(Finding(
+                'CHECK COULD NOT RUN',
+                'the rule-trigger check raised %r, so the table was not '
+                'verified. L-026: a check that cannot run fails rather than '
+                'skipping.' % (exc,)))
+            return
+        finally:
+            sys.dont_write_bytecode = previous
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
     for item in broken:
         findings.append(Finding(
             'RULE TRIGGER DOES NOT RESOLVE',

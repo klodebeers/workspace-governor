@@ -12,7 +12,7 @@ Reported symptom, 2026-08-27: agents across the fleet are drifting -- reading
 superseded plans, citing step labels that belong to other steps, not following
 plain instructions. The question asked was whether more governance would fix it.
 
-## Finding 1 -- the wiring named in D-75 cannot carry a rule. Verified.
+## Finding 1 -- the wiring named in D-75 cannot carry a rule. Partially verified.
 
 `DECISIONS.md` D-75 names the runtime wiring files as `.claude/CLAUDE.md` and
 `.codex/AGENTS.md`. `evidence/RUNTIME-CONVENTIONS-2026-08-20.md` classifies every
@@ -27,6 +27,16 @@ second class:
 So Step 9 as specified delivers discovery and nothing enforceable. That is not a
 defect in the wiring -- it is the wiring doing what an instruction file does.
 `DECISIONS.md` C-03 already records the general form and remains open.
+
+**What is and is not verified here.** The quotation is from a prior research
+file. `rules/VERIFICATION-RESOLUTION.md` § Authority selection excludes *"a prior
+research file not re-verified"* as authority for vendor product behaviour, and no
+re-verification against vendor documentation was performed, so this is
+**partially verified** and an earlier revision of this heading wrongly said
+"Verified." What *was* checked directly against the installed bundle, on
+2026-08-27, is a narrower and harder fact: the `UserPromptSubmit` payload carries
+`prompt`, never `user_prompt`. That is vendor behaviour read from implementation,
+and it is what the hook fix rests on.
 
 **Consequence.** Drift is advisory content losing to context pressure. A carrier
 that is itself advisory cannot fix it. Two instruction files is the wrong
@@ -44,10 +54,14 @@ Measured against `110a9e3`, the bootstrap `AGENTS.md` mandates before any work:
 | `STATE.md` | 40,877 |
 | `LEARNINGS.md` | 23,322 |
 | `AGENTS.md` + `README.md` | 23,425 |
-| **Total** | **258,929 (~64k tokens)** |
+| **Total** | **258,918 (~64k tokens)** |
 
-Self-correcting or superseding statements inside that set, counted by pattern
-(`supersed|corrected|was wrong|no longer|stale|earlier revision|inverted|...`):
+Self-correcting or superseding statements inside that set. The pattern is given
+in full so the count can be re-run and falsified; an elided one cannot be:
+
+    grep -ciE "supersed|corrected|correction|was wrong|no longer|stale|earlier revision|inverted|relitigat|carried-forward|until 2026" <file>
+
+Counts:
 `DECISIONS.md` 62, `plans/AGENT-HUB-CONSOLIDATION.md` 28, `STATE.md` 25,
 `LEARNINGS.md` 6 -- **121 total**.
 
@@ -120,12 +134,23 @@ This is an environment boundary, not a defect. It is recorded in `STATE.md`
 
 `.claude/hooks/inject_rules.py` with `.claude/hooks/rule-triggers.json`
 generalises the pattern the two existing injectors already establish: put the
-governing text in context at the moment it applies. The table holds **no rule
-text** -- each entry names an owning file and an exact heading, read live when the
-trigger fires -- so no second copy of a rule exists to drift, which the one-owner
-rule in `AGENTS.md` § File ownership requires.
+governing text in context at the moment it applies. Each entry names an owning
+file and an exact heading, read live when the trigger fires, so no second copy of
+a rule exists to drift -- which the one-owner rule in `AGENTS.md` § File ownership
+requires.
 
-Injected size is 1.7--3.3 KB per prompt against the 259 KB bootstrap.
+**That claim is now checked rather than asserted.** An independent reviewer found
+that the table's `why` fields carried verbatim rule text -- up to 76 characters --
+while six places in the same commit said the table held none, and that one of
+those copies had already drifted, changing "the ownership table" to "this table"
+and so altering the referent of the rule it quoted. The fields were rewritten to
+say *when* an entry fires, and `Assert-RuleTriggerFidelity.py` now refuses any
+`why` sharing 40 or more characters with the section it points at.
+
+A section that does not fit the per-entry cap is injected as a **pointer**, never
+as a prefix: a truncated prohibition arrives under an authoritative header and
+reads as the whole rule. Three of five entries are pointers today. Measured
+output is ~1.3--3.1 KB per prompt.
 
 `scripts/Assert-RuleTriggerFidelity.py` refuses a table whose entries no longer
 resolve, and `wg_gates.check_rule_triggers` makes that a commit refusal. It runs
@@ -137,8 +162,25 @@ backoffice and nothing else. It is a proof of the mechanism, not fleet coverage.
 Whether it can be promoted to user scope is exactly what the procedure above
 decides.
 
-**Performer.** Every check named here was authored and run in the same session.
-Under `rules/VERIFICATION-RESOLUTION.md` § Performer selection and `DECISIONS.md`
-D-94, a clean result from a self-authored check cannot carry a completion claim.
-The demonstrations below are recorded as demonstrations; no claim of independent
-verification is made for them.
+## Results, and who produced them
+
+| Check | Result | Performer |
+|---|---|---|
+| `test_hooks.py` | 142 cases, 0 failed | this session (author) |
+| `test_hooks.py --mutations` | 28 rows, 0 behaved wrongly, **at `3be99ca`** | this session (author) |
+| `Assert-RuleTriggerFidelity.py --selftest` | 25 cases, both directions | this session (author) |
+| Live table | 5 entries, every heading resolves exactly once | this session (author) |
+| Review of the carrier code | 3 independent agents, rationale withheld per D-60 | **separate agents** |
+
+The mutation figure is **not current**: it was produced against `3be99ca`, and the
+carrier changed materially afterwards. A re-run against the current tree is owed
+before any completion claim, and its absence is stated here rather than left to
+be inferred.
+
+**Performer.** Every check in the first four rows was authored and run in the
+same session, and under `rules/VERIFICATION-RESOLUTION.md` § Performer selection
+and `DECISIONS.md` D-94 a clean result from a self-authored check cannot carry a
+completion claim. The review row is different: three separate agents examined the
+carrier without this session's rationale, and their findings are recorded in
+`DECISIONS.md` D-96. Nothing here is claimed as independently verified beyond
+what that row covers.

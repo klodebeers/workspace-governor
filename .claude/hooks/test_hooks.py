@@ -755,6 +755,43 @@ def case_rule_triggers(tmp):
     print('%s  the missing injector does not crash the gate run'
           % ('ok  ' if ok else 'FAIL'))
 
+    # The split commit: reword the heading in the owning file, update the table,
+    # stage only the file. The first gate read the worktree, found it
+    # self-consistent, and passed -- leaving HEAD with the new heading and the
+    # old table, and the injector emitting NOT READ from then on.
+    root = _rules_repo(os.path.join(tmp, 'rules-split-commit'))
+    write(root, 'AGENTS.md',
+          '# Agents\n\n## Evidence and proof\n\nNever present confidence as '
+          'verification.\n\n## Secrets\n\nNone here.\n')
+    write(root, '.claude/hooks/rule-triggers.json',
+          _TABLE.replace('Evidence standard', 'Evidence and proof'))
+    git(root, 'add', 'AGENTS.md')            # the table edit stays UNSTAGED
+    out = git(root, 'commit', '-m', 'reword, half staged')
+    check('git hook refuses a split commit the worktree hides',
+          out.returncode, 1, out.stderr)
+    check_in('and names the rule-trigger gate', 'RULE TRIGGER DOES NOT RESOLVE',
+             out.stderr)
+    git(root, 'add', '-A')                   # both halves together must pass
+    check('git hook allows the same change with both halves staged',
+          git(root, 'commit', '-m', 'reword, fully staged').returncode, 0)
+
+    # Mirror case: an unstaged edit must not block an unrelated commit.
+    root = _rules_repo(os.path.join(tmp, 'rules-unstaged'))
+    write(root, 'AGENTS.md', '# Agents\n\n## Something else\n\nx\n')
+    write(root, 'unrelated.txt', 'hi\n')
+    git(root, 'add', 'unrelated.txt')
+    check('an unstaged heading edit does not block an unrelated commit',
+          git(root, 'commit', '-m', 'unrelated').returncode, 0)
+
+    # Deleting the table while the carrier stays wired is a bypass, not a skip.
+    root = _rules_repo(os.path.join(tmp, 'rules-deleted-table'))
+    git(root, 'rm', '-q', '.claude/hooks/rule-triggers.json')
+    out = git(root, 'commit', '-m', 'drop the table')
+    check('git hook refuses deleting the table while the injector is wired',
+          out.returncode, 1, out.stderr)
+    check_in('and says the mechanism would go silent',
+             'RULE TABLE IS GONE BUT THE INJECTOR IS STILL WIRED', out.stderr)
+
     # A repo with no table at all is untouched: not every clone wires this.
     root = make_repo(os.path.join(tmp, 'rules-absent'))
     write(root, 'note.md', 'ordinary edit\n')
@@ -824,6 +861,9 @@ def case_payload_shape(tmp):
 
 
 MUTATIONS = (
+    ('wg_gates.py', "prefix = ':' if diff_args == ['--cached'] else 'HEAD:'",
+     "prefix = 'HEAD:' if diff_args == ['--cached'] else 'HEAD:'",
+     'rule gate reads the wrong tree'),
     ('inject_rules.py', "payload.get('prompt') or", "payload.get('nope') or",
      'injector reads a key the CLI does not send'),
     # Survives BY DESIGN, and saying so is the honest record. Once the checker

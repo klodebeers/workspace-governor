@@ -161,7 +161,11 @@ def selected(entries, prompt):
         if entry.get('always'):
             unconditional.append(entry)
             continue
-        for pattern in entry.get('triggers') or ():
+        triggers = entry.get('triggers')
+        if isinstance(triggers, str) or not isinstance(triggers, (list, tuple)):
+            continue          # a bare string iterates per CHARACTER; the gate
+                              # refuses this shape, and the hook will not guess
+        for pattern in triggers:
             try:
                 hit = re.search(pattern, prompt, re.I)
             except re.error:
@@ -175,9 +179,12 @@ def selected(entries, prompt):
 
 def render(root, entry, entry_cap):
     source = '%s > %s' % (entry.get('file'), entry.get('heading'))
+    if not inside(root, entry.get('file')):
+        return ('RULE NOT READ -- %s is outside the governance root and was not\n'
+                'read. Do not treat its absence as permission.\n' % source)
     body = section(os.path.join(root, entry.get('file', '')),
                    entry.get('heading', ''))
-    if body is None:
+    if not body:
         return ('RULE NOT READ -- %s did not resolve. The rule it carries is not\n'
                 'in front of you; do not treat its absence as permission.\n'
                 % source)
@@ -188,6 +195,41 @@ def render(root, entry, entry_cap):
     if why:
         head += '\n(why now: %s)' % why
     return '%s\n\n%s\n' % (head, body)
+
+
+def positive_int(value, fallback):
+    """A cap the table got wrong must not crash the hook on every prompt.
+
+    int('lots') raised ValueError straight out of main(), so one bad edit to the
+    table produced a traceback on every single prompt until someone read a hook
+    log. A negative cap was worse: a valid int that withheld everything silently.
+    """
+    if value is None:
+        return fallback, []
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        return fallback, ['%r is not a number' % (value,)]
+    if number <= 0:
+        return fallback, ['%r is not positive' % (value,)]
+    return number, []
+
+
+def inside(root, name):
+    """True when `name` stays inside `root`.
+
+    The table decides what file content reaches the model. os.path.join throws
+    the root away for an absolute path, and `../` walks out, so an entry could
+    inject any file on the machine into every prompt. Confine it here and refuse
+    it in the gate, rather than trusting the table.
+    """
+    if not isinstance(name, str) or not name:
+        return False
+    if os.path.isabs(name) or (len(name) > 1 and name[1] == ':'):
+        return False
+    target = os.path.normpath(os.path.join(root, name))
+    prefix = os.path.normpath(root) + os.sep
+    return (target + os.sep).startswith(prefix)
 
 
 def prompt_text(payload):
@@ -209,6 +251,8 @@ def main():
         payload = json.load(sys.stdin)
     except Exception:
         return 0
+    if not isinstance(payload, dict):
+        return 0
     prompt = prompt_text(payload)
     cwd = payload.get('cwd') or os.getcwd()
     root = repo_root(cwd)
@@ -222,23 +266,34 @@ def main():
         if not error.startswith('no '):
             print('RULE TABLE NOT READ -- %s' % error)
         return 0
-    entry_cap = int(table.get('max_chars_per_entry') or FALLBACK_ENTRY_CHARS)
-    total_cap = int(table.get('max_chars_total') or FALLBACK_TOTAL_CHARS)
+    entry_cap, entry_bad = positive_int(table.get('max_chars_per_entry'),
+                                       FALLBACK_ENTRY_CHARS)
+    total_cap, total_bad = positive_int(table.get('max_chars_total'),
+                                        FALLBACK_TOTAL_CHARS)
     marker = '<!-- injected by .claude/hooks/inject_rules.py -->'
     chunks = []
     spent = len(marker) + 1        # the marker is printed; count it
     withheld = []
-    for entry in selected(table.get('entries') or (), prompt):
+    entries = table.get('entries')
+    if not isinstance(entries, list):
+        print('RULE TABLE NOT READ -- entries is not a list')
+        return 0
+    entries = [e for e in entries if isinstance(e, dict)]
+    for entry in selected(entries, prompt):
         piece = render(root, entry, entry_cap)
         if spent + len(piece) > total_cap:
             withheld.append(entry.get('id') or '?')
             continue
         chunks.append(piece)
         spent += len(piece)
-    if not chunks:
+    if not chunks and not withheld:
         return 0
     print(marker)
-    print('\n'.join(chunks))
+    if entry_bad or total_bad:
+        print('RULE TABLE CAP IGNORED -- %s. Falling back to %d/%d.'
+              % (', '.join(entry_bad + total_bad), entry_cap, total_cap))
+    if chunks:
+        print('\n'.join(chunks))
     if withheld:
         print('WITHHELD for total length: %s. These rules apply and were not\n'
               'shown; read them before deciding.' % ', '.join(withheld))

@@ -2003,6 +2003,60 @@ mechanism at all.
 completion claim, and none is made: the results below are demonstrations awaiting an
 independent performer.
 
+**D-96.** Three independent agents reviewed the D-95 carrier with this session's
+rationale withheld (D-60). Their findings are accepted, the defects are fixed, and
+D-95 is corrected here rather than edited, because entries are append-only.
+
+*Corrections to D-95.* Its bootstrap figure of "258,929 bytes" is wrong; the rows
+it was drawn from sum to **258,918** at `110a9e3`. Its closing sentence points at
+"the results below", and nothing follows it -- the results are in
+`evidence/USER-SCOPE-HOOK-CARRIER-2026-08-27.md` § Results. Its claim that the
+table "holds no rule text" was false when written: the `why` fields carried up to
+76 verbatim characters of the sections they point at, and one had already drifted,
+changing "the ownership table" to "this table" and so altering the referent of the
+rule it was quoting. That is the exact second-owner defect the design cited as its
+justification, reproduced inside it.
+
+*What the reviews found, and what it cost.* Two defects made the carrier inert or
+misleading rather than merely imperfect:
+
+1. **The injectors read a payload key the CLI does not send.** `user_prompt` is a
+telemetry attribute; the payload carries `prompt`. Four of five entries never
+fired. `inject_delegation_check.py` carries the same defect and returns early on
+an empty prompt, so it had emitted nothing in production since it was written,
+while `.claude/hooks/README.md` described it as working. The suite could not see
+it because every fixture used the same wrong key -- a self-confirming test proves
+only that the fixture agrees with itself.
+2. **The gate read the worktree, not the staged tree.** An ordinary split commit
+-- reword a heading, update the table, stage only the file -- passed a gate
+looking at a self-consistent worktree, and left HEAD carrying the new heading with
+the old table. The mirror case blocked unrelated commits over unstaged edits.
+
+Also fixed: a truncated prohibition injected under a `RULE IN SCOPE` header, which
+dropped the approval boundary from every prompt; eviction by file order, so the
+always-on entry displaced entries that matched the prompt's own words; a table
+that could be deleted with no finding; caps, trigger shapes and file paths the
+checker never type-checked, one of which let an entry inject any file on the
+machine; and a gate that wrote `__pycache__` into the repository it was gating.
+
+*The rule this cost the most to relearn.* Two self-authored checks reported clean
+while measuring nothing. A harness path bug crashed the suite in all 27 mutation
+runs, and a crash exits non-zero, which the harness reads as "mutation caught";
+only the two no-op controls, which must survive, exposed it. Then the payload key
+made 129 passing cases meaningless. `LEARNINGS.md` L-026 already says to treat a
+clean result from an unproven check as no information. It is now demonstrated
+twice inside one session, by the author of both checks.
+
+*Standing consequence, decided here.* Work that affects behaviour, performance or
+failure modes is reviewed by a separate agent before it is reported as done, not
+after -- and the reviewer is denied the author's rationale. Verifying that a
+change was applied is part of applying it: this session lost an edit to a killed
+shell and found it only by checking afterwards.
+
+*What is still not claimed.* The mutation proof is current only to `3be99ca`; the
+carrier changed materially after it and a re-run is owed. Issue #43 remains
+unrun, so the carrier still governs this repository alone.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

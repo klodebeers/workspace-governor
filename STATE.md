@@ -288,11 +288,12 @@ pending verification is not a defect and is not re-flagged each session; see
 ### Enforcement carriers -- two assignments, both on the operator's machine
 
 **What is proven here.** `.claude/hooks/` and `.githooks/` hold the carriers and a
-115-case suite. The content gates are exercised through **real `git commit` calls** in
+142-case suite. The content gates are exercised through **real `git commit` calls** in
 throwaway repositories, so each case proves the gate as git actually invokes it --
 including the eight invocation forms that defeated the first version of these gates the
 same day (`evidence/HOOK-GATES-AUDIT-2026-08-21.md`). `--mutations` additionally breaks
-each gate on purpose and requires the suite to notice -- 24 mutations, 22 caught, two
+each gate on purpose and requires the suite to notice -- 28 mutations, 0 behaving
+wrongly at `3be99ca`; the carrier changed after that run and a re-run is owed. Four
 no-op controls correctly not flagged. This exists because the first harness reported 31 of
 31 passing while ten deliberate breakages survived it undetected.
 
@@ -469,7 +470,10 @@ get source, approved scope and result, and are denied the implementer's rational
   input set and needs classifying rather than slotting in.
 
 **Ready and not blocked by any of the above:** issue #12, the fresh-agent bootstrap
-test -- the one open verification assignment, needing the local machine.
+test -- one of the two open verification assignments, needing the local machine.
+**Qualified 2026-08-27:** #12 measures the bootstrap *unwired*, and local wiring was
+applied on 2026-08-27, so its baseline is currently spent. It is reversible. Issue #43
+is the second assignment. See `evidence/USER-SCOPE-HOOK-CARRIER-2026-08-27.md`.
 
 **Not to be started before Step 3 has an accepted owner map:** the plan's Step 9
 (adapters) and Step 12 (final audit).
