@@ -96,78 +96,72 @@ procedure below has run.
 Code can be given trigger-dispatch; Codex cannot, by this mechanism. Any design
 that assumes fleet-wide uniformity will fail silently on the Codex side.
 
-## Procedure -- settle Finding 3 on the operator's machine
+## Procedure -- WITHDRAWN 2026-08-27, and why
 
-The probe is `scripts/Probe-UserScopeHook.py`. It appends one line per session to
-`~/.claude/hook-trace.log`, prints nothing, and always exits 0, so it cannot
-change or block what any session does. It is a measurement, not a carrier;
-remove it once the run is recorded.
+`scripts/Probe-UserScopeHook.py` is **removed** along with it, recoverable from
+git at `c2c11d5`. It is not fixed and kept, because the question no longer needs
+an instrument and a bad one invites reuse: its `--selftest` never executed
+`log_path()` and never called `main()`, so 8 of 11 injected defects passed it
+green -- including a probe writing to the wrong filename, and a probe that never
+records when invoked as a hook. Those are the two things the operator most needed
+proven. Any argument other than the exact string `--selftest` also fell through
+to the recording path, so a mistyped flag silently appended a real line and
+poisoned both directions of the reading.
 
-Both directions are required (D-65). A line appearing proves nothing on its own.
+**Do not run the earlier version of this procedure.** It is preserved in git at
+`c2c11d5`. Three defects, two of them found by an independent audit and one
+dangerous:
 
-**Step 0 -- rule out the false negative first.** If the interpreter named in the
-hook command is not on PATH, the hook never runs and the log stays empty, which
-looks exactly like "user scope does not load". `.githooks/pre-commit` already
-tries `python3`, then `python`, then `py -3` for this reason. Run each and use
-whichever answers:
+1. **Its Step 2 could destroy the operator's whole configuration.** It printed a
+   complete `settings.json` document with a prose caveat beside it saying to
+   merge "if that file already has a `hooks` key". The caveat was under-scoped --
+   pasting the document replaces the file whatever keys it has, taking `model`,
+   `env`, `statusLine`, every other hook, and `permissions.allow` /
+   `permissions.deny` with it. Losing `permissions.deny` silently **widens** what
+   every later session on that machine may do. The CLI keeps no backup of
+   `settings.json` to restore from.
+2. **It could not produce a trustworthy negative.** Every failure mode of the
+   probe is byte-identical to the result it measures: a JSON syntax error in the
+   settings file drops the entire file with no warning to the operator
+   (`f46` parses with reporting off and returns `settings: null`), and the probe
+   swallows every write failure and exits 0 in silence. An empty log meant
+   "user scope does not load", "you mistyped the JSON", "the interpreter is not
+   on PATH", or "the log was not writable", with nothing to tell them apart.
+3. **It sampled a variable the resolution code never reads.** See
+   `evidence/HOOK-SCOPE-RESOLUTION-2026-08-27.md`: user settings are
+   home-anchored and the execution path never consults the working directory.
 
-    python3 --version
-    python --version
-    py -3 --version
+## What answers the question instead -- read-only, nothing installed
 
-Then confirm the probe itself works before trusting an empty log:
+`evidence/HOOK-SCOPE-RESOLUTION-2026-08-27.md` settles #43 from the
+implementation. What remains is confirming this machine is not in one of the
+states that gate the outcome. None of these writes anything.
 
-    <interpreter> scripts\Probe-UserScopeHook.py --selftest
+1. **Version.** `claude --version`. The implementation reading is against 2.1.42;
+   a materially different version needs re-reading, not assuming.
+2. **What the CLI thinks is registered.** Run `/hooks` in a session. It labels
+   every hook with its source -- *"User settings (~/.claude/settings.json)"*,
+   *"Project settings"*, *"Plugin hooks"*. This reads out directly what the
+   withdrawn trial tried to infer, and it distinguishes *not registered* from
+   *registered but not firing*, which an empty log cannot.
+3. **Is the user settings file even valid?** An invalid file is ignored whole and
+   in silence:
 
-**Step 1 -- copy the probe somewhere stable**, e.g.
-`C:\Users\Chloe\.claude\hooks\Probe-UserScopeHook.py`.
+       python -c "import json,os;json.load(open(os.path.expanduser('~/.claude/settings.json')));print('valid')"
 
-**Step 2 -- register it at USER SCOPE ONLY**, in
-`C:\Users\Chloe\.claude\settings.json`. Not in any project's settings, or the
-result cannot distinguish the two scopes. If that file already has a `hooks` key,
-merge into it rather than replacing it:
+4. **Four states that switch hooks off regardless of scope:**
+   - managed settings at `C:\ProgramData\ClaudeCode\managed-settings.json`
+     setting `allowManagedHooksOnly` -- blocks all user, project and local hooks;
+   - `disableAllHooks` in **any** scope, including a project's own settings;
+   - workspace trust not accepted for a directory (interactive sessions only);
+   - `CLAUDE_CONFIG_DIR` set, or Cowork mode, either of which changes which file
+     "user scope" even means.
 
-    {
-      "hooks": {
-        "UserPromptSubmit": [
-          { "hooks": [ { "type": "command",
-                         "command": "<interpreter> \"C:\\Users\\Chloe\\.claude\\hooks\\Probe-UserScopeHook.py\"",
-                         "timeout": 20 } ] }
-        ]
-      }
-    }
-
-**Step 3 -- baseline.** Record the log's current line count, or that it does not
-exist:
-
-    type "%USERPROFILE%\.claude\hook-trace.log"
-
-**Step 4 -- positive direction.** Open a FRESH session in each of these three and
-submit any one prompt in each. Fresh matters: a session already open may not pick
-up the registration.
-
-  - a governed workspace project under `C:\KloWorkspaces`
-  - `C:\Users\Chloe\.agents-hub`
-  - a directory that is not a git repository at all
-
-**Step 5 -- read the log.** Expected if user scope loads: three new lines, each
-naming its own directory.
-
-**Step 6 -- negative direction.** Remove the hook from
-`C:\Users\Chloe\.claude\settings.json`. Open a fresh session in the same
-governed workspace project and submit one prompt.
-
-**Step 7 -- read the log again.** Expected: **no new line.** A new line here means
-something else is writing the log and Step 5 proved nothing.
-
-**Step 8 -- record it** in `evidence/`, including a partial or negative result,
-and close issue #43 with what happened. A hook that fires in two of three
-directories is a finding, not a retry.
-
-**Reading the result.** All three fire and the negative direction is clean: user
-scope is the carrier, and the injector set moves there. Any directory misses:
-user scope is not sufficient alone, and coverage has to be per-project or per
-managed-settings, which is a materially different design and a different Step 9.
+**Reading the result.** `/hooks` lists the hook under *User settings* in a
+directory whose project sets nothing: user scope reaches that session. It does
+**not** license "user scope is the carrier" -- `disableAllHooks` at project scope
+is a per-project kill switch, so the bypass-proof carrier is managed settings.
+That is a separate question and a separate item.
 
 This is an environment boundary, not a defect. It is recorded in `STATE.md`
 § Verification assignments with an executor.
