@@ -1,3 +1,4 @@
+# CLI_PAYLOAD_KEYS: payloads in this suite must match the CLI's own shape.
 #!/usr/bin/env python3
 """Prove every gate in both directions, and prove the suite is not vacuous.
 
@@ -633,7 +634,7 @@ def case_delegation_injection(tmp):
     def ask(prompt):
         return run_hook(INJECT_DELEGATION,
                         {'hook_event_name': 'UserPromptSubmit', 'cwd': root,
-                         'user_prompt': prompt})
+                         'prompt': prompt})
 
     for prompt in ('review the change before I merge it',
                    'audit what you just wrote',
@@ -658,7 +659,7 @@ def case_delegation_injection(tmp):
     os.remove(os.path.join(nogates, 'rules', 'VERIFICATION-RESOLUTION.md'))
     code, out, _ = run_hook(INJECT_DELEGATION,
                             {'hook_event_name': 'UserPromptSubmit',
-                             'cwd': nogates, 'user_prompt': 'review this'})
+                             'cwd': nogates, 'prompt': 'review this'})
     ok = code == 0 and out.strip() == ''
     RESULTS.append((ok, 'injection is silent where the rule is not held'))
     print('%s  injection is silent where the rule is not held'
@@ -765,7 +766,7 @@ def case_rule_triggers(tmp):
     root = _rules_repo(os.path.join(tmp, 'rules-inject'))
     code, out, err = run_hook(INJECT_RULES,
                               {'hook_event_name': 'UserPromptSubmit',
-                               'cwd': root, 'user_prompt': 'is it verified'})
+                               'cwd': root, 'prompt': 'is it verified'})
     check('rule injector runs', code, 0, err)
     check_in('rule injector emits the triggered rule', 'RULE IN SCOPE', out)
     check_in('rule injector emits the owning section text',
@@ -773,7 +774,7 @@ def case_rule_triggers(tmp):
 
     code, out, _ = run_hook(INJECT_RULES,
                             {'hook_event_name': 'UserPromptSubmit',
-                             'cwd': root, 'user_prompt': 'what time is it'})
+                             'cwd': root, 'prompt': 'what time is it'})
     ok = 'RULE IN SCOPE' not in out
     RESULTS.append((ok, 'rule injector stays silent when no trigger matches'))
     print('%s  rule injector stays silent when no trigger matches'
@@ -782,18 +783,66 @@ def case_rule_triggers(tmp):
     write(root, 'AGENTS.md', '# Agents\n\n## Evidence standards\n\nx\n')
     code, out, _ = run_hook(INJECT_RULES,
                             {'hook_event_name': 'UserPromptSubmit',
-                             'cwd': root, 'user_prompt': 'is it verified'})
+                             'cwd': root, 'prompt': 'is it verified'})
     check_in('rule injector says NOT READ rather than falling silent',
              'RULE NOT READ', out)
 
 
+def case_payload_shape(tmp):
+    """The payload contract itself, asserted against the CLI's own shape.
+
+    Every injector case built its payload with `user_prompt`, a key the CLI has
+    never sent -- it is a telemetry attribute. The hooks read it, got an empty
+    string, and every trigger missed. The suite passed 129/129 against a shape
+    that does not exist, which is why nothing caught it: a self-confirming
+    fixture proves only that the fixture agrees with itself.
+    """
+    root = _rules_repo(os.path.join(tmp, 'payload-shape'))
+    exact = {'session_id': 's1', 'transcript_path': '/tmp/t.jsonl',
+             'cwd': root, 'permission_mode': 'default',
+             'hook_event_name': 'UserPromptSubmit',
+             'prompt': 'is this verified'}
+    code, out, err = run_hook(INJECT_RULES, exact)
+    check('injector fires on the exact CLI payload shape', code, 0, err)
+    check_in('and reaches a triggered entry, not just the always-on one',
+             'Evidence standard', out)
+
+    code, out, err = run_hook(INJECT_DELEGATION, exact)
+    check('delegation injector fires on the exact CLI payload shape', code, 0, err)
+    check_in('delegation criteria actually reach context', 'PERFORMER CHECK', out)
+
+    # No prompt key at all must not crash: prompt_text() once recursed here.
+    code, out, err = run_hook(INJECT_RULES, {'cwd': root})
+    check('no prompt key does not crash the injector', code, 0, err)
+    code, out, err = run_hook(INJECT_DELEGATION, {'cwd': root})
+    check('no prompt key does not crash the delegation injector', code, 0, err)
+
+    # The legacy key keeps working, so a payload change cannot re-break this.
+    code, out, _ = run_hook(INJECT_RULES, {'cwd': root,
+                                           'user_prompt': 'is this verified'})
+    check_in('legacy user_prompt key still honoured', 'Evidence standard', out)
+
+
 MUTATIONS = (
+    ('inject_rules.py', "payload.get('prompt') or", "payload.get('nope') or",
+     'injector reads a key the CLI does not send'),
+    # Survives BY DESIGN, and saying so is the honest record. Once the checker
+    # raises ImportError instead of calling sys.exit, `except Exception` catches
+    # it too, so flipping this is a no-op today. The BaseException catch guards a
+    # FUTURE checker that exits at import; no case can discriminate it now, and
+    # pretending one does would be the decorative-case defect D-65 warns about.
     ('wg_gates.py', "except BaseException as exc:", "except Exception as exc:",
-     'gate stops surviving a SystemExit from the imported checker'),
+     'CONTROL: BaseException catch is redundant while the checker raises',
+     'survives'),
     ('wg_gates.py', "for item in broken:", "for item in ():",
      'rule-trigger gate never blocks'),
+    # Also survives by design: without the isfile guard, importlib fails on the
+    # missing path and the except arm produces the same blocking CHECK COULD NOT
+    # RUN finding. Two routes to one refusal. The guard buys a clearer message,
+    # not a different outcome, so no case can tell them apart.
     ('wg_gates.py', "if not os.path.isfile(checker):", "if False and not os.path.isfile(checker):",
-     'a table with no checker silently skips'),
+     'CONTROL: isfile guard is a nicer message for a failure importlib also catches',
+     'survives'),
     ('wg_gates.py', "if entry_removals:", "if False:",
      'append-only never blocks'),
     ('wg_gates.py', "for m in ENTRY_MARKERS", "for m in ()",
@@ -904,6 +953,7 @@ def main():
         case_delegation(tmp)
         case_delegation_injection(tmp)
         case_rule_triggers(tmp)
+        case_payload_shape(tmp)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

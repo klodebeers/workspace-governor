@@ -77,6 +77,20 @@ def repo_root(cwd):
     return out.stdout.decode('utf-8', 'replace').strip() or None
 
 
+def prompt_text(payload):
+    """The submitted prompt, under the key the CLI actually sends.
+
+    The CLI builds a UserPromptSubmit payload as
+    `{session_id, transcript_path, cwd, permission_mode, hook_event_name, prompt}`.
+    `user_prompt` is a telemetry attribute and has never been a payload key, so a
+    hook reading it saw an empty string and every trigger missed -- silently, and
+    in the safe-looking direction: no output is indistinguishable from no match.
+    Both keys are accepted so a payload shape change cannot re-break this quietly,
+    and test_hooks.py asserts the CLI shape specifically.
+    """
+    return payload.get('prompt') or payload.get('user_prompt') or ''
+
+
 def main():
     try:
         payload = json.load(sys.stdin)
@@ -89,7 +103,7 @@ def main():
     if not os.path.isfile(os.path.join(root, 'rules',
                                        'VERIFICATION-RESOLUTION.md')):
         return 0
-    prompt = payload.get('user_prompt') or ''
+    prompt = prompt_text(payload)
     if not prompt:
         return 0
     if not any(re.search(t, prompt, re.I) for t in TRIGGERS):

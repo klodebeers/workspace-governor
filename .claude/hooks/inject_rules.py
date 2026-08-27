@@ -116,11 +116,25 @@ def section(path, heading):
     return '\n'.join(lines[start:]).strip()
 
 
-def clip(text, limit):
-    if len(text) <= limit:
-        return text
-    cut = text[:limit].rsplit('\n', 1)[0].rstrip()
-    return cut + '\n[... trimmed to %d chars; read the section in full ...]' % limit
+def pointer(source, size, limit):
+    """What to say when a section will not fit.
+
+    NEVER a prefix. A truncated prohibition is worse than no prohibition: the
+    surviving half arrives under an authoritative header, so the agent that
+    would have opened the file now has something that looks like the answer.
+    Measured on this repository, a 1400-char prefix of STATE.md Stop conditions
+    dropped the approval boundary -- the one condition standing between an agent
+    and an unapproved change to live governance -- and a prefix of the ownership
+    table dropped 11 of its rows plus the STATE/DECISIONS tiebreak, which is the
+    two-differing-versions defect the table exists to forbid.
+
+    Stop conditions and ownership tables are also APPENDED to, so a tail-trim
+    always drops the newest rule.
+    """
+    return ('RULE IN SCOPE -- %s\n'
+            'Too large to quote (%d chars, cap %d). It is NOT reproduced here, '
+            'because half a prohibition reads as the whole one.\n'
+            'READ THE SECTION before deciding.\n' % (source, size, limit))
 
 
 def load_table(root):
@@ -135,19 +149,28 @@ def load_table(root):
 
 
 def selected(entries, prompt):
+    """Entries the prompt actually matched first, always-on entries last.
+
+    Order decides eviction when the total cap is reached, and file order gave
+    the always-on entry -- which matched nothing -- priority over entries that
+    matched the prompt's own words. Measured: a prompt naming intake and
+    DECISIONS.md had both of those evicted by the entry that matched nothing.
+    """
+    matched, unconditional = [], []
     for entry in entries:
         if entry.get('always'):
-            yield entry
+            unconditional.append(entry)
             continue
-        triggers = entry.get('triggers') or ()
-        for pattern in triggers:
+        for pattern in entry.get('triggers') or ():
             try:
                 hit = re.search(pattern, prompt, re.I)
             except re.error:
                 hit = None
             if hit:
-                yield entry
+                matched.append(entry)
                 break
+    for entry in matched + unconditional:
+        yield entry
 
 
 def render(root, entry, entry_cap):
@@ -158,11 +181,27 @@ def render(root, entry, entry_cap):
         return ('RULE NOT READ -- %s did not resolve. The rule it carries is not\n'
                 'in front of you; do not treat its absence as permission.\n'
                 % source)
+    if len(body) > entry_cap:
+        return pointer(source, len(body), entry_cap)
     head = 'RULE IN SCOPE -- %s' % source
     why = entry.get('why')
     if why:
         head += '\n(why now: %s)' % why
-    return '%s\n\n%s\n' % (head, clip(body, entry_cap))
+    return '%s\n\n%s\n' % (head, body)
+
+
+def prompt_text(payload):
+    """The submitted prompt, under the key the CLI actually sends.
+
+    The CLI builds a UserPromptSubmit payload as
+    `{session_id, transcript_path, cwd, permission_mode, hook_event_name, prompt}`.
+    `user_prompt` is a telemetry attribute and has never been a payload key, so a
+    hook reading it saw an empty string and every trigger missed -- silently, and
+    in the safe-looking direction: no output is indistinguishable from no match.
+    Both keys are accepted so a payload shape change cannot re-break this quietly,
+    and test_hooks.py asserts the CLI shape specifically.
+    """
+    return payload.get('prompt') or payload.get('user_prompt') or ''
 
 
 def main():
@@ -170,7 +209,7 @@ def main():
         payload = json.load(sys.stdin)
     except Exception:
         return 0
-    prompt = payload.get('user_prompt') or ''
+    prompt = prompt_text(payload)
     cwd = payload.get('cwd') or os.getcwd()
     root = repo_root(cwd)
     if not root:
@@ -185,8 +224,9 @@ def main():
         return 0
     entry_cap = int(table.get('max_chars_per_entry') or FALLBACK_ENTRY_CHARS)
     total_cap = int(table.get('max_chars_total') or FALLBACK_TOTAL_CHARS)
+    marker = '<!-- injected by .claude/hooks/inject_rules.py -->'
     chunks = []
-    spent = 0
+    spent = len(marker) + 1        # the marker is printed; count it
     withheld = []
     for entry in selected(table.get('entries') or (), prompt):
         piece = render(root, entry, entry_cap)
@@ -197,7 +237,7 @@ def main():
         spent += len(piece)
     if not chunks:
         return 0
-    print('<!-- injected by .claude/hooks/inject_rules.py -->')
+    print(marker)
     print('\n'.join(chunks))
     if withheld:
         print('WITHHELD for total length: %s. These rules apply and were not\n'
