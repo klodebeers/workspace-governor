@@ -792,6 +792,19 @@ def case_rule_triggers(tmp):
     check_in('and says the mechanism would go silent',
              'RULE TABLE IS GONE BUT THE INJECTOR IS STILL WIRED', out.stderr)
 
+    # The checker removed from the INDEX but still on disk. The earlier case
+    # deleted it from both, so importlib failed either way and the guard that
+    # notices "not in this commit" was never exercised -- a mutation of it
+    # survived the whole suite. Without the guard the gate imports the worktree
+    # copy and passes, so the commit records a table with no checker beside it.
+    root = _rules_repo(os.path.join(tmp, 'rules-checker-uncommitted'))
+    git(root, 'rm', '-q', '--cached', 'scripts/Assert-RuleTriggerFidelity.py')
+    out = git(root, 'commit', '-m', 'uncommit the checker')
+    check('git hook refuses a commit that drops the checker but keeps it on disk',
+          out.returncode, 1, out.stderr)
+    check_in('and reports it as unrunnable rather than passing',
+             'CHECK COULD NOT RUN', out.stderr)
+
     # A repo with no table at all is untouched: not every clone wires this.
     root = make_repo(os.path.join(tmp, 'rules-absent'))
     write(root, 'note.md', 'ordinary edit\n')
@@ -876,13 +889,12 @@ MUTATIONS = (
      'survives'),
     ('wg_gates.py', "for item in broken:", "for item in ():",
      'rule-trigger gate never blocks'),
-    # Also survives by design: without the isfile guard, importlib fails on the
-    # missing path and the except arm produces the same blocking CHECK COULD NOT
-    # RUN finding. Two routes to one refusal. The guard buys a clearer message,
-    # not a different outcome, so no case can tell them apart.
-    ('wg_gates.py', "if not os.path.isfile(checker):", "if False and not os.path.isfile(checker):",
-     'CONTROL: isfile guard is a nicer message for a failure importlib also catches',
-     'survives'),
+    # Retargeted after check_rule_triggers was rewritten to read the staged
+    # tree: the isfile(checker) guard it used to break no longer exists, and a
+    # mutation whose pattern is gone is reported stale -- a decorative case
+    # under another name. This breaks the guard that now stands in its place.
+    ('wg_gates.py', "    if ccode != 0:", "    if False:",
+     'gate stops noticing that the checker is not in the commit'),
     ('wg_gates.py', "if entry_removals:", "if False:",
      'append-only never blocks'),
     ('wg_gates.py', "for m in ENTRY_MARKERS", "for m in ()",
