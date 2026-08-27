@@ -805,6 +805,49 @@ def case_rule_triggers(tmp):
     check_in('and reports it as unrunnable rather than passing',
              'CHECK COULD NOT RUN', out.stderr)
 
+    # Item 2 and 3 of the fix audit had no case at all: the truncation mutant
+    # and the eviction-order mutant both survived the whole suite. These are
+    # the cases that make those mutations fail.
+    root = _rules_repo(os.path.join(tmp, 'rules-pointer'))
+    big = 'x' * 40 + ' PROHIBITION LINE THAT MUST NEVER APPEAR IN PART.\n'
+    write(root, 'AGENTS.md',
+          '# Agents\n\n## Evidence standard\n\n' + (big * 40) +
+          '\n## Secrets\n\nNone.\n')
+    code, out, err = run_hook(INJECT_RULES,
+                              {'hook_event_name': 'UserPromptSubmit',
+                               'cwd': root, 'prompt': 'is this verified'})
+    check('an oversize section runs', code, 0, err)
+    check_in('an oversize section is a pointer', 'Too large to quote', out)
+    ok = 'PROHIBITION LINE THAT MUST NEVER APPEAR IN PART' not in out
+    RESULTS.append((ok, 'no part of an oversize section is emitted'))
+    print('%s  no part of an oversize section is emitted'
+          % ('ok  ' if ok else 'FAIL'))
+
+    # Eviction: a matched entry must outlive an always-on one that matched
+    # nothing, when the total cap cannot hold both.
+    root = _rules_repo(os.path.join(tmp, 'rules-eviction'))
+    # Bodies sized so the total cap admits exactly one chunk: with both at
+    # ~200 chars, a 320-char total holds the first and must withhold the second.
+    write(root, 'AGENTS.md',
+          '# Agents\n\n## Evidence standard\n\nMATCHED ENTRY BODY. '
+          + 'm' * 180 + '\n\n## Secrets\n\nALWAYS ON BODY. '
+          + 'a' * 180 + '\n')
+    write(root, '.claude/hooks/rule-triggers.json', json.dumps({
+        'max_chars_per_entry': 4000, 'max_chars_total': 320,
+        'entries': [
+            {'id': 'always', 'file': 'AGENTS.md', 'heading': 'Secrets',
+             'always': True},
+            {'id': 'ev', 'file': 'AGENTS.md', 'heading': 'Evidence standard',
+             'triggers': ['\\bverified\\b']},
+        ]}))
+    code, out, _ = run_hook(INJECT_RULES,
+                            {'hook_event_name': 'UserPromptSubmit',
+                             'cwd': root, 'prompt': 'is this verified'})
+    check_in('the entry the prompt matched survives eviction',
+             'MATCHED ENTRY BODY', out)
+    check_in('and the always-on entry is the one withheld',
+             'WITHHELD for total length: always', out)
+
     # A repo with no table at all is untouched: not every clone wires this.
     root = make_repo(os.path.join(tmp, 'rules-absent'))
     write(root, 'note.md', 'ordinary edit\n')
@@ -873,7 +916,38 @@ def case_payload_shape(tmp):
     check_in('legacy user_prompt key still honoured', 'Evidence standard', out)
 
 
+def case_checker_selftest(tmp):
+    """Run the checker's own selftest as a suite case.
+
+    Nothing automated ran it, so every check living in
+    Assert-RuleTriggerFidelity.py was proven only by a command a human had to
+    remember. A mutation of any of them survived the whole suite.
+    """
+    del tmp
+    out = subprocess.run([sys.executable, RULE_CHECKER, '--selftest'],
+                         capture_output=True, text=True, env=env())
+    check('the rule checker selftest passes', out.returncode, 0,
+          out.stdout[-400:] + out.stderr[-400:])
+    check_in('and reports every case', 'selftest cases passed', out.stdout)
+
+
 MUTATIONS = (
+    ('inject_rules.py', "        return pointer(source, len(body), entry_cap)",
+     "        return 'RULE IN SCOPE -- %s\\n\\n%s\\n' % (source, body[:entry_cap])",
+     'oversize section truncated instead of pointered'),
+    ('inject_rules.py', "    for entry in matched + unconditional:",
+     "    for entry in unconditional + matched:",
+     'always-on entry regains eviction priority'),
+    ('scripts/Assert-RuleTriggerFidelity.py', "        if not inside(root, name):",
+     "        if False:", 'checker stops refusing a file outside the root'),
+    ('scripts/Assert-RuleTriggerFidelity.py', "            _, bad = positive_int(table.get(field), 1)",
+     "            _, bad = (1, [])", 'checker stops checking caps'),
+    ('scripts/Assert-RuleTriggerFidelity.py', "                problem = compiles_safely(pattern)",
+     "                problem = None", 'checker stops checking regex safety'),
+    ('scripts/Assert-RuleTriggerFidelity.py', "            if isinstance(triggers, str) or not isinstance(triggers, list):",
+     "            if False:", 'checker stops refusing triggers-as-string'),
+    ('scripts/Assert-RuleTriggerFidelity.py', "            if len(shared) >= WHY_VERBATIM_LIMIT:",
+     "            if False:", 'why-verbatim check disabled'),
     ('wg_gates.py', "prefix = ':' if diff_args == ['--cached'] else 'HEAD:'",
      "prefix = 'HEAD:' if diff_args == ['--cached'] else 'HEAD:'",
      'rule gate reads the wrong tree'),
@@ -963,7 +1037,16 @@ def run_mutations():
         shutil.copytree(HOOKS, hooks,
                         ignore=shutil.ignore_patterns('__pycache__'))
         shutil.copytree(GITHOOKS, ghooks)
-        target = os.path.join(hooks, filename)
+        # scripts/ is copied too, so a row may target the checker. Without this
+        # the harness could only mutate .claude/hooks/, and every fix living in
+        # Assert-RuleTriggerFidelity.py was unreachable: nine such mutations
+        # survived because nothing could break the file they live in.
+        scripts = os.path.join(work, 'scripts')
+        shutil.copytree(SCRIPTS, scripts,
+                        ignore=shutil.ignore_patterns('__pycache__'))
+        target = (os.path.join(scripts, os.path.basename(filename))
+                  if filename.startswith('scripts/')
+                  else os.path.join(hooks, filename))
         source = open(target, encoding='utf-8').read()
         if old not in source:
             print('SKIP  %-58s pattern not found -- mutation is stale' % label)
@@ -975,7 +1058,7 @@ def run_mutations():
             [sys.executable, os.path.join(hooks, 'test_hooks.py')],
             capture_output=True, text=True, timeout=900,
             env=env({'WG_HOOKS_DIR': hooks, 'WG_GITHOOKS_DIR': ghooks,
-                     'WG_SCRIPTS_DIR': SCRIPTS}))
+                     'WG_SCRIPTS_DIR': scripts}))
         noticed = proc.returncode != 0
         wanted = (expect == 'caught')
         verdict = 'caught' if noticed else 'survived'
@@ -1006,6 +1089,7 @@ def main():
         case_delegation_injection(tmp)
         case_rule_triggers(tmp)
         case_payload_shape(tmp)
+        case_checker_selftest(tmp)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

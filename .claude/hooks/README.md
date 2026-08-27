@@ -33,7 +33,7 @@ A parser guessing what git will do cannot be the carrier. So:
 | **Prompt injection** | `.claude/hooks/inject_plan_position.py` | Puts the authoritative plan position into context every prompt. |
 | **Delegation gate** | `.claude/hooks/gate_delegation.py` | Refuses a stop when the session claims an independent review, audit or adversarial check and no delegate ran. |
 | **Performer injection** | `.claude/hooks/inject_delegation_check.py` | Puts the required-delegation criteria into context when a prompt is about review, audit or verification. |
-| **Rule injection** | `.claude/hooks/inject_rules.py`, table in `.claude/hooks/rule-triggers.json` | Puts the section that owns a rule into context when a prompt is about the work that rule governs. Table-driven; holds no rule text of its own. |
+| **Rule injection** | `.claude/hooks/inject_rules.py`, table in `.claude/hooks/rule-triggers.json` | Puts the section that owns a rule into context when a prompt is about the work that rule governs -- or, where the section exceeds the per-entry cap, a pointer saying to read it. Three of five entries are pointers today, so this carrier delivers rule *text* for a minority of them. Table-driven; holds no rule text of its own, and a check refuses a `why` field that quotes its section. |
 | **Rule-trigger gate** | `wg_gates.check_rule_triggers`, checker in `scripts/Assert-RuleTriggerFidelity.py` | Refuses a commit that leaves any trigger-table entry pointing at a heading that no longer resolves. |
 
 The two layers compose: the git hooks cannot be reached around except by the four cases

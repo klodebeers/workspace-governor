@@ -46,7 +46,17 @@ import sys
 import tempfile
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-_HOOKS = os.path.join(os.path.dirname(_HERE), '.claude', 'hooks')
+# Where the matcher lives. The repository's own .claude/hooks wins whenever that
+# directory exists, so a repo that has the directory but is MISSING
+# inject_rules.py still fails to import -- which is the condition the gate must
+# report as CHECK COULD NOT RUN. WG_HOOKS_DIR is consulted only when the
+# repo-relative directory is absent entirely, which is the mutation harness
+# running a copy out of a temp tree. An unconditional override hid the missing
+# -injector case; a purely relative path broke under the harness and made every
+# mutation look caught for an environmental reason. Both were wrong.
+_LOCAL_HOOKS = os.path.join(os.path.dirname(_HERE), '.claude', 'hooks')
+_HOOKS = (_LOCAL_HOOKS if os.path.isdir(_LOCAL_HOOKS)
+          else (os.environ.get('WG_HOOKS_DIR') or _LOCAL_HOOKS))
 if _HOOKS not in sys.path:
     sys.path.insert(0, _HOOKS)
 
@@ -111,26 +121,70 @@ def heading_count(path, heading):
     return hits
 
 
-RISKY_REGEX = re.compile(r'\(([^()]*[+*][^()]*)\)\s*[+*]')
+# A quantifier nested in a quantified group -- (a+)+ -- backtracks exponentially,
+# and the shape is unambiguous, so it is refused statically.
+RISKY_NESTED = re.compile(r'\(([^()]*[+*][^()]*)\)\s*[*+]')
+
+# Alternation is NOT refused statically. The first attempt flagged any quantified
+# group containing "|", which refuses (foo|bar)+ -- a safe and ordinary pattern.
+# A checker that rejects valid tables is a defect, not a gate. Whether a pattern
+# actually backtracks is measured instead, below.
+BACKTRACK_PROBES = ('a' * 44 + '!', 'ab' * 26 + '!', 'x' * 40 + 'y')
+BACKTRACK_BUDGET_SECONDS = 2
+
+
+def terminates(pattern, budget=BACKTRACK_BUDGET_SECONDS):
+    """Run the pattern against adversarial input under a wall-clock budget.
+
+    Measured rather than guessed, in a subprocess so a runaway match can be
+    killed: signal-based timeouts are not portable and the operator is on
+    Windows. `(a|aa)+$` compiles, passes every static shape test worth having,
+    and then stalls the hook for its full timeout on a 44-character prompt --
+    which is exactly the failure this is here to catch.
+
+    Returns None when every probe finishes inside the budget.
+    """
+    program = (
+        'import re,sys,json\n'
+        'p=json.loads(sys.argv[1]); s=json.loads(sys.argv[2])\n'
+        're.search(p, s)\n')
+    for probe in BACKTRACK_PROBES:
+        try:
+            done = subprocess.run(
+                [sys.executable, '-c', program, json.dumps(pattern),
+                 json.dumps(probe)],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=budget)
+        except subprocess.TimeoutExpired:
+            return ('did not finish matching %d characters within %ds, so it '
+                    'would stall every prompt that reaches it'
+                    % (len(probe), budget))
+        except Exception as exc:
+            return 'could not be timed (%s), so it is not accepted' % exc
+        if done.returncode != 0:
+            return 'raised while matching: %s' % (
+                done.stderr.decode('utf-8', 'replace').strip().splitlines()[-1:]
+                or 'unknown')
+    return None
 
 
 def compiles_safely(pattern):
     """Reject a pattern that compiles but may not terminate.
 
-    The checker proved a trigger compiles and stopped there. `(a+)+$` compiles
-    and then hangs the hook on a prompt of ~40 a's -- capped only by the hook
-    timeout, so it degrades to a stall on every matching prompt. This is a
-    static heuristic on nested quantifiers rather than a timed run, because the
-    operator machine is Windows and signal-based timeouts are not portable.
+    Compiling is not enough: `(a+)+$` and `(a|aa)+$` both compile and then
+    backtrack exponentially, stalling the hook for its whole timeout on a
+    44-character prompt. The unambiguous nested shape is refused statically; for
+    everything else the pattern is timed against adversarial input, because a
+    static test broad enough to catch the alternation case also refuses
+    `(foo|bar)+`, and a checker that rejects valid tables is a defect.
     """
     try:
         re.compile(pattern)
     except re.error as exc:
         return 'does not compile: %s' % exc
-    if RISKY_REGEX.search(pattern):
+    if RISKY_NESTED.search(pattern):
         return ('nests a quantifier inside a quantified group, which can run '
                 'exponentially; rewrite it without the nesting')
-    return None
+    return terminates(pattern)
 
 
 WHY_VERBATIM_LIMIT = 40
@@ -289,9 +343,16 @@ def selftest():
         good = {'id': 'p', 'file': 'OWNER.md', 'heading': 'Persistence requirement',
                 'triggers': ['\\bdecision\\b']}
 
-        def check(name, entry, expect_finding):
+        def check(name, entry, expect_finding, expect_text=None):
+            """A case that asserts only bool(findings) passes for the wrong
+            reason. Two of these did: the path-guard cases produced a
+            'heading not found' finding once the guard was removed, so the
+            selftest stayed green with the check it names deleted -- the exact
+            defect D-65 and L-026 exist to catch."""
             found = audit(root, {'entries': [entry]})
             ok = bool(found) == expect_finding
+            if ok and expect_text:
+                ok = any(expect_text in item for item in found)
             cases.append((name, ok, found))
 
         check('clean entry passes', dict(good), False)
@@ -305,11 +366,15 @@ def selftest():
               dict(good, file='ASCII_DASH.md',
                    heading='Keeping it current \u2014 ROUTINE'), False)
         check('missing heading caught',
-              dict(good, heading='No Such Heading'), True)
+              dict(good, heading='No Such Heading'), True,
+              'not found in')
         check('missing file caught', dict(good, file='NOPE.md'), True)
-        check('duplicate heading caught', dict(good, file='TWICE.md'), True)
-        check('empty section caught', dict(good, file='EMPTY.md'), True)
-        check('bad regex caught', dict(good, triggers=['[unclosed']), True)
+        check('duplicate heading caught', dict(good, file='TWICE.md'), True,
+              'appears 2 times')
+        check('empty section caught', dict(good, file='EMPTY.md'), True,
+              'empty section')
+        check('bad regex caught', dict(good, triggers=['[unclosed']), True,
+              'does not compile')
         check('no trigger and not always caught',
               {'id': 'p', 'file': 'OWNER.md',
                'heading': 'Persistence requirement'}, True)
@@ -323,24 +388,36 @@ def selftest():
         check('a why that repeats the rule verbatim is caught',
               dict(good, file='ECHO.md',
                    why='A session that establishes a decision and ends without '
-                       'recording it has failed.'), True)
+                       'recording it has failed.'), True,
+              'repeats')
         check('a why that says when it fires passes',
               dict(good, file='ECHO.md',
                    why='Fires where a durable thing appears.'), False)
         check('a heading inside a code fence is not counted twice',
               dict(good, file='FENCE.md'), False)
         check('triggers as a bare string caught',
-              dict(good, triggers='decision'), True)
-        check('a non-string trigger caught', dict(good, triggers=[7]), True)
+              dict(good, triggers='decision'), True,
+              'triggers must be a list')
+        check('a non-string trigger caught', dict(good, triggers=[7]), True,
+              'is not a string')
         check('catastrophic backtracking caught',
-              dict(good, triggers=['(a+)+$']), True)
+              dict(good, triggers=['(a+)+$']), True,
+              'nests a quantifier')
         check('an ordinary grouped quantifier still passes',
               dict(good, triggers=['(foo|bar)+']), False)
         check('an absolute file path caught',
-              dict(good, file='/etc/hostname'), True)
+              dict(good, file='/etc/hostname'), True,
+              'outside the governance root')
+        check('a Windows drive-letter path caught on any platform',
+              dict(good, file='C:\\Windows\\win.ini'), True,
+              'outside the governance root')
+        check('an alternation that backtracks is caught by measurement',
+              dict(good, triggers=['(a|aa)+$']), True, 'did not finish matching')
         check('a traversing file path caught',
-              dict(good, file='../OUTSIDE.md'), True)
-        check('a non-object entry caught', 'not-an-entry', True)
+              dict(good, file='../OUTSIDE.md'), True,
+              'outside the governance root')
+        check('a non-object entry caught', 'not-an-entry', True,
+              'not an object')
         caps = audit(root, {'max_chars_per_entry': 'lots', 'entries': [dict(good)]})
         cases.append(('a non-numeric cap caught',
                       any('max_chars_per_entry' in f for f in caps), caps))

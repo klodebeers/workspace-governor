@@ -243,7 +243,13 @@ def prompt_text(payload):
     Both keys are accepted so a payload shape change cannot re-break this quietly,
     and test_hooks.py asserts the CLI shape specifically.
     """
-    return payload.get('prompt') or payload.get('user_prompt') or ''
+    text = payload.get('prompt')
+    if text is None:
+        text = payload.get('user_prompt')
+    # A non-string prompt reached re.search and raised TypeError, exit 1, against
+    # this module's stated never-raise contract. The payload is external input;
+    # its shape is not ours to assume.
+    return text if isinstance(text, str) else ''
 
 
 def main():
