@@ -670,7 +670,14 @@ def case_delegation_injection(tmp):
 # --------------------------------------------------------------------------
 
 INJECT_RULES = os.path.join(HOOKS, 'inject_rules.py')
-RULE_CHECKER = os.path.join(REPO, 'scripts', 'Assert-RuleTriggerFidelity.py')
+# REPO is derived from __file__, which is wrong under WG_HOOKS_DIR: the
+# mutation harness runs a COPY of this suite out of a temp dir, so REPO
+# resolves to the temp parent and any repo-relative path breaks. The
+# override matches WG_HOOKS_DIR / WG_GITHOOKS_DIR, which exist for exactly
+# this reason. Without it the suite crashed in every mutation run, and a
+# crash reads as 'the mutation was caught' -- a clean result meaning nothing.
+SCRIPTS = os.environ.get('WG_SCRIPTS_DIR') or os.path.join(REPO, 'scripts')
+RULE_CHECKER = os.path.join(SCRIPTS, 'Assert-RuleTriggerFidelity.py')
 
 _TABLE = ('{"entries": [{"id": "ev", "file": "AGENTS.md", '
           '"heading": "Evidence standard", "triggers": ["\\\\bverified\\\\b"]}]}')
@@ -679,6 +686,11 @@ _TABLE = ('{"entries": [{"id": "ev", "file": "AGENTS.md", '
 def _rules_repo(path):
     """A repo wired for the rule injector: table, hook and checker all present."""
     root = make_repo(path)
+    if not os.path.isfile(RULE_CHECKER) or not os.path.isfile(INJECT_RULES):
+        raise RuntimeError(
+            'rule-trigger fixtures missing: %s / %s. Failing loudly rather than '
+            'crashing mid-case, because a crash here reads as a caught mutation.'
+            % (RULE_CHECKER, INJECT_RULES))
     write(root, 'AGENTS.md',
           '# Agents\n\n## Evidence standard\n\nNever present confidence as '
           'verification.\n\n## Secrets\n\nNone here.\n')
@@ -861,7 +873,8 @@ def run_mutations():
         proc = subprocess.run(
             [sys.executable, os.path.join(hooks, 'test_hooks.py')],
             capture_output=True, text=True, timeout=900,
-            env=env({'WG_HOOKS_DIR': hooks, 'WG_GITHOOKS_DIR': ghooks}))
+            env=env({'WG_HOOKS_DIR': hooks, 'WG_GITHOOKS_DIR': ghooks,
+                     'WG_SCRIPTS_DIR': SCRIPTS}))
         noticed = proc.returncode != 0
         wanted = (expect == 'caught')
         verdict = 'caught' if noticed else 'survived'
