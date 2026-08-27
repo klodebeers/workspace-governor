@@ -202,11 +202,11 @@ decides.
 
 | Check | Result | Performer |
 |---|---|---|
-| `test_hooks.py` | 144 cases, 0 failed | this session (author) |
-| `test_hooks.py --mutations` | 29 rows, 26 caught, 0 behaved wrongly, at `1fc80dd` | this session (author) |
-| `Assert-RuleTriggerFidelity.py --selftest` | 25 cases, both directions | this session (author) |
+| `test_hooks.py` | 151 cases, 0 failed | this session (author) |
+| `test_hooks.py --mutations` | 36 rows, 33 caught, 0 behaved wrongly, at `f6d081a` | this session (author) |
+| `Assert-RuleTriggerFidelity.py --selftest` | 27 cases, each asserting which finding | this session (author) |
 | Live table | 5 entries, every heading resolves exactly once | this session (author) |
-| Review of the carrier code | 3 independent agents, rationale withheld per D-60 | **separate agents** |
+| Review of the carrier code | 3 agents on the carrier, 3 on the probe and the fixes, rationale withheld per D-60 | **separate agents** |
 
 The mutation figure is **not current**: it was produced against `3be99ca`, and the
 carrier changed materially afterwards. A re-run against the current tree is owed

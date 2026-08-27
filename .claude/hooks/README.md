@@ -134,25 +134,40 @@ Windows and `python3` is frequently not the name on PATH there.
 
 ## Verification status
 
-`python3 .claude/hooks/test_hooks.py` -- **144 cases, all passing** as of 2026-08-27.
+`python3 .claude/hooks/test_hooks.py` -- **151 cases, all passing** as of 2026-08-27.
 The content gates are exercised through **real `git commit` calls** in throwaway
 repositories, so a case proves the gate as git actually invokes it, including the eight
 forms that defeated the first version.
 
 `python3 .claude/hooks/test_hooks.py --mutations` additionally breaks each gate on
-purpose and requires the suite to notice: **29 mutations, 26 caught, 0 behaving
-wrongly, at `1fc80dd`** -- the three survivors are controls that must survive, each
-carrying, in the row itself, the reason no case can discriminate it.
+purpose and requires the suite to notice: **36 mutations, 33 caught, 0 behaving
+wrongly, at `f6d081a`** -- the three survivors are controls that must survive,
+each carrying, in the row itself, the reason no case can discriminate it.
 
-Getting to that number took five runs, and the first four are the reason this
-section exists. Run 1 reported 27 of 27 caught while the suite was crashing on a
-path bug in every one of them: a crash exits non-zero, and the harness reads
-non-zero as "the mutation was caught". Only the two no-op controls, which must
-survive and were flagged, exposed it. Run 4 reported a stale row -- and
-retargeting it showed the row was not merely stale, the mutation survived the
-whole suite, because the case meant to cover it removed a file from disk and from
-the index together and so never exercised the guard. **A mutation reported stale
-is a decorative case under another name; retarget it rather than deleting it.**
+The harness mutates `scripts/` as well as `.claude/hooks/`, and the suite runs
+`Assert-RuleTriggerFidelity.py --selftest` (27 cases) as a case of its own. Both
+were added because an independent auditor built nine mutation rows for fixes
+living in the checker and **all nine survived**: the harness could not reach the
+file they were in, and nothing automated ran the selftest that covered them. A
+check proven only by a command a human remembers to type is proven for as long
+as they remember.
+
+**Read this before trusting a number here.** It took seven runs to get one that
+measured anything, and the failures are more instructive than the total:
+
+- **Run 1** reported 27 of 27 caught while the suite crashed on a path bug in
+  every one. A crash exits non-zero, and the harness reads non-zero as "caught".
+  Only the two no-op controls, which must survive and were flagged, exposed it.
+- **Runs 4 and 6** each reported a **stale** row. Retargeting the first showed
+  the mutation then survived the whole suite: the case meant to cover it deleted
+  a file from disk and from the index together, so the guard was never
+  exercised. A stale row tests nothing while still counting in the total, which
+  is the same false-clean shape as a check that cannot run -- so the harness
+  reports stale as WRONG, and that is what caught both.
+- Twice while wiring the checker in, the environment defect was reintroduced:
+  a relative import that broke under `WG_HOOKS_DIR`, then an unconditional
+  override that hid the missing-injector case. **Run the unmutated control in
+  both layouts** -- real repo and harness copy -- before believing any run.
 
 **Not verified, and not verifiable from the environment these were written in:**
 
