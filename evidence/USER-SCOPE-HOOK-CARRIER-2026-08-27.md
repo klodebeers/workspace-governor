@@ -98,29 +98,71 @@ that assumes fleet-wide uniformity will fail silently on the Codex side.
 
 ## Procedure -- settle Finding 3 on the operator's machine
 
-Both directions, per `DECISIONS.md` D-65. A run that only shows the trace
-appearing proves nothing: the trace must also be absent when the hook is removed,
-or something else is writing it.
+The probe is `scripts/Probe-UserScopeHook.py`. It appends one line per session to
+`~/.claude/hook-trace.log`, prints nothing, and always exits 0, so it cannot
+change or block what any session does. It is a measurement, not a carrier;
+remove it once the run is recorded.
 
-1. Create `~/.claude/hooks/trace_probe.py`. It appends one line -- an ISO
-   timestamp and the session's working directory -- to `~/.claude/hook-trace.log`,
-   prints nothing, and exits 0.
-2. Register it as a `UserPromptSubmit` hook in `~/.claude/settings.json` only.
-   Do not put it in any project's settings.
-3. Note the log's current line count, or that it does not exist.
-4. **Positive direction.** Open a fresh session in each of three directories and
-   submit one prompt in each:
-   - a governed workspace project under `C:\KloWorkspaces`
-   - `~/.agents-hub`
-   - a directory that is not a git repository at all
-5. Record the log. Expected if user scope loads: three new lines, one per
-   directory, each naming that directory.
-6. **Negative direction.** Remove the hook from `~/.claude/settings.json`. Open a
-   fresh session in the same governed workspace project, submit one prompt.
-7. Record the log. Expected: **no new line.** A new line here means the trace has
-   a second source and step 5 proved nothing.
-8. Record both directions in `evidence/`, including a partial or negative result.
-   A hook that fires in two of three directories is a finding, not a retry.
+Both directions are required (D-65). A line appearing proves nothing on its own.
+
+**Step 0 -- rule out the false negative first.** If the interpreter named in the
+hook command is not on PATH, the hook never runs and the log stays empty, which
+looks exactly like "user scope does not load". `.githooks/pre-commit` already
+tries `python3`, then `python`, then `py -3` for this reason. Run each and use
+whichever answers:
+
+    python3 --version
+    python --version
+    py -3 --version
+
+Then confirm the probe itself works before trusting an empty log:
+
+    <interpreter> scripts\Probe-UserScopeHook.py --selftest
+
+**Step 1 -- copy the probe somewhere stable**, e.g.
+`C:\Users\Chloe\.claude\hooks\Probe-UserScopeHook.py`.
+
+**Step 2 -- register it at USER SCOPE ONLY**, in
+`C:\Users\Chloe\.claude\settings.json`. Not in any project's settings, or the
+result cannot distinguish the two scopes. If that file already has a `hooks` key,
+merge into it rather than replacing it:
+
+    {
+      "hooks": {
+        "UserPromptSubmit": [
+          { "hooks": [ { "type": "command",
+                         "command": "<interpreter> \"C:\\Users\\Chloe\\.claude\\hooks\\Probe-UserScopeHook.py\"",
+                         "timeout": 20 } ] }
+        ]
+      }
+    }
+
+**Step 3 -- baseline.** Record the log's current line count, or that it does not
+exist:
+
+    type "%USERPROFILE%\.claude\hook-trace.log"
+
+**Step 4 -- positive direction.** Open a FRESH session in each of these three and
+submit any one prompt in each. Fresh matters: a session already open may not pick
+up the registration.
+
+  - a governed workspace project under `C:\KloWorkspaces`
+  - `C:\Users\Chloe\.agents-hub`
+  - a directory that is not a git repository at all
+
+**Step 5 -- read the log.** Expected if user scope loads: three new lines, each
+naming its own directory.
+
+**Step 6 -- negative direction.** Remove the hook from
+`C:\Users\Chloe\.claude\settings.json`. Open a fresh session in the same
+governed workspace project and submit one prompt.
+
+**Step 7 -- read the log again.** Expected: **no new line.** A new line here means
+something else is writing the log and Step 5 proved nothing.
+
+**Step 8 -- record it** in `evidence/`, including a partial or negative result,
+and close issue #43 with what happened. A hook that fires in two of three
+directories is a finding, not a retry.
 
 **Reading the result.** All three fire and the negative direction is clean: user
 scope is the carrier, and the injector set moves there. Any directory misses:
