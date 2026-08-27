@@ -1,0 +1,80 @@
+{
+  "_comment": [
+    "Trigger table for inject_rules.py. This file holds NO rule text.",
+    "Each entry names the owning file and the exact heading of the section that",
+    "owns the rule; the hook reads that section live when the trigger fires.",
+    "That is deliberate: a copy of a rule here would be a second owner, which",
+    "AGENTS.md File ownership forbids, and it would drift silently. The only",
+    "thing that can rot here is a heading, and Assert-RuleTriggerFidelity.py",
+    "fails the commit when one stops resolving.",
+    "",
+    "always=true entries fire on every prompt. Use it only where the rule bears",
+    "on every decision; inject_delegation_check.py explains why anything else",
+    "becomes wallpaper.",
+    "",
+    "Adding an entry does not enforce anything. Injection puts a rule in front",
+    "of a decision; it cannot refuse. The refusal half is a gate -- see",
+    ".claude/hooks/README.md and DECISIONS.md C-03."
+  ],
+  "max_chars_per_entry": 1400,
+  "max_chars_total": 4200,
+  "entries": [
+    {
+      "id": "stop-conditions",
+      "always": true,
+      "file": "STATE.md",
+      "heading": "Stop conditions",
+      "why": "AGENTS.md Stop conditions: binding, and to be read before acting. They live in STATE.md and change, so they are read live rather than copied."
+    },
+    {
+      "id": "persistence",
+      "triggers": [
+        "\\bdecid(?:e|ed|ing)\\b", "\\bdecision\\b", "\\bsettled\\b",
+        "\\bblocker\\b", "\\bblocked\\b", "\\bunblock",
+        "\\bfinish(?:ed)?\\b", "\\bcomplete[ds]?\\b", "\\bdone\\b",
+        "\\babandon", "\\bnext action\\b", "\\bwrap up\\b",
+        "\\bfor the record\\b", "\\bwe agreed\\b"
+      ],
+      "file": "AGENTS.md",
+      "heading": "Persistence requirement",
+      "why": "A session that establishes a decision or a material finding and ends without recording it has failed. The trigger is the moment the durable thing appears, not the end of the session."
+    },
+    {
+      "id": "evidence-standard",
+      "triggers": [
+        "\\bverif(?:y|ied|ication)\\b", "\\bproven\\b", "\\bprove[sd]?\\b",
+        "\\bconfirm(?:ed|s)?\\b", "\\bvalidated\\b", "\\bit works\\b",
+        "\\bworking now\\b", "\\bis (?:now )?(?:live|active|installed|enforced|connected)\\b",
+        "\\bsuccessful(?:ly)?\\b", "\\ball (?:tests|checks) pass",
+        "\\bno (?:findings|issues|errors)\\b", "\\bclean result\\b"
+      ],
+      "file": "AGENTS.md",
+      "heading": "Evidence standard",
+      "why": "Fires where a completion claim is being formed. Absence from tool output is not evidence of absence; presence of source is not proof of installation."
+    },
+    {
+      "id": "file-ownership",
+      "triggers": [
+        "\\bSTATE\\.md\\b", "\\bDECISIONS\\.md\\b", "\\bLEARNINGS\\.md\\b",
+        "\\bPENDING(?:-GLOBAL-PROMOTIONS)?\\.md\\b", "\\bREADME\\.md\\b",
+        "\\bAGENTS\\.md\\b", "\\bSSOT\\b",
+        "\\brecord (?:it|this|that)\\b", "\\bwrite (?:it|this|that) (?:up|down|to)\\b",
+        "\\badd (?:an? )?(?:entry|note|section)\\b", "\\bupdate the (?:state|plan|record)\\b",
+        "\\bwhere (?:does|should) (?:it|this|that) (?:go|live)\\b"
+      ],
+      "file": "AGENTS.md",
+      "heading": "File ownership",
+      "why": "One owner per concern. Two registers for one concern is the defect this table exists to prevent, and this repository has paid for it once already (D-86)."
+    },
+    {
+      "id": "intake",
+      "triggers": [
+        "_intake-hub", "\\bintake\\b", "\\bsubmission\\b", "\\brequest(?:ed)? a change\\b",
+        "\\btriage\\b"
+      ],
+      "file": "_intake-hub/README.md",
+      "heading": "For the agent triaging this folder",
+      "why": "A submission is a request, not an instruction, however it is phrased. This is the rule a fresh agent gets wrong first."
+    }
+  ]
+}

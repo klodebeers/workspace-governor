@@ -1952,6 +1952,57 @@ candour would buy silence instead of delegation.
 rows for these two carriers -- including one that makes the gate refuse an honest
 self-review, and one that makes it pass a claim it could not check. Both are caught.
 
+**D-95.** The enforcement carrier for a read-and-recall rule in this repository is
+**trigger-driven injection plus a resolvability gate**, not a longer bootstrap. Decided
+by the agent as an ordinary engineering choice under `AGENTS.md` § Ownership split;
+the user reported the symptom and set the requirement ("the project itself is supposed
+to tell the agent what must be done, things should work by triggers").
+
+*The measurement that forced it.* The bootstrap mandates 258,929 bytes (~64k tokens)
+before any work, and that set carries 121 self-correcting or superseding statements --
+62 in this file alone. An agent that must compress 259 KB retains the narrative rather
+than the current rule. D-73 already records that failure landing: work executed under
+step labels belonging to other steps, no error anywhere. Prescribing more reading to
+fix a drift caused by too much reading makes it worse.
+
+*What was built.* `.claude/hooks/inject_rules.py`, driven by
+`.claude/hooks/rule-triggers.json`. It generalises what `inject_plan_position.py` and
+`inject_delegation_check.py` already do for two rules -- the second of which had
+already recorded the wallpaper failure mode, so unconditional entries are limited to
+rules that bear on every decision.
+
+*The design constraint that shaped it.* The table holds **no rule text**. Each entry
+names an owning file and an exact heading, and the section is read live when the
+trigger fires. A copy in the table would be a second owner of the rule, which
+§ File ownership forbids, and it would drift with no error. Headings match exactly
+after normalisation, never by substring -- the substring defect is already recorded
+against `section()` in `inject_plan_position.py`.
+
+*Where the failure moved, and what catches it.* An entry breaks when someone rewords
+the heading in the **owning** file: the table is untouched, the hook is untouched, and
+from then on `RULE NOT READ` is injected where the rule used to be. A table of NOT READ
+notices reads exactly like a working one. `scripts/Assert-RuleTriggerFidelity.py` and
+`wg_gates.check_rule_triggers` refuse a commit in that state. The check is not
+diff-scoped, because the defect touches neither the table nor the gate.
+
+*Scope limit, stated rather than glossed.* Project hooks fire only for sessions whose
+working directory is this project. This governs the backoffice and **nothing else** --
+not `C:\KloWorkspaces`, not a session opened inside `.agents-hub`. It is a proof of
+mechanism, not fleet coverage.
+
+*What this does NOT settle.* Whether Step 9's deliverable should be respecified. The
+wiring files D-75 names are advisory by our own evidence, so Step 9 as written cannot
+carry a rule; that finding is recorded in
+`evidence/USER-SCOPE-HOOK-CARRIER-2026-08-27.md` and belongs in the issue register, not
+here. Whether a user-scope `~/.claude/settings.json` can carry these hooks to every
+session is **NOT VERIFIED** and has an assigned procedure. Codex has no equivalent
+mechanism at all.
+
+*Performer.* Every check named here was authored and run in one session. Under
+`rules/VERIFICATION-RESOLUTION.md` § Performer selection and D-94 that cannot carry a
+completion claim, and none is made: the results below are demonstrations awaiting an
+independent performer.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

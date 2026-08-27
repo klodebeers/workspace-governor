@@ -24,6 +24,7 @@ def main():
     G.check_secrets(ROOT, spec, findings)
     G.check_ascii_scripts(ROOT, spec, findings)
     G.check_hub_scripts(ROOT, spec, findings)
+    G.check_rule_triggers(ROOT, spec, findings)
     text = G.render(findings, 'PRE-COMMIT GATES REFUSED THIS COMMIT')
     if text:
         sys.stderr.write(text + '\n')

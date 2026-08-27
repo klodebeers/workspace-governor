@@ -33,6 +33,8 @@ A parser guessing what git will do cannot be the carrier. So:
 | **Prompt injection** | `.claude/hooks/inject_plan_position.py` | Puts the authoritative plan position into context every prompt. |
 | **Delegation gate** | `.claude/hooks/gate_delegation.py` | Refuses a stop when the session claims an independent review, audit or adversarial check and no delegate ran. |
 | **Performer injection** | `.claude/hooks/inject_delegation_check.py` | Puts the required-delegation criteria into context when a prompt is about review, audit or verification. |
+| **Rule injection** | `.claude/hooks/inject_rules.py`, table in `.claude/hooks/rule-triggers.json` | Puts the section that owns a rule into context when a prompt is about the work that rule governs. Table-driven; holds no rule text of its own. |
+| **Rule-trigger gate** | `wg_gates.check_rule_triggers`, checker in `scripts/Assert-RuleTriggerFidelity.py` | Refuses a commit that leaves any trigger-table entry pointing at a heading that no longer resolves. |
 
 The two layers compose: the git hooks cannot be reached around except by the four cases
 the guard refuses, and the guard refuses a commit while `core.hooksPath` is unset, so a
@@ -85,6 +87,38 @@ gap is real and is stated in the rule as well as here.
 
 A claim it cannot check -- an unreadable or missing transcript -- **fails**, like every
 other check that cannot run.
+
+## What the rule-trigger gate refuses, and why it is not diff-scoped
+
+`.claude/hooks/rule-triggers.json` names, per entry, an owning file and an **exact**
+heading. `inject_rules.py` reads that section live when the entry's trigger matches, so
+no copy of a rule lives in the table -- the one-owner rule in `AGENTS.md` § File
+ownership would forbid one, and a copy drifts with no error.
+
+That design moves the failure rather than removing it. The way an entry breaks is that
+someone **rewords the heading in the owning file**. The table is untouched, this gate's
+own file is untouched, and from then on the hook injects `RULE NOT READ` where the rule
+used to be. A table of NOT READ notices reads exactly like a table that is working.
+
+So the check runs on every commit rather than only when the table is staged, and a
+finding blocks. Headings are matched exactly after normalisation, never by substring:
+substring matching is a defect this repository has already paid for, when `section()`
+in `inject_plan_position.py` captured `## Current state and blockers` for a request for
+`## Blockers` and read the wrong section silently.
+
+Three things it deliberately does **not** do:
+
+- **It does not judge whether a trigger is well chosen.** An entry that never fires and
+  an entry that fires on everything both pass. Wallpaper is not a resolvable-heading
+  problem.
+- **It does not make injection enforcement.** Injection is advisory -- it puts a rule in
+  front of a decision and cannot refuse. Adding an entry enforces nothing
+  (`DECISIONS.md` C-03, D-74).
+- **It does not reach outside this repository.** Project hooks fire only for sessions
+  whose working directory is this project, so this governs the backoffice and nothing
+  else. Whether a user-scope carrier can govern every session is unverified and has a
+  procedure: `evidence/USER-SCOPE-HOOK-CARRIER-2026-08-27.md`.
+
 
 ## What it means that a check cannot run
 

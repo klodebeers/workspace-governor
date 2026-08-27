@@ -395,6 +395,21 @@ unexercised. Live-Hub evidence cannot be accepted until
 `Assert-RememberPruning.ps1` returns `PASS` and `Invoke-HubInventory.ps1` reports
 `Completeness: COMPLETE` on the local machine.
 
+### User-scope hook carrier -- can one hook govern every session?
+
+| Field | Value |
+|---|---|
+| Status | **ASSIGNED, not run.** Raised 2026-08-27 from the reported fleet-wide drift |
+| Question | Does a `UserPromptSubmit` hook registered only in `~/.claude/settings.json` fire for a session whose working directory is anywhere -- a governed workspace project, `~/.agents-hub`, or a directory that is not a git repository? |
+| Why it matters | Project hooks fire only for sessions inside that project, so the injector set built in this repository governs the backoffice and nothing else. User scope is the only candidate carrier that reaches the fleet. Everything about respecifying Step 9 rests on the answer |
+| What our record says | Nothing. `evidence/RUNTIME-CONVENTIONS-2026-08-20.md` lists `./.claude/settings.json` and `./.claude/settings.local.json` only, and records user scope for *skills* but not for settings. Absence from that table is not evidence either way -- it was not the question that evidence set out to answer |
+| Why no cloud session can do it | It needs fresh sessions opened cold in three named directories on the operator's Windows machine |
+| Assigned executor | Klo, on the local Windows machine |
+| Method | `evidence/USER-SCOPE-HOOK-CARRIER-2026-08-27.md` § Procedure. A trace hook at user scope only, three directories, then the hook removed and one directory retried |
+| Both directions | Required (D-65). The trace appearing proves nothing on its own; it must also be **absent** once the hook is removed, or something else is writing it |
+| Verification | Three new trace lines naming three different directories, and no new line after removal. A partial result -- firing in some directories and not others -- is a finding to record, not a run to repeat |
+| Recheck trigger | Before any work that assumes fleet-wide hook coverage, and before Step 9 is respecified |
+
 ## Open work
 
 **Moved out of this file 2026-08-21.** Open items live in the issue register:
@@ -481,4 +496,3 @@ test -- the one open verification assignment, needing the local machine.
   does not satisfy the PowerShell runtime verification recorded above.
 
 Reinspect live sources before acting. This record is continuity evidence, not proof that anything remains unchanged.
-x

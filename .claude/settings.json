@@ -5,6 +5,12 @@
         "hooks": [
           {
             "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/inject_rules.py\"",
+            "timeout": 20,
+            "statusMessage": "Rules in scope"
+          },
+          {
+            "type": "command",
             "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/inject_plan_position.py\"",
             "timeout": 20,
             "statusMessage": "Reading position from STATE.md"

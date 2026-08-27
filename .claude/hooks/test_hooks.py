@@ -669,7 +669,119 @@ def case_delegation_injection(tmp):
 # Mutation proof: break each gate and require the suite to notice
 # --------------------------------------------------------------------------
 
+INJECT_RULES = os.path.join(HOOKS, 'inject_rules.py')
+RULE_CHECKER = os.path.join(REPO, 'scripts', 'Assert-RuleTriggerFidelity.py')
+
+_TABLE = ('{"entries": [{"id": "ev", "file": "AGENTS.md", '
+          '"heading": "Evidence standard", "triggers": ["\\\\bverified\\\\b"]}]}')
+
+
+def _rules_repo(path):
+    """A repo wired for the rule injector: table, hook and checker all present."""
+    root = make_repo(path)
+    write(root, 'AGENTS.md',
+          '# Agents\n\n## Evidence standard\n\nNever present confidence as '
+          'verification.\n\n## Secrets\n\nNone here.\n')
+    shutil.copy(INJECT_RULES, os.path.join(root, '.claude', 'hooks',
+                                           'inject_rules.py'))
+    os.makedirs(os.path.join(root, 'scripts'), exist_ok=True)
+    shutil.copy(RULE_CHECKER, os.path.join(root, 'scripts',
+                                           'Assert-RuleTriggerFidelity.py'))
+    write(root, '.claude/hooks/rule-triggers.json', _TABLE)
+    git(root, 'add', '-A')
+    git(root, 'commit', '-q', '-m', 'wire rules', '--no-verify')
+    return root
+
+
+def case_rule_triggers(tmp):
+    # Clean direction: an entry that resolves must not block anything.
+    root = _rules_repo(os.path.join(tmp, 'rules-clean'))
+    write(root, 'note.md', 'ordinary edit\n')
+    git(root, 'add', 'note.md')
+    check('git hook allows a commit while every rule entry resolves',
+          git(root, 'commit', '-m', 'note').returncode, 0)
+
+    # The silent case: reword the OWNING heading and leave the table alone.
+    # Nothing about the table or the hook changes, so only a gate that reads
+    # both sides can see it.
+    root = _rules_repo(os.path.join(tmp, 'rules-broken'))
+    write(root, 'AGENTS.md',
+          '# Agents\n\n## Evidence standards\n\nNever present confidence as '
+          'verification.\n\n## Secrets\n\nNone here.\n')
+    git(root, 'add', 'AGENTS.md')
+    out = git(root, 'commit', '-m', 'reword')
+    check('git hook refuses a reworded heading that a rule entry cites',
+          out.returncode, 1, out.stderr)
+    check_in('the refusal names the rule-trigger gate',
+             'RULE TRIGGER DOES NOT RESOLVE', out.stderr)
+
+    # A table with no checker beside it must fail, not skip (L-026).
+    root = _rules_repo(os.path.join(tmp, 'rules-nochecker'))
+    os.remove(os.path.join(root, 'scripts', 'Assert-RuleTriggerFidelity.py'))
+    git(root, 'add', '-A')
+    out = git(root, 'commit', '-m', 'drop the checker')
+    check('git hook refuses when the rule checker is missing',
+          out.returncode, 1, out.stderr)
+    check_in('the missing checker is reported as unrunnable, not as a pass',
+             'CHECK COULD NOT RUN', out.stderr)
+
+    # Table and checker present but the hook itself gone. The checker imports
+    # its matcher from inject_rules.py, and that import used to sys.exit(2) --
+    # SystemExit is not an Exception, so it tore down the whole pre-commit run
+    # past the findings mechanism instead of producing one finding.
+    root = _rules_repo(os.path.join(tmp, 'rules-noinjector'))
+    os.remove(os.path.join(root, '.claude', 'hooks', 'inject_rules.py'))
+    git(root, 'add', '-A')
+    out = git(root, 'commit', '-m', 'drop the injector')
+    check('git hook refuses when the injector the checker imports is missing',
+          out.returncode, 1, out.stderr)
+    check_in('a missing injector produces a finding, not a torn-down run',
+             'CHECK COULD NOT RUN', out.stderr)
+    ok = 'Traceback' not in out.stderr
+    RESULTS.append((ok, 'the missing injector does not crash the gate run'))
+    print('%s  the missing injector does not crash the gate run'
+          % ('ok  ' if ok else 'FAIL'))
+
+    # A repo with no table at all is untouched: not every clone wires this.
+    root = make_repo(os.path.join(tmp, 'rules-absent'))
+    write(root, 'note.md', 'ordinary edit\n')
+    git(root, 'add', 'note.md')
+    check('git hook ignores a repo that wires no rule table',
+          git(root, 'commit', '-m', 'note').returncode, 0)
+
+    # The injector itself, in both directions.
+    root = _rules_repo(os.path.join(tmp, 'rules-inject'))
+    code, out, err = run_hook(INJECT_RULES,
+                              {'hook_event_name': 'UserPromptSubmit',
+                               'cwd': root, 'user_prompt': 'is it verified'})
+    check('rule injector runs', code, 0, err)
+    check_in('rule injector emits the triggered rule', 'RULE IN SCOPE', out)
+    check_in('rule injector emits the owning section text',
+             'Never present confidence as verification', out)
+
+    code, out, _ = run_hook(INJECT_RULES,
+                            {'hook_event_name': 'UserPromptSubmit',
+                             'cwd': root, 'user_prompt': 'what time is it'})
+    ok = 'RULE IN SCOPE' not in out
+    RESULTS.append((ok, 'rule injector stays silent when no trigger matches'))
+    print('%s  rule injector stays silent when no trigger matches'
+          % ('ok  ' if ok else 'FAIL'))
+
+    write(root, 'AGENTS.md', '# Agents\n\n## Evidence standards\n\nx\n')
+    code, out, _ = run_hook(INJECT_RULES,
+                            {'hook_event_name': 'UserPromptSubmit',
+                             'cwd': root, 'user_prompt': 'is it verified'})
+    check_in('rule injector says NOT READ rather than falling silent',
+             'RULE NOT READ', out)
+
+
 MUTATIONS = (
+    ('wg_gates.py', "except BaseException as exc:", "except Exception as exc:",
+     'gate stops surviving a SystemExit from the imported checker'),
+    ('wg_gates.py', "for item in broken:", "for item in ():",
+     'rule-trigger gate never blocks'),
+    ('wg_gates.py', "if not os.path.isfile(checker):", "if False and not os.path.isfile(checker):",
+     'a table with no checker silently skips'),
     ('wg_gates.py', "if entry_removals:", "if False:",
      'append-only never blocks'),
     ('wg_gates.py', "for m in ENTRY_MARKERS", "for m in ()",
@@ -778,6 +890,7 @@ def main():
         case_inject(tmp)
         case_delegation(tmp)
         case_delegation_injection(tmp)
+        case_rule_triggers(tmp)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

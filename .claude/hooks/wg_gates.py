@@ -37,6 +37,9 @@ exactly the defect they exist to catch. Every git call here reads bytes and
 never decodes blindly; a git failure blocks and names itself.
 """
 
+import importlib.util
+import io
+import json
 import os
 import re
 import subprocess
@@ -247,6 +250,49 @@ def check_hub_scripts(root, diff_args, findings):
                 'HUB VERIFICATION FAILED',
                 'scripts/%s exited %d against %s.\n%s'
                 % (name, out.returncode, hub, tail)))
+
+
+def check_rule_triggers(root, diff_args, findings):
+    """Refuse a commit that leaves the rule-trigger table unresolvable.
+
+    Run unconditionally rather than only when the table is in the diff: an
+    entry breaks when the OWNING file is renamed or its heading is reworded,
+    which touches neither the table nor this gate's own file. That is the
+    silent case -- inject_rules.py would emit NOT READ from then on, and a
+    table of NOT READ notices reads exactly like a table that is working.
+    """
+    del diff_args                      # a broken heading is not diff-scoped
+    table = os.path.join(root, '.claude', 'hooks', 'rule-triggers.json')
+    if not os.path.isfile(table):
+        return                         # not every clone wires the injector
+    checker = os.path.join(root, 'scripts', 'Assert-RuleTriggerFidelity.py')
+    if not os.path.isfile(checker):
+        findings.append(Finding(
+            'CHECK COULD NOT RUN',
+            'rule-triggers.json is present but scripts/Assert-RuleTriggerFidelity.py '
+            'is missing, so its entries could not be checked. L-026: a check that '
+            'cannot run fails rather than skipping.'))
+        return
+    try:
+        spec = importlib.util.spec_from_file_location('_rtf', checker)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with io.open(table, encoding='utf-8') as handle:
+            parsed = json.load(handle)
+        broken = module.audit(root, parsed)
+    except BaseException as exc:      # SystemExit is not an Exception, and an
+                                      # imported module is free to raise one
+        findings.append(Finding(
+            'CHECK COULD NOT RUN',
+            'the rule-trigger check raised %r, so the table was not verified. '
+            'L-026: a check that cannot run fails rather than skipping.' % (exc,)))
+        return
+    for item in broken:
+        findings.append(Finding(
+            'RULE TRIGGER DOES NOT RESOLVE',
+            '%s. inject_rules.py would inject a NOT READ notice instead of the '
+            'rule, and a rule that did not load is not a rule that was followed '
+            '(.claude/hooks/README.md).' % item))
 
 
 def check_message(message, findings):
