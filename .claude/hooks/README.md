@@ -134,23 +134,25 @@ Windows and `python3` is frequently not the name on PATH there.
 
 ## Verification status
 
-`python3 .claude/hooks/test_hooks.py` -- **142 cases, all passing** as of 2026-08-27.
+`python3 .claude/hooks/test_hooks.py` -- **144 cases, all passing** as of 2026-08-27.
 The content gates are exercised through **real `git commit` calls** in throwaway
 repositories, so a case proves the gate as git actually invokes it, including the eight
 forms that defeated the first version.
 
 `python3 .claude/hooks/test_hooks.py --mutations` additionally breaks each gate on
-purpose and requires the suite to notice: **28 mutations, 0 behaving wrongly, as of
-`3be99ca`** -- four of them controls that must survive, each carrying the reason it
-cannot be discriminated. **The carrier changed after that run and a re-run is owed;
-until it lands this section states a result that is not current.** Two rounds were needed -- the
-first run left two survivors, one of which was a real gap (every encoding case added a
-new file, so reading `HEAD` instead of the index was undetectable) and is now covered by
-a case that edits a file already committed. This exists because the first harness reported
-31 of 31 passing while an audit found **10 mutations surviving undetected** -- among them
-deleting every governed-path prefix from the stop gate, and making the Hub check never
-block on failure. A suite that passes when the code is broken is not evidence, and
-`31 of 31` was not the claim it looked like.
+purpose and requires the suite to notice: **29 mutations, 26 caught, 0 behaving
+wrongly, at `1fc80dd`** -- the three survivors are controls that must survive, each
+carrying, in the row itself, the reason no case can discriminate it.
+
+Getting to that number took five runs, and the first four are the reason this
+section exists. Run 1 reported 27 of 27 caught while the suite was crashing on a
+path bug in every one of them: a crash exits non-zero, and the harness reads
+non-zero as "the mutation was caught". Only the two no-op controls, which must
+survive and were flagged, exposed it. Run 4 reported a stale row -- and
+retargeting it showed the row was not merely stale, the mutation survived the
+whole suite, because the case meant to cover it removed a file from disk and from
+the index together and so never exercised the guard. **A mutation reported stale
+is a decorative case under another name; retarget it rather than deleting it.**
 
 **Not verified, and not verifiable from the environment these were written in:**
 

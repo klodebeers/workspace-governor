@@ -288,12 +288,12 @@ pending verification is not a defect and is not re-flagged each session; see
 ### Enforcement carriers -- two assignments, both on the operator's machine
 
 **What is proven here.** `.claude/hooks/` and `.githooks/` hold the carriers and a
-142-case suite. The content gates are exercised through **real `git commit` calls** in
+144-case suite. The content gates are exercised through **real `git commit` calls** in
 throwaway repositories, so each case proves the gate as git actually invokes it --
 including the eight invocation forms that defeated the first version of these gates the
 same day (`evidence/HOOK-GATES-AUDIT-2026-08-21.md`). `--mutations` additionally breaks
-each gate on purpose and requires the suite to notice -- 28 mutations, 0 behaving
-wrongly at `3be99ca`; the carrier changed after that run and a re-run is owed. Four
+each gate on purpose and requires the suite to notice -- 29 mutations, 26 caught,
+0 behaving wrongly at `1fc80dd`. Three
 no-op controls correctly not flagged. This exists because the first harness reported 31 of
 31 passing while ten deliberate breakages survived it undetected.
 
