@@ -951,7 +951,12 @@ MUTATIONS = (
     ('wg_gates.py', "prefix = ':' if diff_args == ['--cached'] else 'HEAD:'",
      "prefix = 'HEAD:' if diff_args == ['--cached'] else 'HEAD:'",
      'rule gate reads the wrong tree'),
-    ('inject_rules.py', "payload.get('prompt') or", "payload.get('nope') or",
+    # Retargeted: the non-string-prompt fix rewrote the line this used to break.
+    # Second time a fix of mine made a row stale, and the harness reporting a
+    # stale row as WRONG is what caught both -- a row whose pattern is gone
+    # tests nothing while still being counted.
+    ('inject_rules.py', "    text = payload.get('prompt')",
+     "    text = payload.get('nope')",
      'injector reads a key the CLI does not send'),
     # Survives BY DESIGN, and saying so is the honest record. Once the checker
     # raises ImportError instead of calling sys.exit, `except Exception` catches
