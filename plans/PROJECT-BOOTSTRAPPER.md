@@ -161,9 +161,10 @@ Fix, in the board's `HOOK_SETTINGS`:
 
 Drop `args`. Add `Write(PROJECT-INTAKE.md)` and `MultiEdit(PROJECT-INTAKE.md)` to
 the deny list so layer one covers what the matcher intends. **This is a board fix,
-not a bootstrapper one**, and it is recorded here because the bootstrapper would
+not a bootstrapper one**, and it is noted here because the bootstrapper would
 otherwise inherit a guard that does not fire and report an environment as
-provisioned.
+provisioned. It is tracked as issue #45, which owns the close condition and the
+question of what happens to folders the board has already provisioned.
 
 ## Explicitly not its job
 
