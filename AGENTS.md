@@ -152,6 +152,7 @@ One owner per concern. Do not duplicate content between these files.
 | `DECISIONS.md` | Settled decisions and their rationale. Append-only. |
 | `AGENTS.md` | Bootstrap order, persistence requirement, file ownership |
 | `plans/MCP-GATEWAY.md` | Gateway build and configuration requirements. Backoffice planning record, not governance. |
+| `plans/PROJECT-BOOTSTRAPPER.md` | The project bootstrapper's purpose, its intake input contract, its output, and what it is forbidden to do. **Not** where the work stands -- that is `STATE.md`. Backoffice planning record, not governance. |
 | `plans/AGENT-HUB-CONSOLIDATION.md` | Sequence of Hub consolidation work, the step names, and what each step requires. **Not** where the work currently stands — that is `STATE.md`. Backoffice planning record, not governance. |
 | `AGENT-SSOT.json` | **Agent Hub asset.** Backoffice staging/provenance copy only, pending placement in `.agents-hub`. Not a live authority here. |
 | `USER-SSOT.json` (as staged here) | **Agent Hub asset.** Its current content is Greyed-scoped and, under the naming model settled in `DECISIONS.md` D-80, is the future `GREYED-SSOT.json`. The name `USER-SSOT.json` is reserved for the global, shared user-context asset, which has no content yet. Backoffice staging/provenance copy only, pending placement. Loaded only where its scope applies. Read-only absent explicit user instruction. Not a governance owner. |
