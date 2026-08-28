@@ -187,6 +187,10 @@ def compiles_safely(pattern):
     return terminates(pattern)
 
 
+# An upper bound as well as a lower one. positive_int only refused <= 0, so a
+# cap of 50,000,000 passed with zero findings and an entry naming a large file
+# would then flood every prompt.
+CAP_CEILING = 20000
 WHY_VERBATIM_LIMIT = 40
 
 
@@ -208,8 +212,12 @@ def audit(root, table):
         return ['the table is not a JSON object']
     for field in ('max_chars_per_entry', 'max_chars_total'):
         if field in table:
-            _, bad = positive_int(table.get(field), 1)
+            value, bad = positive_int(table.get(field), 1)
             findings.extend('%s %s' % (field, reason) for reason in bad)
+            if not bad and value > CAP_CEILING:
+                findings.append(
+                    '%s is %d, above the %d ceiling. A cap this large lets one '
+                    'entry flood every prompt.' % (field, value, CAP_CEILING))
     entries = table.get('entries')
     if not isinstance(entries, list) or not entries:
         return findings + ['table has no entries, or entries is not a list']
@@ -421,6 +429,9 @@ def selftest():
         caps = audit(root, {'max_chars_per_entry': 'lots', 'entries': [dict(good)]})
         cases.append(('a non-numeric cap caught',
                       any('max_chars_per_entry' in f for f in caps), caps))
+        big = audit(root, {'max_chars_total': 50000000, 'entries': [dict(good)]})
+        cases.append(('a cap above the ceiling caught',
+                      any('ceiling' in f for f in big), big))
         neg = audit(root, {'max_chars_total': -1, 'entries': [dict(good)]})
         cases.append(('a negative cap caught',
                       any('max_chars_total' in f for f in neg), neg))

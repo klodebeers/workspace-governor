@@ -298,7 +298,9 @@ def check_rule_triggers(root, diff_args, findings):
             '%s does not parse as JSON in this commit: %s' % (table_rel, exc)))
         return
     checker_rel = 'scripts/Assert-RuleTriggerFidelity.py'
-    ccode, _craw, _ = git_bytes(root, ['show', prefix + checker_rel])
+    matcher_rel = '.claude/hooks/inject_rules.py'
+    ccode, craw, _ = git_bytes(root, ['show', prefix + checker_rel])
+    mcode, mraw, _ = git_bytes(root, ['show', prefix + matcher_rel])
     if ccode != 0:
         findings.append(Finding(
             'CHECK COULD NOT RUN',
@@ -325,7 +327,27 @@ def check_rule_triggers(root, diff_args, findings):
                     handle.write(fraw)
             except OSError:
                 continue
-        checker = os.path.join(root, checker_rel)
+        # Run the COMMITTED checker and the COMMITTED matcher, never the
+        # working tree's. Loading them from `root` meant an unstaged edit --
+        # `return []` at the top of audit() -- disarmed the gate while the
+        # commit recorded a clean checker. Reproduced end to end with a plain
+        # `git commit` and no --no-verify. check_hub_scripts twenty lines above
+        # already had this right and said why; this side did not.
+        for rel, raw, code in ((checker_rel, craw, ccode),
+                               (matcher_rel, mraw, mcode)):
+            if code != 0:
+                continue
+            dest = os.path.join(work, rel.replace('/', os.sep))
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            with open(dest, 'wb') as handle:
+                handle.write(raw)
+        checker = os.path.join(work, checker_rel.replace('/', os.sep))
+        if not os.path.isfile(checker):
+            findings.append(Finding(
+                'CHECK COULD NOT RUN',
+                'the committed checker could not be materialised, so the table '
+                'was not verified. L-026: a check that cannot run fails.'))
+            return
         # Import without writing bytecode. exec_module otherwise drops
         # __pycache__/ beside the checker AND beside inject_rules.py, inside
         # the repository being committed to -- so a later `git add -A` stages
@@ -351,6 +373,17 @@ def check_rule_triggers(root, diff_args, findings):
             sys.dont_write_bytecode = previous
     finally:
         shutil.rmtree(work, ignore_errors=True)
+    # The mirror of the "table gone but injector wired" case. A table and a
+    # hook that nothing invokes is a carrier that looks installed and is not,
+    # and settings.json is edited routinely and otherwise ungated here.
+    scode, sraw, _ = git_bytes(root, ['show', prefix + '.claude/settings.json'])
+    hcode, _hraw, _ = git_bytes(root, ['show', prefix + matcher_rel])
+    if hcode == 0 and scode == 0 and b'inject_rules.py' not in sraw:
+        findings.append(Finding(
+            'RULE INJECTOR IS PRESENT BUT NOT WIRED',
+            'inject_rules.py and its table are in the commit, but nothing in '
+            '.claude/settings.json invokes it, so no rule would be injected. '
+            'Wire it, or remove the hook and the table together.'))
     for item in broken:
         findings.append(Finding(
             'RULE TRIGGER DOES NOT RESOLVE',

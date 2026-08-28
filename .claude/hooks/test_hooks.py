@@ -848,6 +848,73 @@ def case_rule_triggers(tmp):
     check_in('and the always-on entry is the one withheld',
              'WITHHELD for total length: always', out)
 
+    # THE BYPASS. Neuter the checker in the WORKING TREE, stage nothing from
+    # scripts/, and commit normally -- no --no-verify. The gate reconstructed
+    # the staged table and owning files but then ran the worktree's checker, so
+    # `return []` at the top of audit() disarmed it while the commit recorded a
+    # clean checker. check_hub_scripts had this right twenty lines above and
+    # said why; this side did not.
+    root = _rules_repo(os.path.join(tmp, 'rules-worktree-checker'))
+    checker = os.path.join(root, 'scripts', 'Assert-RuleTriggerFidelity.py')
+    body = open(checker, encoding='utf-8').read()
+    open(checker, 'w', encoding='utf-8').write(
+        body.replace('def audit(root, table):\n    findings = []',
+                     'def audit(root, table):\n    return []\n    findings = []', 1))
+    write(root, 'AGENTS.md',
+          '# Agents\n\n## Evidence and proof\n\nx\n\n## Secrets\n\nNone.\n')
+    git(root, 'add', 'AGENTS.md')          # scripts/ deliberately NOT staged
+    out = git(root, 'commit', '-m', 'reword with a neutered worktree checker')
+    check('git hook refuses when only the WORKTREE checker was disarmed',
+          out.returncode, 1, out.stderr)
+    check_in('and it is the rule-trigger gate that refuses',
+             'RULE TRIGGER DOES NOT RESOLVE', out.stderr)
+
+    # The mirror of "table gone but injector wired".
+    root = _rules_repo(os.path.join(tmp, 'rules-unwired'))
+    write(root, '.claude/settings.json',
+          json.dumps({'hooks': {'UserPromptSubmit': [
+              {'hooks': [{'type': 'command', 'command': 'python3 other.py'}]}]}}))
+    git(root, 'add', '-A')
+    out = git(root, 'commit', '-m', 'unwire the injector')
+    check('git hook refuses an injector present but not wired',
+          out.returncode, 1, out.stderr)
+    check_in('and says no rule would be injected',
+             'RULE INJECTOR IS PRESENT BUT NOT WIRED', out.stderr)
+
+    # A real symlink escaping the root. inside() was lexical, so an in-repo
+    # symlink pointing anywhere on the machine passed confinement and section()
+    # read straight through it. The earlier cases used ".." and absolute paths,
+    # which normpath already refused -- so the realpath guard had no case and a
+    # mutation of it survived the whole suite.
+    root = _rules_repo(os.path.join(tmp, 'rules-symlink-escape'))
+    outside = os.path.join(tmp, 'outside-the-root')
+    os.makedirs(outside, exist_ok=True)
+    secret = os.path.join(outside, 'ELSEWHERE.md')
+    with open(secret, 'w', encoding='utf-8') as handle:
+        handle.write('# Elsewhere\n\n## Evidence standard\n\n'
+                     'CONTENT FROM OUTSIDE THE GOVERNANCE ROOT.\n')
+    link = os.path.join(root, 'looks-local.md')
+    try:
+        os.symlink(secret, link)
+    except (OSError, NotImplementedError):
+        RESULTS.append((True, 'symlink escape (skipped: no symlink support)'))
+        print('ok    symlink escape (skipped: no symlink support)')
+    else:
+        write(root, '.claude/hooks/rule-triggers.json', json.dumps({
+            'entries': [{'id': 'esc', 'file': 'looks-local.md',
+                         'heading': 'Evidence standard', 'always': True}]}))
+        code, out, err = run_hook(INJECT_RULES,
+                                  {'hook_event_name': 'UserPromptSubmit',
+                                   'cwd': root, 'prompt': 'anything'})
+        check('a symlink escaping the root still runs', code, 0, err)
+        leaked = 'CONTENT FROM OUTSIDE THE GOVERNANCE ROOT' in out
+        RESULTS.append((not leaked,
+                        'a symlink out of the root does not leak its contents'))
+        print('%s  a symlink out of the root does not leak its contents'
+              % ('ok  ' if not leaked else 'FAIL'))
+        check_in('and it is reported as outside the root',
+                 'outside the governance root', out)
+
     # A repo with no table at all is untouched: not every clone wires this.
     root = make_repo(os.path.join(tmp, 'rules-absent'))
     write(root, 'note.md', 'ordinary edit\n')
@@ -910,6 +977,30 @@ def case_payload_shape(tmp):
     code, out, err = run_hook(INJECT_DELEGATION, {'cwd': root})
     check('no prompt key does not crash the delegation injector', code, 0, err)
 
+
+    # WG_RULES_ROOT relocates the root of governance from an environment
+    # variable. Pointed at a directory with no table it used to print nothing
+    # at all -- the loudest action, switching every rule off, on the quietest
+    # code path.
+    empty = os.path.join(tmp, 'empty-governance-root')
+    os.makedirs(empty, exist_ok=True)
+    code, out, err = run_hook(INJECT_RULES, {'cwd': root, 'prompt': 'anything'},
+                              {'WG_RULES_ROOT': empty})
+    check('an override root with no table still runs', code, 0, err)
+    check_in('and says so rather than falling silent', 'WG_RULES_ROOT', out)
+    ok = 'do not treat that as permission' in out
+    RESULTS.append((ok, 'and does not let silence read as permission'))
+    print('%s  and does not let silence read as permission'
+          % ('ok  ' if ok else 'FAIL'))
+
+    # .git is inside the root but is not governance, and section()'s heading
+    # regex matches git-config comment lines.
+    from inject_rules import inside as _inside
+    for name, want in (('.git/config', False), ('.git', False),
+                       ('AGENTS.md', True)):
+        got = _inside(root, name)
+        check('inside(%s)' % name, got, want)
+
     # The legacy key keeps working, so a payload change cannot re-break this.
     code, out, _ = run_hook(INJECT_RULES, {'cwd': root,
                                            'user_prompt': 'is this verified'})
@@ -932,6 +1023,16 @@ def case_checker_selftest(tmp):
 
 
 MUTATIONS = (
+    ('wg_gates.py', "        checker = os.path.join(work, checker_rel.replace('/', os.sep))",
+     "        checker = os.path.join(root, checker_rel)",
+     'gate runs the worktree checker instead of the committed one'),
+    ('wg_gates.py', "    if hcode == 0 and scode == 0 and b'inject_rules.py' not in sraw:",
+     "    if False:", 'gate stops noticing an unwired injector'),
+    ('inject_rules.py', "    if not (real + os.sep).startswith(realroot + os.sep):",
+     "    if False:", 'confinement stops resolving symlinks'),
+    ('inject_rules.py', "        if os.path.isdir(override) and os.path.isfile(table):",
+     "        if os.path.isdir(override):",
+     'override root accepted with no table, silently'),
     ('inject_rules.py', "        return pointer(source, len(body), entry_cap)",
      "        return 'RULE IN SCOPE -- %s\\n\\n%s\\n' % (source, body[:entry_cap])",
      'oversize section truncated instead of pointered'),

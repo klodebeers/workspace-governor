@@ -59,18 +59,33 @@ FALLBACK_TOTAL_CHARS = 4200
 
 
 def repo_root(cwd):
+    """The governance root, and whether it was overridden.
+
+    Returns (root, note). WG_RULES_ROOT relocates the root of governance from an
+    environment variable -- the one input here that is neither committed nor
+    reviewed. Pointed at an empty directory it silently switched off every rule
+    this repository injects, which made the loudest possible action the quietest
+    code path. It is now accepted only if it carries a table, and it always says
+    so when used.
+    """
     override = os.environ.get('WG_RULES_ROOT')
-    if override and os.path.isdir(override):
-        return override
+    if override:
+        table = os.path.join(override, '.claude', 'hooks', TABLE_NAME)
+        if os.path.isdir(override) and os.path.isfile(table):
+            return override, ('GOVERNANCE ROOT: %s (from WG_RULES_ROOT, not the '
+                              'git worktree)' % override)
+        return None, ('RULE TABLE NOT READ -- WG_RULES_ROOT is set to %r, which '
+                      'has no %s under it. No rule was injected; do not treat '
+                      'that as permission.' % (override, TABLE_NAME))
     try:
         out = subprocess.run(['git', 'rev-parse', '--show-toplevel'], cwd=cwd,
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                              timeout=10)
     except Exception:
-        return None
+        return None, None
     if out.returncode != 0:
-        return None
-    return out.stdout.decode('utf-8', 'replace').strip() or None
+        return None, None
+    return (out.stdout.decode('utf-8', 'replace').strip() or None), None
 
 
 def normalise(text):
@@ -148,7 +163,7 @@ def load_table(root):
         return None, '%s is unreadable: %s' % (TABLE_NAME, exc)
 
 
-def selected(entries, prompt):
+def selected(entries, prompt, broken=None):
     """Entries the prompt actually matched first, always-on entries last.
 
     Order decides eviction when the total cap is reached, and file order gave
@@ -170,6 +185,10 @@ def selected(entries, prompt):
                 hit = re.search(pattern, prompt, re.I)
             except re.error:
                 hit = None
+                # A rule that did not load must say so -- section() already
+                # states that contract and this path was breaking it.
+                if broken is not None:
+                    broken.append(entry.get('id') or '?')
             if hit:
                 matched.append(entry)
                 break
@@ -229,7 +248,19 @@ def inside(root, name):
         return False
     target = os.path.normpath(os.path.join(root, name))
     prefix = os.path.normpath(root) + os.sep
-    return (target + os.sep).startswith(prefix)
+    if not (target + os.sep).startswith(prefix):
+        return False
+    # normpath is lexical, so an in-repo SYMLINK pointing anywhere on the
+    # machine passed this and its contents were injected. Resolve both sides.
+    real = os.path.realpath(target)
+    realroot = os.path.realpath(root)
+    if not (real + os.sep).startswith(realroot + os.sep):
+        return False
+    # .git is inside the root but is not governance. section()'s heading regex
+    # matches git-config comment lines, so `# Local credentials` in .git/config
+    # resolved to the [credential] block beneath it.
+    rest = os.path.relpath(real, realroot).replace(os.sep, '/')
+    return not (rest == '.git' or rest.startswith('.git/'))
 
 
 def prompt_text(payload):
@@ -261,8 +292,12 @@ def main():
         return 0
     prompt = prompt_text(payload)
     cwd = payload.get('cwd') or os.getcwd()
-    root = repo_root(cwd)
+    root, note = repo_root(cwd)
     if not root:
+        # A refused override announces itself; an unresolvable worktree is
+        # genuinely not our session to speak into.
+        if note:
+            print(note)
         return 0
     table, error = load_table(root)
     if error:
@@ -285,16 +320,30 @@ def main():
         print('RULE TABLE NOT READ -- entries is not a list')
         return 0
     entries = [e for e in entries if isinstance(e, dict)]
-    for entry in selected(entries, prompt):
+    unusable = []
+    for entry in selected(entries, prompt, unusable):
         piece = render(root, entry, entry_cap)
         if spent + len(piece) > total_cap:
             withheld.append(entry.get('id') or '?')
             continue
         chunks.append(piece)
         spent += len(piece)
-    if not chunks and not withheld:
+    declares_always = any(e.get('always') for e in entries)
+    if not chunks and not withheld and not unusable and not note:
+        # A correctly installed carrier with an always-on entry ALWAYS prints
+        # something, so printing nothing is a defect signal -- say so rather
+        # than letting it read as "no entry matched".
+        if declares_always:
+            print('RULE NOT READ -- the table declares an always-on entry and '
+                  'nothing rendered. Do not treat that as permission.')
         return 0
     print(marker)
+    if note:
+        print(note)
+    if unusable:
+        print('RULE NOT READ -- %s could not be evaluated: a trigger pattern '
+              'does not compile. Those rules were not considered.'
+              % ', '.join(sorted(set(unusable))))
     if entry_bad or total_bad:
         print('RULE TABLE CAP IGNORED -- %s. Falling back to %d/%d.'
               % (', '.join(entry_bad + total_bad), entry_cap, total_cap))
