@@ -1,10 +1,14 @@
 # User-scope hook carrier -- what Step 9 has to deliver
 
 **Date:** 2026-08-27
-**Status:** Finding 1 verified from committed evidence. Finding 2 verified by
-demonstration in this repository. Finding 3 **NOT VERIFIED** -- it names a
-verification that only the operator's machine can perform, and the procedure is
-below.
+**Status, revised 2026-08-27 after three independent audits.** Finding 1
+partially verified, and superseded on its central point by
+`evidence/HOOK-SCOPE-RESOLUTION-2026-08-27.md`, which reads the behaviour from
+implementation at CLI 2.1.42. Finding 2 verified by measurement here. Finding 3
+is **answered**, not open: user scope does reach every session -- but reaching
+every session is not the same as being unbypassable, and that distinction is the
+finding that matters. **The procedure this file used to carry is withdrawn and
+must not be run**; see below and issue #43.
 
 ## Why this was written
 
@@ -74,7 +78,7 @@ faithfully lands on the wrong step.
 The Hub root contract is not implicated: `.agents-hub/AGENTS.md` is 7,213 bytes,
 22% of the 32 KiB budget.
 
-## Finding 3 -- the carrier that would reach every session is NOT VERIFIED here.
+## Finding 3 -- answered, and the answer is not the one the design assumed.
 
 Project hooks in `.claude/settings.json` fire only for sessions whose working
 directory is that project. They therefore cannot govern work in
@@ -85,12 +89,22 @@ the backoffice.
 The candidate carrier is a **user-scope** `~/.claude/settings.json` carrying the
 same hooks: directory-independent, and in the enforceable class per Finding 1.
 
-**This is not in our verified record.** The runtime-conventions table lists
-`./.claude/settings.json` and `./.claude/settings.local.json` only. It records
-user scope for *skills* (`~/.claude/skills/`) but says nothing about settings.
-Absence from that table is not evidence either way -- it was not the question that
-evidence set out to answer. Nothing should be built on user-scope hooks until the
-procedure below has run.
+**Answered from implementation, 2026-08-27.** User settings are home-anchored and
+the execution path never consults the working directory, so a user-scope hook does
+reach every session. `evidence/HOOK-SCOPE-RESOLUTION-2026-08-27.md` has the
+identifiers and the version.
+
+**But that does not make it a carrier.** `disableAllHooks` is a scalar and later
+scopes overwrite earlier ones, so any project can switch the hook off in its own
+directory, silently. Under `AGENTS.md` § Enforcement 1 -- *a gate has no bypass* --
+user scope is not an enforcement carrier. The only scope surviving
+`allowManagedHooksOnly` is `policySettings`, managed settings, and evaluating it
+is a separate item.
+
+The earlier wording here said the runtime-conventions table's silence on user-scope
+settings was "not evidence either way". That was correct as far as it went, and it
+was also the wrong place to look: the implementation answers the question directly,
+and `rules/VERIFICATION-RESOLUTION.md` § Authority selection prefers it.
 
 **Codex has no equivalent.** It is `AGENTS.md`-native and advisory-only. Claude
 Code can be given trigger-dispatch; Codex cannot, by this mechanism. Any design
