@@ -434,6 +434,22 @@ both issues' own bodies.
 
 ## Next action
 
+**Superseded in direction by `DECISIONS.md` D-98, 2026-08-28.** D-98 settles that the
+workspace stops converging on one authoritative contract and starts publishing guidance
+as a skills library. Most of what the paragraphs below sequence exists to serve the
+convergence, so it is no longer the critical path. They are kept, not deleted, because
+the plan still owns its own step list and the retirement has not been executed against
+it -- until it is, this section records both what D-98 decided and what the plan still
+says.
+
+**The next action under D-98:** build the project bootstrapper to the design in
+`plans/PROJECT-BOOTSTRAPPER.md`, and publish the Hub as a plugin marketplace. Neither
+is started. Before either, one file-by-file judgement is owed and is explicitly not
+made by D-98: which of the current `rules/` survive as irreversible-act brakes and
+which become skills.
+
+**What the plan still says, unchanged below:**
+
 **Propose the edit set that applies Step 3's settled dispositions.** It is the one
 thing on the critical path that needs no decision from the user first: list exactly which
 files change and which recorded disposition each edit executes, excluding everything

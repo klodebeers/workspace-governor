@@ -1,175 +1,181 @@
 # Project Bootstrapper — design
 
-**Status:** Design accepted in conversation 2026-08-27, not built.
-**Owner of this file:** the bootstrapper's purpose, its input contract, its
-output, and what it is forbidden to do. **Not** where the work stands — that is
-`STATE.md`. Backoffice planning record, not governance.
+**Status:** Design, revised 2026-08-27 against the actual intake board. Not built.
+**Owner of this file:** the bootstrapper's purpose, where it sits in the sequence,
+its input contract, its output, and what it is forbidden to do. **Not** where the
+work stands — that is `STATE.md`. Backoffice planning record, not governance.
 
-## What it is
+## Where it sits — corrected
 
-One persona. The first thing that runs in a project. It reads the intake the
-dashboard produced, works out what this project needs, and **provisions the
-environment** — enabling the subset of plugins and hooks this project actually
-uses, and nothing else.
+It is **not** the first thing that runs. An earlier revision of this file said it
+was, and that was wrong in a way that mattered: it would have had the bootstrapper
+provisioning from a file that is empty at the moment it is written.
 
-It **selects; it does not author.** It picks from a registry. Writing a skill or
-a hook is a different job with a different owner. Keeping it a selector is what
-keeps it small enough to be reliable.
+    ①  Intake board  →  writes the folder
+    ②  /kickoff      →  discovery fills INTAKE-ANALYSIS.md
+    ③  Bootstrapper  →  provisions from the completed analysis   ← here
 
-## Why a provisioner and not a reader
+The board writes `INTAKE-ANALYSIS.md` with all fourteen sections set to
+`_Pending._`. Nothing can be justified from it until `/kickoff` has run. The
+bootstrapper is the third step, not the first.
 
-An earlier version of this design had it return an orientation summary. That is
-weaker, and the reason matters: a summary informs one agent, once, and is gone.
-Provisioning changes what **every later session loads**, which is where the
-reported drift actually comes from.
+## What the board already does — do not rebuild it
 
-It also fixes the relevance problem the right way round. Relevance is decided
-**once per project, at bootstrap**, from stated intent — not per prompt by
-pattern matching, which is what the rule injector in this repository does and
-which becomes wallpaper at scale.
+Verified by reading `ProjectIntake.html`. On Save it writes, and **never
+overwrites** an existing one of:
 
-## Input — the intake file, and the seam is already closed
-
-Its input is `PROJECT-INTAKE.md`, written into the project folder by the Project
-Intake Dashboard. The field list this design first guessed at is unnecessary: the
-board already carries everything the bootstrapper needs, and more precisely than
-the guess did.
-
-**It reads Part 2, the agent-derived half — not Part 1.** Part 1 is the user's
-own wording and is authoritative; Part 2 is the coding agent's analysis. The
-board's working rule 6 keeps them separate, and the bootstrapper is a consumer of
-the analysis, not an interpreter of the request.
-
-| Intake section | What it decides |
+| Artifact | Note |
 |---|---|
-| Part 2 § Project category and applicable technical disciplines | Which subagents and skills to enable |
-| Part 2 § Environment, tools and dependencies | Which hooks are meaningful, and the dependency list it declares |
-| Part 2 § Relevant repositories, files and interfaces | The scope it provisions |
-| Part 2 § Security and data-handling requirements | Whether a gate is warranted, and which |
-| Part 2 § Testing and evaluation strategy | Which verification skills earn their place, and which templates |
-| Part 2 § Execution sequence | Which templates the project will need, and when |
-| Part 1 § 6 — included, preserved or avoided | Constraints it must not provision against |
-| Part 1 § 8 — decisions under human authority | What it must never auto-approve |
-| Part 1 § Attachments | What arrived with the project |
+| `PROJECT-INTAKE.md` | The user's words. Versioned; prior version archived to `.history/` |
+| `INTAKE-ANALYSIS.md` | Agent-owned, fourteen `_Pending._` sections |
+| `AGENTS.md`, `CLAUDE.md` | Runtime-neutral rules, and the Claude loader |
+| `.claude/settings.json` | Deny rule + PreToolUse hook |
+| `.claude/hooks/protect-intake.mjs` | Baseline write protection |
+| `.claude/commands/kickoff.md` | The discovery command |
+| `attachments/` | Copies. Originals untouched |
 
-## Precondition, read from the file itself
+It also refuses to write into a folder whose `PROJECT-INTAKE.md` names a
+different project, and no-ops when the baseline hash is unchanged.
 
-The frontmatter carries `agent_analysis_status`. While it is `pending`, Part 2 is
-`_Pending._` and there is nothing to provision from. **The bootstrapper does not
-run, and it does not improvise.**
+**So the baseline environment already exists.** What the board cannot do is the
+*per-project* part: at Save time nothing is known yet, so every project gets the
+same settings, the same hook and the same command. Selecting the subset a
+particular project needs is the only gap, and it is the bootstrapper's whole job.
 
-It specifically does **not** fall back to inferring from `README`,
-`package.json` or the tree. Discovery is the intake and discovery manager's job,
-and that manager already exists. A bootstrapper that guesses when discovery is
-incomplete produces an environment nobody can trace to a stated requirement --
-which is the failure this whole design exists to avoid. It stops and names what
-is pending.
+## Input — `INTAKE-ANALYSIS.md`
 
-The board's working rule 9 is the readiness gate and the bootstrapper inherits
-it: it runs once intended outcome, starting point, scope, acceptance criteria,
-approach, verification method and authority can each be stated with evidence.
+Not `PROJECT-INTAKE.md`. The board separates them into two files, and the
+baseline is explicitly read-only to agents. The bootstrapper consumes the
+analysis and reads the baseline only for its two constraint sections.
+
+| Source | What it decides |
+|---|---|
+| Analysis § Project category and applicable technical disciplines | Which subagents and skills to enable |
+| Analysis § Environment, tools and dependencies | Which hooks are meaningful, and the dependency list it declares |
+| Analysis § Relevant repositories, files and interfaces | The scope it provisions |
+| Analysis § Security and data-handling requirements | Whether a gate is warranted, and which |
+| Analysis § Testing and evaluation strategy | Which verification skills and templates earn their place |
+| Analysis § Execution sequence | Which templates the project will need, and when |
+| Analysis § Conflicts detected | **Any entry here stops provisioning** |
+| Baseline § 6 — included, preserved or avoided | Constraints it must not provision against |
+| Baseline § 8 — decisions under human authority | What it must never auto-approve |
+
+## Precondition — measured, not declared
+
+The frontmatter fields do not answer this. `agent_analysis_status: pending` is
+written by the board and **never updated by anything**; the analysis file's own
+`status: pending-discovery` is likewise never updated. Trusting either would mean
+trusting a flag nothing sets.
+
+**Count instead**, exactly as the board's own analysis viewer already does:
+sections are `## ` headings, incomplete ones still read `_Pending._`.
+
+- Any section still `_Pending._` → **stop**, and name which ones.
+- § Conflicts detected is non-empty → **stop**. The board's working rule 5 puts
+  conflicts before affected work, and provisioning is affected work.
+- § Execution-readiness statement complete → proceed.
+
+It does **not** fall back to inferring from `README`, `package.json` or the tree.
+Discovery is `/kickoff`'s job. A bootstrapper that guesses when discovery is
+incomplete produces an environment nobody can trace to a stated requirement,
+which is the failure this design exists to prevent.
 
 ## Idempotence key — `KLO-INTAKE-HASH` and `intake_version`
 
-The file carries `<!-- KLO-INTAKE-HASH: ... -->` and an `intake_version`. The
-bootstrapper records both in its provisioning record. On any later run:
+Both live in `PROJECT-INTAKE.md`. The bootstrapper records them in its
+provisioning record. On a later run: same pair → **no-op**, reported as "already
+provisioned from intake v*N*". Either changed → re-provision and report the delta
+against what the previous intake justified.
 
-- same hash and version -> **no-op**, reported as "already provisioned from
-  intake v*N*";
-- either changed -> re-provision, and report the delta against what the previous
-  intake justified.
-
-That is what makes "running it twice is a no-op" checkable rather than hopeful,
-and it means a changed baseline cannot leave a stale environment behind it
-silently.
-
-## It never writes to the intake file
-
-Working rules 6 and 7 settle this: agent-derived conclusions stay in Part 2, and
-architecture, state, decisions and evidence belong in their own owner files. The
-bootstrapper's output is `.claude/settings.json` and its own provisioning record.
-It does not append to Part 2, and it does not touch Part 1 at all.
+That makes "running it twice is safe" checkable rather than hopeful, and it means
+a changed baseline cannot leave a stale environment behind it silently.
 
 ## What it does, in order
 
-1. **Read the intake.** No intake and no fallback signal is a stop, reported —
-   not a guess.
-2. **Propose the environment.** The plugins, hooks, subagents and skills this
-   project needs, each with the line from the intake that justifies it. Anything
-   it cannot justify from the intake does not go in the list.
-3. **Enable the subset**, and place the templates the intake justifies. Project
-   scope only.
-4. **Declare dependencies. Never install them.** It produces the list and the
-   command. Running it is a separate, approved act.
+1. **Read the analysis.** Incomplete, or conflicts present → stop and name them.
+2. **Propose the environment** — every plugin, hook, subagent, skill and template
+   with the line from the analysis that justifies it. Anything it cannot justify
+   does not go in the list.
+3. **Enable the subset and place the templates.** Project scope.
+4. **Declare dependencies. Never install them.** The list and the command;
+   running it is a separate, approved act.
 5. **Verify it took**, and report what changed versus what was already correct.
 
-Step 5 is the one that is always skipped, and skipping it is why an environment
-that was never provisioned looks exactly like one that was.
+Step 5 is the one that gets skipped, and skipping it is why an environment that
+was never provisioned looks exactly like one that was.
 
-## Templates — selected and placed, like everything else
+## Templates
 
-It places the templates this project needs, from the Hub's `templates/`. Same
-rule as the rest: **it selects; it does not author.** A template the Hub does not
-carry is not invented here — it is proposed through `_inbox`, which is the
-door for contributing one, and only then becomes available to place.
+Selected from the Hub's `templates/`, on the same rule as everything else: **it
+selects, it does not author.** A template the Hub does not carry is proposed
+through `_inbox` and only then becomes available to place.
 
-**Copied, not linked.** The intake dashboard's own requirement already allows
-this — *"if symlinks are too difficult, copying the files is fine too"* — and on
-this operator's machine copying is the correct choice, not the fallback: git on
-Windows materialises a symlink as a text file containing its target path unless
-`core.symlinks` is set, and it fails silently
-(`evidence/ADAPTER-PATTERN-REFERENCE-2026-08-27.md`). A template that is silently
-a one-line file naming another file is worse than no template.
+**Copied, not linked.** The board already copies attachments for the same reason,
+and here copying is correct rather than a fallback: git on Windows materialises a
+symlink as a text file containing its target path unless `core.symlinks` is set,
+silently.
 
-**A copied template is a second copy, and that is correct here.** The one-owner
-rule forbids copying a *rule*, because two copies of a rule can disagree about
-what is required. A template exists to be filled in and to diverge — divergence
-is its function. What must not be silent is the *other* divergence: the source
-template changing after the copy was placed.
-
+**A copied template is a second copy, and that is correct.** The one-owner rule
+forbids copying a *rule*, because two copies can disagree about what is required.
+A template exists to diverge — that is its function. What must not be silent is
+the *other* divergence: the source template changing after the copy was placed.
 So each placed template carries a provenance stamp — which template, which
-version, when placed. That is what distinguishes "filled in, as intended" from
-"stale copy of something that has since changed", and without it the two are
-indistinguishable, which is the failure shape this whole design keeps meeting.
+version, when placed. Without it, "filled in as intended" and "stale copy of
+something that has since changed" are indistinguishable.
 
-**It does not fill them in.** Placing a template and completing it are different
-jobs. It places the empty template and names it in the provisioning record.
+It places them empty. Filling one in is a different job.
 
 ## Two scopes, never blurred
 
 | Action | Scope | Approval |
 |---|---|---|
-| `plugin marketplace add`, installing a plugin | Machine (`~/.claude`) | Asks first. It affects every project on the machine |
-| Enabling an installed plugin, hooks, settings for this project | Project (`.claude/settings.json`) | Proceeds |
+| `plugin marketplace add`, installing a plugin | Machine (`~/.claude`) | **Asks first.** Affects every project on the machine |
+| Enabling an installed plugin, hooks, settings, templates for this project | Project (`.claude/`) | Proceeds |
 
-Conflating these is how a per-project decision becomes a machine-wide one.
+## Hard requirement on `.claude/settings.json`
 
-## Hard requirement on writing `.claude/settings.json`
+**Read, merge, validate, write. Never replace.** Back up first; re-read after
+writing and confirm it still parses.
 
-**Read, merge, validate, write. Never replace.** Back up first. Re-read after
-writing and confirm the file still parses.
+The board already wrote a settings file here, so the bootstrapper is always
+editing an existing one — this is the normal case, not the edge case. A settings
+file that fails to parse is dropped **whole and in silence**, taking
+`permissions.deny` with it, which silently *widens* what later sessions may do.
 
-This is not defensive style. A settings file that fails to parse is dropped
-**whole and in silence** — every other setting in it goes with it, including
-`permissions.deny`, whose loss silently *widens* what later sessions may do.
-This session produced a procedure that would have done exactly that, and it was
-caught by an independent audit rather than by the author.
+## Known defect in the environment it inherits
 
-## Idempotent
+The board's generated `.claude/settings.json` gives its PreToolUse hook
+`"command": "node"` with a separate `"args"` array. **There is no `args` field in
+the hook schema** — `command` is the whole shell string — so Claude Code runs bare
+`node`, which reads the hook payload from stdin as JavaScript and exits 1 on a
+syntax error. Verified against CLI 2.1.42 and by execution.
 
-It runs on new projects and again whenever a project changes. Running it twice
-is a no-op that reports "already correct" rather than rewriting. An environment
-it has already provisioned must be distinguishable from one it has not.
+Consequence: the `permissions.deny` rule works, and nothing else does. `Write`,
+`MultiEdit` and `NotebookEdit` are not in the deny list, and Bash access to the
+baseline is not blocked at all — while the generated `AGENTS.md` tells every agent
+that both file tools and shell commands are covered.
+
+Fix, in the board's `HOOK_SETTINGS`:
+
+    "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/protect-intake.mjs\""
+
+Drop `args`. Add `Write(PROJECT-INTAKE.md)` and `MultiEdit(PROJECT-INTAKE.md)` to
+the deny list so layer one covers what the matcher intends. **This is a board fix,
+not a bootstrapper one**, and it is recorded here because the bootstrapper would
+otherwise inherit a guard that does not fire and report an environment as
+provisioned.
 
 ## Explicitly not its job
 
-Authoring skills or hooks · installing dependencies · touching the intake file ·
-governing anything. It configures an environment; it holds no rule.
+Authoring skills, hooks or templates · installing dependencies · writing to
+either intake file · governing anything. It configures an environment; it holds
+no rule.
 
 ## How it is proven
 
-Run it on a project it has never seen, from an intake file. Then check by hand:
-every enabled component traces to a line in the intake; nothing else is enabled;
-`.claude/settings.json` still parses and its pre-existing keys survive; and a
-second run reports no changes. A run that enables everything, or that cannot say
-why a component is on, has failed even if the project works afterwards.
+Run it on a project it has never seen, from a completed analysis. Then check by
+hand: every enabled component traces to a line in the analysis; nothing else is
+enabled; `.claude/settings.json` still parses and its pre-existing keys survive;
+and a second run reports no changes. A run that enables everything, or that
+cannot say why a component is on, has failed even if the project works
+afterwards.

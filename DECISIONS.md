@@ -2084,6 +2084,68 @@ the first time that gate has fired on real work rather than on a test fixture.
 Without it the injector would have emitted `RULE NOT READ` for the intake rule
 from then on, which reads exactly like a table that is working.
 
+**D-98.** The workspace stops governing its agents by contract and starts equipping
+them by library. Decided by: user, 2026-08-28 — *"you guys do not need rules that say
+NO to you, what you guys need is GUIDANCE on how to do things."* The agent's part is
+the mechanism and the consequences below.
+
+*What was actually wrong.* The reported symptom was indiscipline — agents "not
+following even the simplest instructions", drifting because they "kept reading old
+plans and files". Measurement says otherwise. The governance an agent is asked to
+carry across this workspace and the Hub is 258,918 bytes, and 121 of its statements
+are self-correcting — a rule followed by the record of the rule having been stated
+wrongly before. An agent that reads all of it has spent its context on the governance
+and not on the work; an agent that reads part of it has read an arbitrary part. Drift
+is what that load produces. It is not a discipline failure and cannot be fixed by
+adding a rule against it, which is what every previous attempt did.
+
+*The decision.* Shared material is written as **guidance an agent loads when it needs
+it** — how to do a thing, with a worked example — not as obligations it must hold
+before it may act. Prohibition earns its place only where the act is irreversible or
+crosses a protected boundary; everywhere else the same intent is carried by guidance
+that shows the correct method, or by a gate that refuses at the moment of the act.
+A rule that neither refuses nor teaches is removed.
+
+*Why the evidence supports it rather than merely permitting it.* This session found
+defects worth listing: a payload key that made 129 passing test cases meaningless, a
+harness path bug that read 27 crashes as 27 catches, a gate that ran the worktree copy
+of its own checker, a hook wired with an `args` field that does not exist in the
+schema, and a procedure of mine that would have widened `permissions.deny` while
+appearing to tighten it. **Not one of them would have been caught by a prohibition.**
+Every one was caught by an independent reviewer or by mutation testing. That is the
+practice worth institutionalising; the prohibitions were scar tissue.
+
+*Distribution, which is the part that was actually blocking.* The reason none of this
+reached the fleet is that no bypass-proof fleet-wide carrier existed:
+`disableAllHooks` is a scalar setting, so any project can silently switch off a
+user-scope hook, and `allowManagedHooksOnly` — the only scope that cannot be bypassed —
+is not available here. The native plugin marketplace solves the distribution half:
+a repository carrying `.claude-plugin/marketplace.json` is added once per machine and
+installs agents, commands, hooks and skills under `~/.claude`. So the Hub is published
+as a marketplace, and what it ships is skills. This is a **decision to build**, not a
+verified result: nothing has been published and nothing installed.
+
+*Consequence for `plans/AGENT-HUB-CONSOLIDATION.md`.* Most of its thirteen steps exist
+to reconcile two competing contracts into one authoritative contract. Under this
+decision there is no authoritative contract to converge on, so that work is largely
+retired. What survives is the part that was never about precedence: taking inventory
+of what the two sources actually contain, and keeping one owner per thing so two
+copies cannot disagree. **The plan is not rewritten by this entry** — it owns its own
+sequence, and the retirement is executed against it as separate, reviewed work. Until
+that happens the plan and this decision disagree, and this decision governs what was
+settled while the plan still governs its own step list.
+
+*What this does not change.* One owner per concern, the persistence requirement, the
+evidence standard, and the two enforcement rules — a gate has no bypass, and a gate is
+proven in both directions or it is worthless (D-65). Those are not prohibitions on
+agents; they are properties of the machinery, and the machinery is what this decision
+leans on harder than before.
+
+*What is reserved and not settled here.* Which of the current `rules/` survive as
+irreversible-act brakes, and which become skills. That is a file-by-file judgement and
+it is not made by this entry.
+
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.
