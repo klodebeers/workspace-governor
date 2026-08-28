@@ -46,7 +46,8 @@ the analysis, not an interpreter of the request.
 | Part 2 § Environment, tools and dependencies | Which hooks are meaningful, and the dependency list it declares |
 | Part 2 § Relevant repositories, files and interfaces | The scope it provisions |
 | Part 2 § Security and data-handling requirements | Whether a gate is warranted, and which |
-| Part 2 § Testing and evaluation strategy | Which verification skills earn their place |
+| Part 2 § Testing and evaluation strategy | Which verification skills earn their place, and which templates |
+| Part 2 § Execution sequence | Which templates the project will need, and when |
 | Part 1 § 6 — included, preserved or avoided | Constraints it must not provision against |
 | Part 1 § 8 — decisions under human authority | What it must never auto-approve |
 | Part 1 § Attachments | What arrived with the project |
@@ -96,13 +97,43 @@ It does not append to Part 2, and it does not touch Part 1 at all.
 2. **Propose the environment.** The plugins, hooks, subagents and skills this
    project needs, each with the line from the intake that justifies it. Anything
    it cannot justify from the intake does not go in the list.
-3. **Enable the subset.** Project scope only.
+3. **Enable the subset**, and place the templates the intake justifies. Project
+   scope only.
 4. **Declare dependencies. Never install them.** It produces the list and the
    command. Running it is a separate, approved act.
 5. **Verify it took**, and report what changed versus what was already correct.
 
 Step 5 is the one that is always skipped, and skipping it is why an environment
 that was never provisioned looks exactly like one that was.
+
+## Templates — selected and placed, like everything else
+
+It places the templates this project needs, from the Hub's `templates/`. Same
+rule as the rest: **it selects; it does not author.** A template the Hub does not
+carry is not invented here — it is proposed through `_intake-hub`, which is the
+door for contributing one, and only then becomes available to place.
+
+**Copied, not linked.** The intake dashboard's own requirement already allows
+this — *"if symlinks are too difficult, copying the files is fine too"* — and on
+this operator's machine copying is the correct choice, not the fallback: git on
+Windows materialises a symlink as a text file containing its target path unless
+`core.symlinks` is set, and it fails silently
+(`evidence/ADAPTER-PATTERN-REFERENCE-2026-08-27.md`). A template that is silently
+a one-line file naming another file is worse than no template.
+
+**A copied template is a second copy, and that is correct here.** The one-owner
+rule forbids copying a *rule*, because two copies of a rule can disagree about
+what is required. A template exists to be filled in and to diverge — divergence
+is its function. What must not be silent is the *other* divergence: the source
+template changing after the copy was placed.
+
+So each placed template carries a provenance stamp — which template, which
+version, when placed. That is what distinguishes "filled in, as intended" from
+"stale copy of something that has since changed", and without it the two are
+indistinguishable, which is the failure shape this whole design keeps meeting.
+
+**It does not fill them in.** Placing a template and completing it are different
+jobs. It places the empty template and names it in the provisioning record.
 
 ## Two scopes, never blurred
 
