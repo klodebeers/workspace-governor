@@ -32,6 +32,21 @@ deciding in the abstract.
     .claude/skills/<name> -> ../../.agents/skills/<name>   (7 of 7 skills)
     .codex/skills/<name>  -> ../../.agents/skills/<name>   (4 of 7 skills)
 
+**Correction, same day: do not copy the `.codex/skills/` half.** A later reading
+of `nemo-platform`'s own installer says so in a comment I had not read when this
+file was first written:
+
+> Codex discovers skills under `.agents/skills/` (see openai/codex
+> `codex-rs/core-skills/src/loader.rs`). The older `.codex/skills/` layout has
+> been deprecated.
+
+`CodexInstaller.get_install_path` writes to `.agents/skills/`. So the canonical
+tree **is** Codex's native discovery path, and Gym's `.codex/skills/` is legacy.
+That collapses the adapter problem further than this file first claimed: Codex
+needs no projection at all. Verified at
+`packages/nemo_platform_ext/src/nemo_platform_ext/cli/commands/skills/agents/codex.py:18-22`.
+Gym's 4-of-7 subset is undocumented and enforced by nothing.
+
 Every target is **relative**, so the tree is portable and no clone path is baked
 in. Git stores them as mode `120000`, so the projection is committed, not a local
 setup step somebody must remember.
