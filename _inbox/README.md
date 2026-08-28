@@ -1,4 +1,4 @@
-# `_intake-hub` — the suggestion box for `.agents-hub`
+# `_inbox` — the suggestion box for `.agents-hub`
 
 **If you want something changed in the Agent Hub, put it here.** Nobody edits
 `.agents-hub` directly except through this door.
@@ -35,7 +35,7 @@ and the request arrives stripped of why it was asked.
 up — `slack-adapter-vendor-lag`, `notion-rollup-drift`. Not `update`, `fix`, `hub`,
 `change`: a keyword that matches a thousand things finds nothing.
 
-**Then say it in chat.** Something like: *"Submitted a request to `_intake-hub` —
+**Then say it in chat.** Something like: *"Submitted a request to `_inbox` —
 keyword `slack-adapter-vendor-lag`."* That is the whole obligation. It tells whoever is
 triaging that there is something to read, and it leaves the handle in the transcript.
 

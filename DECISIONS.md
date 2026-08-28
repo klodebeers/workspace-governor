@@ -2057,6 +2057,33 @@ shell and found it only by checking afterwards.
 carrier changed materially after it and a re-run is owed. Issue #43 remains
 unrun, so the carrier still governs this repository alone.
 
+**D-97.** `_intake-hub/` is renamed `_inbox/`. Decided by: user, 2026-08-27,
+delegating the name choice to the agent.
+
+*Why the old name stopped working.* It read two ways -- "the hub for intake" and
+"intake for the Hub" -- and "hub" collided with `.agents-hub`, the thing it takes
+requests *about*. The Project Intake Dashboard then introduced a second intake, so
+"intake" alone no longer identified which door was meant.
+
+*Why `_inbox`.* It is the ordinary word for a place things arrive and are cleared,
+and clearing is the design: issue #44 proposes a doorway whose steady state is
+empty, where the file count in the root *is* the backlog. A name that implies
+accumulation would work against the mechanism. It collides with neither `hub` nor
+the project intake.
+
+*The eight references in this file are deliberately not rewritten.* An append-only
+log that gets rewritten is not append-only, and the older entries record what was
+decided under the name in use at the time. D-81, D-82, D-83 and D-85 keep
+`_intake-hub/` and are correct as written; this entry is the pointer that connects
+them.
+
+*What caught the one reference that would have broken silently.* The rule-trigger
+table cited `_intake-hub/README.md` as an owning file. The pre-commit gate refused
+the rename with `RULE TRIGGER DOES NOT RESOLVE` before any commit existed --
+the first time that gate has fired on real work rather than on a test fixture.
+Without it the injector would have emitted `RULE NOT READ` for the intake rule
+from then on, which reads exactly like a table that is working.
+
 ## Recorded as not decided
 
 These arose in session and are **not** settled. Do not treat them as decisions.

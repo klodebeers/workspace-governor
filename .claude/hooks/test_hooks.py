@@ -442,7 +442,7 @@ def case_persistence(tmp):
               run_hook(GATE_STOP, {'hook_event_name': 'Stop', 'cwd': r,
                                    'session_id': 's'})[0], 2)
 
-    for rel in ('plans/p.md', 'evidence/e.md', 'rules/r.md', '_intake-hub/i.md',
+    for rel in ('plans/p.md', 'evidence/e.md', 'rules/r.md', '_inbox/i.md',
                 'scripts/s.py', '.claude/c.json', '.githooks/h'):
         r = make_repo(os.path.join(tmp, 'stop-prefix-' + rel.replace('/', '-')))
         write(r, rel, 'x\n')

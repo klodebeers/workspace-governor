@@ -91,13 +91,13 @@
     {
       "id": "intake",
       "triggers": [
-        "_intake-hub",
+        "_inbox",
         "\\bintake\\b",
         "\\bsubmission\\b",
         "\\brequest(?:ed)? a change\\b",
         "\\btriage\\b"
       ],
-      "file": "_intake-hub/README.md",
+      "file": "_inbox/README.md",
       "heading": "For the agent triaging this folder",
       "why": "The prompt concerns the intake folder. Read the owner before assessing anything there."
     }

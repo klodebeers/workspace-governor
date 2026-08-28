@@ -43,7 +43,7 @@ import subprocess
 import sys
 
 GOVERNED_PREFIXES = (
-    'plans/', 'evidence/', 'rules/', '_intake-hub/', 'scripts/', '.claude/',
+    'plans/', 'evidence/', 'rules/', '_inbox/', 'scripts/', '.claude/',
     '.githooks/',
 )
 GOVERNED_ROOT_FILES = (

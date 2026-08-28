@@ -110,7 +110,7 @@ that was never provisioned looks exactly like one that was.
 
 It places the templates this project needs, from the Hub's `templates/`. Same
 rule as the rest: **it selects; it does not author.** A template the Hub does not
-carry is not invented here — it is proposed through `_intake-hub`, which is the
+carry is not invented here — it is proposed through `_inbox`, which is the
 door for contributing one, and only then becomes available to place.
 
 **Copied, not linked.** The intake dashboard's own requirement already allows

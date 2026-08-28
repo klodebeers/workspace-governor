@@ -82,7 +82,7 @@ and the legacy `agents-hub-one` leaf.
 | `evidence/` | Dated evidence outputs |
 | `rules/` | Cross-agent rules held here until the canonical Hub owns them |
 | `.claude/` | Enforcement carriers: hooks and settings. `.claude/hooks/README.md` owns what is wired |
-| `_intake-hub/` | Requests for changes to `.agents-hub`, and their disposition |
+| `_inbox/` | Requests for changes to `.agents-hub`, and their disposition |
 | `LEARNINGS.md` | Durable non-obvious findings. Non-authoritative |
 | `PENDING.md` | Terms of deferred setup that no plan step sequences |
 | `PENDING-GLOBAL-PROMOTIONS.md` | Rules owed to shared governance, and their promotion terms |
